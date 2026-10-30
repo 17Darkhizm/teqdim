@@ -42,6 +42,7 @@ export function isProject(value: unknown): value is Project {
         typeof s.body === "string" &&
         (s.layout === undefined || layouts.some((l) => l.id === s.layout)) &&
         (s.notes === undefined || typeof s.notes === "string") &&
+        (s.hidden === undefined || typeof s.hidden === "boolean") &&
         (s.table === undefined || isTableData(s.table)) &&
         (s.chart === undefined || isChartData(s.chart)) &&
         (s.comparison === undefined || isComparisonData(s.comparison)) &&

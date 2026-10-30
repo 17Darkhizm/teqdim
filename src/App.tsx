@@ -12,6 +12,8 @@ import {
   ChevronRight,
   Copy,
   Download,
+  Eye,
+  EyeOff,
   FileText,
   FolderOpen,
   GraduationCap,
@@ -62,6 +64,7 @@ import {
   Project,
   Reference,
   sample,
+  shownSlides,
   Slide,
   splitSlide,
   Theme,
@@ -159,6 +162,41 @@ export default function App() {
   }
   const [selectedIndex, setSelected] = useState(restored?.selected || 0);
   const selected = Math.min(selectedIndex, Math.max(0, slides.length - 1));
+  // Presenting and practice walk only the slides the audience sees.
+  const shown = shownSlides(slides).map((item) => item.index);
+  const showPos = Math.max(0, shown.indexOf(selected));
+  const showAt = (position: number) =>
+    setSelected(shown[Math.max(0, Math.min(shown.length - 1, position))]);
+  function startShow(mode: "present" | "practice") {
+    if (!shown.length) {
+      setToast(
+        "Bütün slaydlar gizlədilib. Ən azı bir slaydı təqdimatda göstər.",
+        "error",
+      );
+      return;
+    }
+    if (!shown.includes(selected))
+      setSelected(shown.find((i) => i > selected) ?? shown[shown.length - 1]);
+    setJump("");
+    if (mode === "present") setPresenting(true);
+    else setPracticing(true);
+  }
+  function toggleHidden() {
+    const id = slides[selected].id;
+    const hide = !slides[selected].hidden;
+    if (hide && shown.length === 1 && shown[0] === selected) {
+      setToast("Ən azı bir slayd təqdimatda görünməlidir.", "error");
+      return;
+    }
+    setSlides((items) =>
+      items.map((s) => {
+        if (s.id !== id) return s;
+        if (hide) return { ...s, hidden: true };
+        const { hidden: _hidden, ...visible } = s;
+        return visible;
+      }),
+    );
+  }
   const [projectId, setProjectId] = useState<string>(
     () => restored?.project.id || uid(),
   );
@@ -195,6 +233,7 @@ export default function App() {
     });
   }
   const [blackout, setBlackout] = useState(false);
+  const [jump, setJump] = useState("");
   const [fullscreen, setFullscreen] = useState(false);
   const canFullscreen =
     typeof document.documentElement.requestFullscreen === "function";
@@ -283,22 +322,41 @@ export default function App() {
         e.preventDefault();
         toggleFullscreen();
       }
+      // PowerPoint habit: type a slide number, then Enter.
+      if (/^[0-9]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        setJump((value) => (value + e.key).slice(-2));
+        return;
+      }
+      if (e.key === "Enter" && jump) {
+        e.preventDefault();
+        const n = Number(jump);
+        setJump("");
+        if (n >= 1 && n <= shown.length) showAt(n - 1);
+        else setToast(`1–${shown.length} arasında slayd nömrəsi yaz.`, "error");
+        return;
+      }
+      if (e.key === "Backspace" && jump) {
+        e.preventDefault();
+        setJump((value) => value.slice(0, -1));
+        return;
+      }
       if (e.key === "Home" || e.key === "End") {
         e.preventDefault();
-        setSelected(e.key === "Home" ? 0 : slides.length - 1);
+        showAt(e.key === "Home" ? 0 : shown.length - 1);
       }
       if (e.key === "ArrowRight" || e.key === "PageDown") {
         e.preventDefault();
-        setSelected(Math.min(slides.length - 1, selected + 1));
+        showAt(showPos + 1);
       }
       if (e.key === "ArrowLeft" || e.key === "PageUp") {
         e.preventDefault();
-        setSelected(Math.max(0, selected - 1));
+        showAt(showPos - 1);
       }
     };
     window.addEventListener("keydown", handle);
     return () => window.removeEventListener("keydown", handle);
-  }, [presenting, slides.length, selected, blackout]);
+  }, [presenting, slides, selected, blackout, jump]);
   useEffect(() => {
     if (!presenting) setBlackout(false);
   }, [presenting]);
@@ -1331,14 +1389,14 @@ export default function App() {
                       </button>
                       <button
                         className="secondary"
-                        onClick={() => setPracticing(true)}
+                        onClick={() => startShow("practice")}
                       >
                         <Timer size={16} />
                         Məşq et
                       </button>
                       <button
                         className="secondary"
-                        onClick={() => setPresenting(true)}
+                        onClick={() => startShow("present")}
                       >
                         <MonitorPlay size={16} />
                         Təqdim et
@@ -1378,6 +1436,12 @@ export default function App() {
                         design={design}
                         onOverflow={setClipped}
                       />
+                      {slides[selected].hidden && (
+                        <p className="hidden-note" role="status">
+                          Bu slayd gizlidir: təqdimatda, məşqdə, PowerPoint-də
+                          və çapda göstərilmir. Yalnız redaktorda qalır.
+                        </p>
+                      )}
                       {clipped && (
                         <p className="warning overflow-warning" role="status">
                           Mətnin bir hissəsi slayda sığmır və görünmür. Mətni
@@ -1492,6 +1556,22 @@ export default function App() {
                             >
                               <Copy size={14} />
                               Surətini yarat
+                            </button>
+                            <button
+                              type="button"
+                              className="text-button"
+                              onClick={toggleHidden}
+                              aria-pressed={!!slides[selected].hidden}
+                              title="Slayd redaktorda qalır, təqdimatda, PowerPoint-də və çapda göstərilmir"
+                            >
+                              {slides[selected].hidden ? (
+                                <Eye size={14} />
+                              ) : (
+                                <EyeOff size={14} />
+                              )}
+                              {slides[selected].hidden
+                                ? "Təqdimatda göstər"
+                                : "Təqdimatda gizlət"}
                             </button>
                           </div>
                         </div>
@@ -1916,6 +1996,10 @@ export default function App() {
                 <span>Seçilən slaydı çıxar</span>
               </p>
               <p>
+                <kbd>Rəqəm + Enter</kbd>
+                <span>Təqdimatda həmin nömrəli slayda keç</span>
+              </p>
+              <p>
                 <kbd>B / .</kbd>
                 <span>
                   Təqdimatda ekranı qaralt · istənilən düymə geri qaytarır
@@ -1988,9 +2072,9 @@ export default function App() {
             }
             if (
               (e.target as HTMLElement).closest(".slide") &&
-              selected < slides.length - 1
+              showPos < shown.length - 1
             )
-              setSelected(selected + 1);
+              showAt(showPos + 1);
           }}
         >
           <div
@@ -1998,13 +2082,18 @@ export default function App() {
             role="progressbar"
             aria-label="Təqdimatın gedişi"
             aria-valuemin={1}
-            aria-valuemax={slides.length}
-            aria-valuenow={selected + 1}
+            aria-valuemax={shown.length}
+            aria-valuenow={showPos + 1}
           >
             <span
-              style={{ width: `${((selected + 1) / slides.length) * 100}%` }}
+              style={{ width: `${((showPos + 1) / shown.length) * 100}%` }}
             />
           </div>
+          {jump && (
+            <div className="presentation-jump" role="status">
+              Slayd {jump} · Enter
+            </div>
+          )}
           {blackout && (
             <div className="presentation-blackout" role="status">
               <span className="sr-only">
@@ -2033,8 +2122,8 @@ export default function App() {
           </div>
           <SlideView
             slide={slides[selected]}
-            index={selected}
-            total={slides.length}
+            index={showPos}
+            total={shown.length}
             theme={theme}
             subject={subject}
             author={author}
@@ -2044,19 +2133,19 @@ export default function App() {
           <div className="presentation-controls">
             <button
               className="secondary"
-              disabled={selected === 0}
-              onClick={() => setSelected(selected - 1)}
+              disabled={showPos === 0}
+              onClick={() => showAt(showPos - 1)}
             >
               <ChevronLeft size={20} />
               Əvvəlki
             </button>
             <span>
-              {selected + 1} / {slides.length}
+              {showPos + 1} / {shown.length}
             </span>
             <button
               className="secondary"
-              disabled={selected === slides.length - 1}
-              onClick={() => setSelected(selected + 1)}
+              disabled={showPos === shown.length - 1}
+              onClick={() => showAt(showPos + 1)}
             >
               Növbəti
               <ChevronRight size={20} />
@@ -2066,9 +2155,12 @@ export default function App() {
       )}
       {practicing && (
         <PracticeMode
-          project={currentProject()}
-          selected={selected}
-          onSelect={setSelected}
+          project={{
+            ...currentProject(),
+            slides: shown.map((i) => slides[i]),
+          }}
+          selected={showPos}
+          onSelect={showAt}
           onClose={() => setPracticing(false)}
         />
       )}
@@ -2173,12 +2265,12 @@ export default function App() {
         </div>
       )}
       <div className="print-slides">
-        {slides.map((s, i) => (
+        {shown.map((deckIndex, i) => (
           <SlideView
-            key={s.id}
-            slide={s}
+            key={slides[deckIndex].id}
+            slide={slides[deckIndex]}
             index={i}
-            total={slides.length}
+            total={shown.length}
             theme={theme}
             subject={subject}
             author={author}

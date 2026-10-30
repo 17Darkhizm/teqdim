@@ -173,6 +173,7 @@ export function decodeBackup(text: string): Project {
         page: c.page,
       })),
       citationReview: !!s.citationReview,
+      ...(s.hidden ? { hidden: true } : {}),
     })),
   };
 }

@@ -89,6 +89,8 @@ export type Slide = {
   layout?: Layout;
   notes?: string;
   citationReview?: boolean;
+  /** Kept in the editor but left out of presenting, practice, PPTX and print. */
+  hidden?: boolean;
   table?: TableData;
   chart?: ChartData;
   comparison?: ComparisonData;
@@ -685,6 +687,9 @@ export function visibleSlideText(slide: Slide): string {
   return `${slide.title} ${slide.body} ${extra}`;
 }
 
+// Slides the audience sees, with their position in the full editor deck.
+export const shownSlides = (slides: Slide[]) =>
+  slides.flatMap((slide, index) => (slide.hidden ? [] : [{ slide, index }]));
 export const layoutFor = (slide: Slide, index: number): Layout =>
   slide.layout || (index === 0 ? "cover" : "text");
 export const bodyBlocks = (body: string) =>
@@ -981,9 +986,13 @@ export function createSlides(
 }
 
 export async function exportPptx(project: Project) {
-  for (const [i, item] of project.slides.entries()) {
+  const shown = shownSlides(project.slides);
+  if (!shown.length)
+    throw new Error("Bütün slaydlar gizlədilib. Ən azı bir slaydı göstər.");
+  // Hidden slides may be unfinished drafts; they must not block the export.
+  for (const { slide: item, index } of shown) {
     const problem = dataProblems(item)[0];
-    if (problem) throw new Error(`Slayd ${i + 1}: ${problem}`);
+    if (problem) throw new Error(`Slayd ${index + 1}: ${problem}`);
   }
   const { default: PptxGenJS } = await import("pptxgenjs");
   const pptx = new PptxGenJS();
@@ -996,7 +1005,7 @@ export async function exportPptx(project: Project) {
   const bodyScale = design.textSize === "large" ? 1.18 : 1;
   pptx.theme = { headFontFace: headingFont, bodyFontFace: "Arial" };
   const colors = themeColors[project.theme];
-  project.slides.forEach((item, i) => {
+  shown.forEach(({ slide: item, index: deckIndex }, i) => {
     const slide = pptx.addSlide();
     slide.background = { color: colors.bg };
     const shape = pptx.ShapeType;
@@ -1198,7 +1207,7 @@ export async function exportPptx(project: Project) {
       fontSize: 11,
       charSpacing: 2,
     });
-    const layout = layoutFor(item, i);
+    const layout = layoutFor(item, deckIndex);
     const isCover = layout === "cover";
     const isStatement = layout === "statement";
     slide.addText(item.title, {
@@ -1565,7 +1574,7 @@ export async function exportPptx(project: Project) {
       fontSize: 10,
     });
     if (design.showNumbers)
-      slide.addText(`${i + 1} / ${project.slides.length}`, {
+      slide.addText(`${i + 1} / ${shown.length}`, {
         x: 11.6,
         y: 6.9,
         w: 1,

@@ -115,12 +115,13 @@ export function outlineMarkdown(project: Project): string {
     project.slides
       .map(
         (slide, i) =>
-          `## ${i + 1}. ${markdown(slide.title)}\n\n${markdown(slideText({ ...slide, title: "" }))}`,
+          `## ${i + 1}. ${markdown(slide.title)}${slide.hidden ? HIDDEN_MARK : ""}\n\n${markdown(slideText({ ...slide, title: "" }))}`,
       )
       .join("\n\n") +
     "\n"
   );
 }
+const HIDDEN_MARK = " (təqdimatda gizli)";
 export function speakerText(project: Project): string {
   return (
     [
@@ -128,7 +129,7 @@ export function speakerText(project: Project): string {
       project.author,
       ...project.slides.map(
         (slide, i) =>
-          `${i + 1}. ${slide.title}\n\n${slide.notes?.trim() || "Bu slayd üçün çıxış qeydi əlavə edilməyib."}${slide.citations?.length ? `\n\nMənbələr: ${citationLabel(slide.citations)}` : ""}`,
+          `${i + 1}. ${slide.title}${slide.hidden ? HIDDEN_MARK : ""}\n\n${slide.notes?.trim() || "Bu slayd üçün çıxış qeydi əlavə edilməyib."}${slide.citations?.length ? `\n\nMənbələr: ${citationLabel(slide.citations)}` : ""}`,
       ),
     ]
       .filter(Boolean)

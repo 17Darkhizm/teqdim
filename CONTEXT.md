@@ -259,3 +259,15 @@ WORKFLOW-10.md-də 5/5 iş.
 - Bələdçiyə B / . əlavə edildi. Yeni CSS authoring.css sonundadır, yeni asılılıq yoxdur.
 
 Yoxlama: npm run check (9 skript) və build keçdi, audit 0. Daşma jsdom-da ölçü əvəzləməsi ilə sınanıb; həqiqi render təsdiqlənməyib.
+
+
+## On birinci mərhələ — gizli slaydlar və nömrə ilə keçid (2026-10-30)
+
+WORKFLOW-11.md-də 8/8 iş.
+
+- `Slide.hidden?: boolean` və `model.shownSlides(slides)` → `{slide, index}` (index tam deck-dəki yerdir). App-də `shown`, `showPos`, `showAt`, `startShow`, `toggleHidden`. Təqdimat, məşq (PracticeMode-a görünən slaydlarla project verilir), çap və exportPptx yalnız görünən slaydlarla işləyir; nömrələmə görünən sıraya görədir, layoutFor isə deck indeksini saxlayır. dataProblems yalnız görünən slaydlar üçün ixracı dayandırır. Son görünən slayd gizlədilə bilmir.
+- Saxlama: storage.isProject `hidden` boolean yoxlayır; backup decoder yalnız `hidden: true` saxlayır, format v4 qalır (yeni sahə opsionaldır). outlineMarkdown/speakerText «(təqdimatda gizli)» yazır.
+- QualityPanel vaxtı/sözləri görünən slaydlarla hesablayır və «N slayd · M gizli» göstərir; keyfiyyət qeydləri gizli slaydlar üçün də qalır.
+- Təqdimat: 1–2 rəqəmli nömrə + Enter (Backspace düzəldir, aralıqdan kənarda xəta), «Slayd N · Enter» göstəricisi. Bələdçi yeniləndi.
+
+Yoxlama: npm run check (10 skript, yeni check-stage11.mjs: PPTX slayd sayı/nömrələmə, ixrac xətaları, backup, mətn ixracı, App axını) və build keçdi, audit 0. Həqiqi render təsdiqlənməyib.

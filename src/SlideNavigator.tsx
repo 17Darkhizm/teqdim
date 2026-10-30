@@ -82,7 +82,7 @@ export default function SlideNavigator({
         {visible.map(({ slide, index, hasIssue }) => (
           <button
             key={slide.id}
-            className={`${index === selected ? "selected" : ""} ${dropTarget === index && dragged !== index ? "drop-target" : ""} ${dragged === index ? "dragging" : ""}`}
+            className={`${index === selected ? "selected" : ""} ${slide.hidden ? "is-hidden" : ""} ${dropTarget === index && dragged !== index ? "drop-target" : ""} ${dragged === index ? "dragging" : ""}`}
             onClick={() => onSelect(index)}
             draggable={!!onMove}
             onDragStart={(event) => {
@@ -113,10 +113,11 @@ export default function SlideNavigator({
             aria-current={index === selected ? "true" : undefined}
             aria-label={`${index + 1} nömrəli slaydı seç`}
             aria-describedby={hasIssue ? `slide-issue-${index}` : undefined}
-            title={`${slide.title}${hasIssue ? " · Yoxlanmalı məqam var" : ""}`}
+            title={`${slide.title}${slide.hidden ? " · Təqdimatda gizli" : ""}${hasIssue ? " · Yoxlanmalı məqam var" : ""}`}
           >
             <span>
               {String(index + 1).padStart(2, "0")}
+              {slide.hidden && <em className="slide-hidden-badge">Gizli</em>}
               {hasIssue && (
                 <i className="slide-issue-dot" aria-hidden="true">
                   !

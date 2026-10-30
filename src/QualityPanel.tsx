@@ -50,7 +50,10 @@ export default function QualityPanel({
   ];
   const visibleIssues =
     kind === "all" ? issues : issues.filter((issue) => issue.kind === kind);
-  const words = slides.reduce((n, s) => n + wordCount(visibleSlideText(s)), 0);
+  // Hidden slides are not presented, so they do not count towards the time.
+  const shown = slides.filter((s) => !s.hidden);
+  const hiddenCount = slides.length - shown.length;
+  const words = shown.reduce((n, s) => n + wordCount(visibleSlideText(s)), 0);
   const minutes = Math.max(1, Math.ceil(words / 110));
   const problematic = new Set(issues.map((i) => i.slideId)).size;
   return (
@@ -74,8 +77,8 @@ export default function QualityPanel({
       )}
       <div className="deck-metrics">
         <div>
-          <b>{slides.length}</b>
-          <span>slayd</span>
+          <b>{shown.length}</b>
+          <span>{hiddenCount ? `slayd · ${hiddenCount} gizli` : "slayd"}</span>
         </div>
         <div>
           <b>{words}</b>
