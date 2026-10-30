@@ -258,4 +258,4 @@ WORKFLOW-10.md-də 5/5 iş.
 - Bildirişlər: `setToast(text, "error")` xətaları role=alert, AlertTriangle və sabit #b52e21 fon/ağ mətnlə göstərir; uğur bildirişləri role=status qalır.
 - Bələdçiyə B / . əlavə edildi. Yeni CSS authoring.css sonundadır, yeni asılılıq yoxdur.
 
-Yoxlama: npm run check (10 skript) və build keçdi, audit 0. Daşma jsdom-da ölçü əvəzləməsi ilə sınanıb; həqiqi render təsdiqlənməyib.
+Yoxlama: npm run check (9 skript) və build keçdi, audit 0. Daşma jsdom-da ölçü əvəzləməsi ilə sınanıb; həqiqi render təsdiqlənməyib.

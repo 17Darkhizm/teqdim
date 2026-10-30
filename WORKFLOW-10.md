@@ -16,4 +16,4 @@ jsdom-da layout yoxdur; ölçü əvəzləməsi ilə sınanır. Həqiqi brauzer r
 
 ## Nəticə
 
-5/5 tamamlandı. `npm run check` (10 skript, yeni check-stage10.mjs) və `npm run build` keçdi, production audit 0. Qara ekranda Esc təqdimatı birbaşa bağlayır (PowerPoint davranışı). Ölçmə qatı 960 px enində işləyir; slayd ölçüləri cqw ilə miqyaslandığı üçün nəticə redaktor ölçüsünə uyğun gəlməlidir, lakin həqiqi brauzerdə təsdiqlənməyib.
+5/5 tamamlandı. `npm run check` (9 skript, yeni check-stage10.mjs) və `npm run build` keçdi, production audit 0. Qara ekranda Esc təqdimatı birbaşa bağlayır (PowerPoint davranışı). Ölçmə qatı 960 px enində işləyir; slayd ölçüləri cqw ilə miqyaslandığı üçün nəticə redaktor ölçüsünə uyğun gəlməlidir, lakin həqiqi brauzerdə təsdiqlənməyib.
