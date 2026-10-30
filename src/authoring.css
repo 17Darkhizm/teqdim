@@ -303,3 +303,40 @@
     transition: none;
   }
 }
+
+/* Stage 10: whole-deck measuring, blackout, next slide, error toast */
+.measure-layer {
+  position: fixed;
+  top: 0;
+  left: -10000px;
+  width: 960px;
+  visibility: hidden;
+  pointer-events: none;
+  contain: layout paint;
+}
+.presentation-blackout {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  background: #000;
+  cursor: none;
+}
+.practice-next {
+  margin-top: 10px;
+  max-width: 220px;
+  border-radius: 6px;
+  overflow: hidden;
+  opacity: 0.9;
+}
+:root[data-mode] .toast.toast-error {
+  background: #b52e21;
+  color: #fff;
+}
+:root[data-mode] :is(.toast.toast-error > svg, .toast.toast-error button) {
+  color: #fff;
+}
+@media print {
+  .measure-layer {
+    display: none !important;
+  }
+}

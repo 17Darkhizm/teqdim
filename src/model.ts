@@ -816,6 +816,30 @@ export function inspectDeck(
     return issues;
   });
 }
+// Rendered-size check (SlideView.clippedText) has no model equivalent, so the
+// UI passes the clipped slide ids in and they become ordinary length issues.
+export const CLIPPED_MESSAGE =
+  "Önizləmədə mətnin bir hissəsi slayda sığmır və görünmür.";
+export function withClippedIssues(
+  issues: QualityIssue[],
+  slides: Slide[],
+  clipped?: ReadonlySet<string>,
+): QualityIssue[] {
+  if (!clipped?.size) return issues;
+  const extra = slides.flatMap((s, index) =>
+    clipped.has(s.id)
+      ? [
+          {
+            slideId: s.id,
+            index,
+            kind: "length" as const,
+            message: CLIPPED_MESSAGE,
+          },
+        ]
+      : [],
+  );
+  return [...issues, ...extra].sort((a, b) => a.index - b.index);
+}
 export const sample = {
   topic: "Süni intellektin təhsildə rolu",
   subject: "İnformatika",

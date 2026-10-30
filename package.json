@@ -7,7 +7,7 @@
     "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5174",
-    "check": "node scripts/check-export.mjs && node scripts/check-data.mjs && node scripts/check-visuals.mjs && node scripts/check-pdf.mjs && node scripts/check-workspace.mjs && node scripts/check-editing.mjs && node scripts/check-design-studio.mjs && node scripts/check-stage9.mjs"
+    "check": "node scripts/check-export.mjs && node scripts/check-data.mjs && node scripts/check-visuals.mjs && node scripts/check-pdf.mjs && node scripts/check-workspace.mjs && node scripts/check-editing.mjs && node scripts/check-design-studio.mjs && node scripts/check-stage9.mjs && node scripts/check-stage10.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.468.0",

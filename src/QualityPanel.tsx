@@ -17,6 +17,7 @@ import {
   Slide,
   wordCount,
   visibleSlideText,
+  withClippedIssues,
 } from "./model";
 
 export default function QualityPanel({
@@ -25,14 +26,20 @@ export default function QualityPanel({
   references,
   brief,
   design,
+  clipped,
 }: {
   slides: Slide[];
   references?: Reference[];
   brief?: AcademicBrief;
   design?: DesignSettings;
+  clipped?: ReadonlySet<string>;
   onSelect: (index: number) => void;
 }) {
-  const issues = inspectDeck(slides, references, design);
+  const issues = withClippedIssues(
+    inspectDeck(slides, references, design),
+    slides,
+    clipped,
+  );
   const [kind, setKind] = useState<QualityIssue["kind"] | "all">("all");
   const kinds: { id: QualityIssue["kind"]; name: string }[] = [
     { id: "empty", name: "Boş sahələr" },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+  AlertTriangle,
   ArrowDown,
   ArrowLeft,
   ArrowRight,
@@ -161,11 +162,16 @@ export default function App() {
   const [projectId, setProjectId] = useState<string>(
     () => restored?.project.id || uid(),
   );
-  const [toast, setToast] = useState(
+  const [toastTone, setToastTone] = useState<"info" | "error">("info");
+  const [toast, setToastText] = useState(
     restored && (restored.project.topic || restored.project.slides.length)
       ? "Son qaralaman bərpa edildi."
       : "",
   );
+  function setToast(text: string, tone: "info" | "error" = "info") {
+    setToastTone(tone);
+    setToastText(text);
+  }
   const [exporting, setExporting] = useState(false);
   const [presenting, setPresenting] = useState(false);
   const [practicing, setPracticing] = useState(false);
@@ -176,6 +182,19 @@ export default function App() {
   const [agendaOpen, setAgendaOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [clipped, setClipped] = useState(false);
+  const [clippedIds, setClippedIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  function markClipped(id: string, value: boolean) {
+    setClippedIds((ids) => {
+      if (ids.has(id) === value) return ids;
+      const next = new Set(ids);
+      if (value) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }
+  const [blackout, setBlackout] = useState(false);
   const [fullscreen, setFullscreen] = useState(false);
   const canFullscreen =
     typeof document.documentElement.requestFullscreen === "function";
@@ -228,12 +247,32 @@ export default function App() {
       void document
         .querySelector<HTMLElement>(".presentation-overlay")
         ?.requestFullscreen?.()
-        .catch(() => setToast("Brauzer tam ekran rejiminə icazə vermədi."));
+        .catch(() =>
+          setToast("Brauzer tam ekran rejiminə icazə vermədi.", "error"),
+        );
   }
   useEffect(() => {
     if (!presenting) return;
     const handle = (e: KeyboardEvent) => {
+      if (blackout) {
+        // Any key only brings the slide back; it never changes the slide.
+        if (!["Shift", "Control", "Alt", "Meta"].includes(e.key)) {
+          e.preventDefault();
+          setBlackout(false);
+        }
+        return;
+      }
       if (e.key === "Escape") setPresenting(false);
+      if (
+        (e.key.toLowerCase() === "b" || e.key === ".") &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey
+      ) {
+        e.preventDefault();
+        setBlackout(true);
+        return;
+      }
       if (
         canFullscreen &&
         e.key.toLowerCase() === "f" &&
@@ -259,7 +298,10 @@ export default function App() {
     };
     window.addEventListener("keydown", handle);
     return () => window.removeEventListener("keydown", handle);
-  }, [presenting, slides.length, selected]);
+  }, [presenting, slides.length, selected, blackout]);
+  useEffect(() => {
+    if (!presenting) setBlackout(false);
+  }, [presenting]);
   const previewSlides = slides.length
     ? slides
     : createSlides(sample.topic, sample.material, 6);
@@ -304,6 +346,7 @@ export default function App() {
     if (projectImageSize([...slides, copy]) > PROJECT_IMAGE_LIMIT) {
       setToast(
         "Şəkil yaddaşı limiti bu slaydın surətini yaratmağa imkan vermir.",
+        "error",
       );
       return;
     }
@@ -321,7 +364,7 @@ export default function App() {
       return;
     }
     if (slides.length - 1 + chunks.length > 80) {
-      setToast("Ən çox 80 slayd saxlaya bilərsən.");
+      setToast("Ən çox 80 slayd saxlaya bilərsən.", "error");
       return;
     }
     setSlides((items) => [
@@ -341,6 +384,7 @@ export default function App() {
     } catch {
       setToast(
         "Brauzer yaddaşına yazmaq mümkün olmadı. İşini itirməmək üçün ehtiyat nüsxəni və ya PowerPoint faylını yüklə.",
+        "error",
       );
       return false;
     }
@@ -425,6 +469,7 @@ export default function App() {
     } catch (error) {
       setToast(
         error instanceof Error ? error.message : "Plan hazırlana bilmədi.",
+        "error",
       );
     }
   }
@@ -506,7 +551,7 @@ export default function App() {
   }
   function startManual() {
     if (!topic.trim()) {
-      setToast("Əvvəlcə təqdimatın mövzusunu yaz.");
+      setToast("Əvvəlcə təqdimatın mövzusunu yaz.", "error");
       document.getElementById("topic")?.focus();
       return;
     }
@@ -568,6 +613,7 @@ export default function App() {
     if (projectImageSize(next) > PROJECT_IMAGE_LIMIT) {
       setToast(
         "Layihə üçün şəkil yaddaşı limiti dolub. Digər şəkillərdən birini çıxar.",
+        "error",
       );
       return false;
     }
@@ -603,6 +649,7 @@ export default function App() {
     } catch (error) {
       setToast(
         error instanceof Error ? error.message : "Ehtiyat nüsxə hazırlanmadı.",
+        "error",
       );
     }
   }
@@ -703,6 +750,7 @@ export default function App() {
         error instanceof Error
           ? error.message
           : "Yükləmə alınmadı. Yenidən cəhd et.",
+        "error",
       );
     } finally {
       setExporting(false);
@@ -1316,6 +1364,7 @@ export default function App() {
                       selected={selected}
                       onSelect={setSelected}
                       onMove={moveTo}
+                      clipped={clippedIds}
                     />
                     <div className="editor-center">
                       <SlideView
@@ -1649,6 +1698,7 @@ export default function App() {
                         references={references}
                         brief={brief}
                         design={design}
+                        clipped={clippedIds}
                         onSelect={(index) => {
                           setSelected(index);
                           document
@@ -1783,8 +1833,15 @@ export default function App() {
         </main>
       </div>
       {toast && (
-        <div className="toast" role="status">
-          <CheckCheck size={18} />
+        <div
+          className={`toast ${toastTone === "error" ? "toast-error" : ""}`}
+          role={toastTone === "error" ? "alert" : "status"}
+        >
+          {toastTone === "error" ? (
+            <AlertTriangle size={18} />
+          ) : (
+            <CheckCheck size={18} />
+          )}
           {toast}
           <button onClick={() => setToast("")} aria-label="Bildirişi bağla">
             <X size={16} />
@@ -1859,6 +1916,12 @@ export default function App() {
                 <span>Seçilən slaydı çıxar</span>
               </p>
               <p>
+                <kbd>B / .</kbd>
+                <span>
+                  Təqdimatda ekranı qaralt · istənilən düymə geri qaytarır
+                </span>
+              </p>
+              <p>
                 <kbd>F · PageUp / PageDown</kbd>
                 <span>
                   Təqdimatda tam ekran və slayd keçidi · slayda klik növbətiyə
@@ -1919,6 +1982,10 @@ export default function App() {
           aria-modal="true"
           aria-label="Slayd təqdimatı"
           onClick={(e) => {
+            if (blackout) {
+              setBlackout(false);
+              return;
+            }
             if (
               (e.target as HTMLElement).closest(".slide") &&
               selected < slides.length - 1
@@ -1938,6 +2005,13 @@ export default function App() {
               style={{ width: `${((selected + 1) / slides.length) * 100}%` }}
             />
           </div>
+          {blackout && (
+            <div className="presentation-blackout" role="status">
+              <span className="sr-only">
+                Ekran qaraldılıb. Qayıtmaq üçün istənilən düyməni bas.
+              </span>
+            </div>
+          )}
           <div className="presentation-actions">
             {canFullscreen && (
               <button
@@ -2038,7 +2112,7 @@ export default function App() {
           onClose={() => setAgendaOpen(false)}
           onInsert={(items) => {
             if (!items.length || slides.length + items.length > 80) {
-              setToast("Layihədə ən çox 80 slayd ola bilər.");
+              setToast("Layihədə ən çox 80 slayd ola bilər.", "error");
               return false;
             }
             const position = layoutFor(slides[0], 0) === "cover" ? 1 : 0;
@@ -2061,7 +2135,7 @@ export default function App() {
           onClose={() => setOutlineOpen(false)}
           onAppend={(items) => {
             if (!items.length || slides.length + items.length > 80) {
-              setToast("Layihədə ən çox 80 slayd ola bilər.");
+              setToast("Layihədə ən çox 80 slayd ola bilər.", "error");
               return false;
             }
             setSlides([...slides, ...items]);
@@ -2079,6 +2153,25 @@ export default function App() {
         onClose={() => setBlocksOpen(false)}
         onInsert={insertBlock}
       />
+      {step === 3 && (
+        // Off-screen copies so every slide, not only the open one, is measured.
+        <div className="measure-layer" aria-hidden="true">
+          {slides.map((s, i) => (
+            <SlideView
+              key={s.id}
+              slide={s}
+              index={i}
+              total={slides.length}
+              theme={theme}
+              subject={subject}
+              author={author}
+              brief={brief}
+              design={design}
+              onOverflow={(value) => markClipped(s.id, value)}
+            />
+          ))}
+        </div>
+      )}
       <div className="print-slides">
         {slides.map((s, i) => (
           <SlideView

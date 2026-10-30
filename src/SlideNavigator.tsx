@@ -8,11 +8,13 @@ export default function SlideNavigator({
   selected,
   onSelect,
   onMove,
+  clipped,
 }: {
   project: Project;
   selected: number;
   onSelect: (index: number) => void;
   onMove?: (from: number, to: number) => void;
+  clipped?: ReadonlySet<string>;
 }) {
   const [dragged, setDragged] = useState<number | null>(null);
   const [dropTarget, setDropTarget] = useState<number | null>(null);
@@ -26,6 +28,7 @@ export default function SlideNavigator({
     problems,
     project.references,
     project.design,
+    clipped,
   );
   return (
     <section className="slide-navigator" aria-label="Slayd siyahısı">

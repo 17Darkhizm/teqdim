@@ -192,6 +192,21 @@ export default function PracticeMode({
             <span>
               Növbəti: {project.slides[selected + 1]?.title || "Son slayddasan"}
             </span>
+            {project.slides[selected + 1] && (
+              <div className="practice-next" aria-hidden="true">
+                <SlideView
+                  slide={project.slides[selected + 1]}
+                  index={selected + 1}
+                  total={project.slides.length}
+                  theme={project.theme}
+                  subject={project.subject}
+                  author={project.author}
+                  brief={project.brief}
+                  design={project.design}
+                  mini
+                />
+              </div>
+            )}
           </div>
           <div className="practice-notes">
             <span>SLAYD {selected + 1} · ÇIXIŞ QEYDLƏRİ</span>

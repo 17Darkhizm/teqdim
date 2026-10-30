@@ -10,6 +10,7 @@ import {
   Slide,
   uid,
   visibleSlideText,
+  withClippedIssues,
   wordCount,
 } from "./model";
 
@@ -20,10 +21,15 @@ export function filterSlides(
   problemsOnly: boolean,
   references: Reference[] = [],
   design?: DesignSettings,
+  clipped?: ReadonlySet<string>,
 ) {
   const needle = query.trim().toLocaleLowerCase("az");
   const issues = new Set(
-    inspectDeck(slides, references, design).map((issue) => issue.slideId),
+    withClippedIssues(
+      inspectDeck(slides, references, design),
+      slides,
+      clipped,
+    ).map((issue) => issue.slideId),
   );
   return slides
     .map((slide, index) => ({ slide, index, hasIssue: issues.has(slide.id) }))

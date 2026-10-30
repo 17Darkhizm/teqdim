@@ -246,3 +246,16 @@ WORKFLOW-09.md-də 7/7 iş. Repo artıq git-dədir: şəxsi GitHub `17Darkhizm/t
 - Yeni CSS authoring.css sonundadır. Yeni runtime asılılığı yoxdur.
 
 Yoxlama: npm run check 8 skriptlə (yeni check-stage9.mjs) və npm run build keçdi. jsdom-da layout olmadığı üçün daşma ölçü əvəzləməsi ilə, fullscreen isə saxta API ilə sınanıb. Həqiqi brauzer renderi təsdiqlənməyib.
+
+
+## Onuncu mərhələ — 30 dəqiqəlik təkmilləşdirmə (2026-10-30)
+
+WORKFLOW-10.md-də 5/5 iş.
+
+- Bütün deck üçün görünən daşma: App step 3-də `.measure-layer` (fixed, ekrandan kənar, 960 px, visibility hidden, aria-hidden, çapda gizli) hər slaydı eyni theme/design ilə render edib `onOverflow` ilə ölçür; `clippedIds` dəsti. `model.withClippedIssues` + `CLIPPED_MESSAGE` bunu «length» növlü qeydə çevirir: QualityPanel, SlideNavigator «!» işarəsi və «Yoxlanmalı» filtri (`filterSlides` 7-ci opsional parametr). Silinmiş slaydın id-si qeyd yaratmır. Redaktor slaydının öz xəbərdarlığı qalır.
+- Təqdimat: B və ya «.» qara ekran (role=status); istənilən düymə/klik (modifikatorlardan başqa) yalnız ekranı qaytarır, slaydı dəyişmir. Esc təqdimatı bağlayır, yenidən açanda qara ekran sıfırlanır.
+- Məşq otağı: növbəti slaydın mini önizləməsi, son slaydda gizlənir.
+- Bildirişlər: `setToast(text, "error")` xətaları role=alert, AlertTriangle və sabit #b52e21 fon/ağ mətnlə göstərir; uğur bildirişləri role=status qalır.
+- Bələdçiyə B / . əlavə edildi. Yeni CSS authoring.css sonundadır, yeni asılılıq yoxdur.
+
+Yoxlama: npm run check (10 skript) və build keçdi, audit 0. Daşma jsdom-da ölçü əvəzləməsi ilə sınanıb; həqiqi render təsdiqlənməyib.
