@@ -9,11 +9,11 @@
   align-items: center;
   gap: 7px;
   color: #a08ab4;
-  font-size: 10px;
+  font-size: 13px;
   margin-bottom: 20px;
 }
 .brief-heading > span:last-child {
-  font-size: 8px;
+  font-size: 12px;
   margin-left: auto;
   color: #b8a9c2;
 }
@@ -34,13 +34,13 @@
 }
 .purpose-options b {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 500;
   margin-bottom: 6px;
 }
 .purpose-options span {
   display: block;
-  font-size: 8px;
+  font-size: 12px;
   line-height: 1.7;
   opacity: 0.8;
 }
@@ -51,7 +51,7 @@
 }
 .brief-form select {
   font: inherit;
-  font-size: 10px;
+  font-size: 13px;
   width: 100%;
   border: 1px solid #e6dfed;
   border-radius: 7px;
@@ -66,7 +66,7 @@
   margin-top: 16px;
 }
 .academic-details summary {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #ad96bd;
   cursor: pointer;
   line-height: 1.8;
@@ -79,7 +79,7 @@
   margin-bottom: 8px;
 }
 .academic-details p {
-  font-size: 8px;
+  font-size: 12px;
   color: #b5a2c1;
   line-height: 1.8;
   margin: 0;
@@ -106,7 +106,7 @@
   font-size: 2.1cqw;
 }
 .time-budget {
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.8;
   border: 1px solid #e1ecdb;
   background: #f8fcf4;
@@ -136,16 +136,16 @@
 .source-title h3 {
   margin: 0;
   color: #897096;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 }
 .source-title > span {
   margin-left: auto;
-  font-size: 8px;
+  font-size: 12px;
   color: #b3a0c1;
 }
 .source-intro {
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.9;
   color: #b4a1bf;
   margin: 12px 0 18px;
@@ -159,11 +159,11 @@
   min-width: 0;
 }
 .source-filters .search-field input {
-  font-size: 9px;
+  font-size: 12.5px;
 }
 .source-filters select {
   font: inherit;
-  font-size: 9px;
+  font-size: 12.5px;
   max-width: 140px;
   min-width: 80px;
   border: 1px solid #e5d9ee;
@@ -182,7 +182,7 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 8px;
+  font-size: 12px;
   line-height: 1.5;
   color: #a28ab4;
   background: #f5effc;
@@ -230,13 +230,13 @@
 }
 .source-pages summary b {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   font-weight: 500;
   overflow-wrap: anywhere;
 }
 .source-pages summary small {
   display: block;
-  font-size: 8px;
+  font-size: 12px;
   opacity: 0.7;
   margin-top: 3px;
 }
@@ -246,7 +246,7 @@
 .source-page-text {
   max-height: 230px;
   overflow-y: auto;
-  font-size: 11px;
+  font-size: 13.5px;
   line-height: 1.9;
   color: #9b86a8;
   white-space: pre-wrap;
@@ -256,23 +256,23 @@
   overflow-wrap: anywhere;
 }
 .source-pages .secondary {
-  font-size: 9px;
+  font-size: 12.5px;
   padding: 8px;
   white-space: normal;
 }
 .source-footnote {
-  font-size: 8px;
+  font-size: 12px;
   color: #b7a5c2;
   line-height: 1.9;
   margin: 12px 0 0;
 }
 .source-empty {
-  font-size: 10px;
+  font-size: 13px;
   color: #b5a2c2;
   line-height: 1.8;
 }
 .source-empty .secondary {
-  font-size: 9px;
+  font-size: 12.5px;
 }
 .practice-overlay {
   position: fixed;
@@ -297,7 +297,7 @@
   margin: 8px 0;
 }
 .practice-overlay header p {
-  font-size: 11px;
+  font-size: 13.5px;
   color: #ae99c3;
   margin: 0;
 }
@@ -324,11 +324,11 @@
   margin-top: 20px;
 }
 .practice-navigation > span {
-  font-size: 11px;
+  font-size: 13.5px;
   color: #b59fc7;
 }
 .practice-local {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.9;
   color: #a28caf;
   margin: 20px 0;
@@ -340,7 +340,7 @@
   background: #23192d;
 }
 .practice-timer > span {
-  font-size: 8px;
+  font-size: 12px;
   letter-spacing: 2px;
   color: #a88abd;
 }
@@ -367,7 +367,7 @@
   border-radius: 5px;
 }
 .practice-timer > p {
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.7;
   color: #a68bb9;
   margin: 12px 0 17px;
@@ -391,12 +391,12 @@
   background: #201728;
 }
 .practice-notes > span {
-  font-size: 7px;
+  font-size: 11.5px;
   letter-spacing: 1px;
   color: #a98abc;
 }
 .practice-notes h3 {
-  font-size: 13px;
+  font-size: 14.5px;
   line-height: 1.8;
   color: #d6b7e8;
   font-weight: 500;
@@ -404,7 +404,7 @@
   margin: 14px 0;
 }
 .practice-notes p {
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.9;
   color: #b29ac2;
   white-space: pre-wrap;
@@ -524,7 +524,7 @@
     align-items: flex-start;
   }
   .practice-overlay > header .secondary {
-    font-size: 9px;
+    font-size: 12.5px;
     padding: 9px;
   }
   .practice-overlay h2 {
@@ -533,22 +533,22 @@
 }
 @media (max-width: 640px) {
   .brief-heading {
-    font-size: 9px;
+    font-size: 12.5px;
   }
   .brief-heading > span:last-child {
-    font-size: 7px;
+    font-size: 11.5px;
   }
   .purpose-options b {
-    font-size: 9px;
+    font-size: 12.5px;
   }
   .purpose-options span {
-    font-size: 7px;
+    font-size: 11.5px;
   }
   .purpose-options button {
     padding: 9px 7px;
   }
   .brief-form select {
-    font-size: 9px;
+    font-size: 12.5px;
     padding: 12px 6px;
   }
   .source-inspector {
@@ -578,11 +578,11 @@
     max-height: 250px;
   }
   .practice-navigation .secondary {
-    font-size: 9px;
+    font-size: 12.5px;
     padding: 9px;
   }
   .practice-local {
-    font-size: 9px;
+    font-size: 12.5px;
   }
   .slide-cover-details {
     font-size: 1.7cqw;
@@ -604,11 +604,11 @@
   border: 1px solid #e8dcf2;
   background: #f7f2fd;
   border-radius: 8px;
-  font-size: 10px;
+  font-size: 13px;
   color: #a089b5;
 }
 .return-to-deck .secondary {
-  font-size: 9px;
+  font-size: 12.5px;
   padding: 8px 11px;
 }
 [data-mode="dark"] .return-to-deck {
@@ -618,7 +618,7 @@
 }
 @media (max-width: 640px) {
   .return-to-deck {
-    font-size: 8px;
+    font-size: 12px;
     line-height: 1.8;
     padding: 12px;
     align-items: flex-start;
@@ -627,17 +627,17 @@
 }
 
 .brief-heading {
-  font-size: 11px;
+  font-size: 13.5px;
   color: #80628f;
 }
 .purpose-options button {
   color: #796585;
 }
 .purpose-options b {
-  font-size: 11px;
+  font-size: 13.5px;
 }
 .purpose-options span {
-  font-size: 9px;
+  font-size: 12.5px;
   opacity: 1;
 }
 .purpose-options button.chosen {
@@ -647,15 +647,15 @@
   color: #786284;
 }
 .source-intro {
-  font-size: 10px;
+  font-size: 13px;
   color: #806a8e;
 }
 .source-page-text {
-  font-size: 12px;
+  font-size: 14px;
   color: #766582;
 }
 .source-footnote {
-  font-size: 9px;
+  font-size: 12.5px;
   color: #806a8e;
 }
 .source-pages summary b {
@@ -666,7 +666,7 @@
 }
 
 .brief-summary {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.7;
   color: #8b729c;
   margin: 15px 0 -3px;

@@ -7,7 +7,7 @@
 .replace-dialog > label {
   display: block;
   margin: 12px 0 6px;
-  font-size: 12px;
+  font-size: 14px;
 }
 .replace-dialog > input,
 .replace-dialog > select,
@@ -25,7 +25,7 @@
   flex-wrap: wrap;
   gap: 12px;
   margin: 14px 0;
-  font-size: 12px;
+  font-size: 14px;
 }
 .editing-checkboxes label,
 .agenda-choices label {
@@ -47,7 +47,7 @@
 }
 .replace-dialog legend,
 .agenda-choices legend {
-  font-size: 12px;
+  font-size: 14px;
   padding: 0 5px;
 }
 .replace-preview,
@@ -66,12 +66,12 @@
 }
 .replace-preview strong,
 .agenda-preview strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 .replace-preview p,
 .agenda-preview p {
   white-space: pre-wrap;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
   max-height: 130px;
   overflow: auto;
@@ -93,7 +93,7 @@
 .agenda-choices {
   max-height: 220px;
   overflow: auto;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
@@ -102,7 +102,7 @@
 }
 .chart-paste {
   margin: 16px 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .chart-paste label {
@@ -135,13 +135,13 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 11px;
+  font-size: 13.5px;
   margin: 15px 0;
 }
 .quality-filter select {
   width: auto;
   max-width: 100%;
-  font-size: 11px;
+  font-size: 13.5px;
 }
 .library-tools {
   flex-wrap: wrap;
@@ -151,7 +151,7 @@
   min-width: 130px;
 }
 .library-tools > .text-button {
-  font-size: 11px;
+  font-size: 13.5px;
 }
 .replace-dialog .panel-footer,
 .agenda-builder .panel-footer {

@@ -1,6 +1,6 @@
 # Təqdim — layihə vəziyyəti
 
-Son yenilənmə: 2026-10-30.
+Son yenilənmə: 2026-10-31.
 
 ## Məqsəd
 
@@ -271,3 +271,20 @@ WORKFLOW-11.md-də 8/8 iş.
 - Təqdimat: 1–2 rəqəmli nömrə + Enter (Backspace düzəldir, aralıqdan kənarda xəta), «Slayd N · Enter» göstəricisi. Bələdçi yeniləndi.
 
 Yoxlama: npm run check (10 skript, yeni check-stage11.mjs: PPTX slayd sayı/nömrələmə, ixrac xətaları, backup, mətn ixracı, App axını) və build keçdi, audit 0. Həqiqi render təsdiqlənməyib.
+
+
+## Oxunaqlılıq düzəlişi (2026-10-31)
+
+İnterfeysdəki 6–13px şriftlər slayd məzmununa toxunmadan böyüdüldü: 282 qayda, 8px→12px, 10px→13px, 12px→14px. Slaydın daxili cqw ölçüləri, SVG diaqram yazıları, tema nümunələri və print qaydaları dəyişmədi. `--aic-muted` tündləşdirildi: açıq rejimdə #575143 (kontrast ≈6.9:1), qaranlıqda #b8b1a1 (≈9:1). Placeholder şəffaflığı götürüldü, «Qaralama saxlanıldı» kimi qalan solğun yazılar brend tokenlərinə bağlandı. Redaktorun yan sütunları 150px/196px-ə genişləndi. Brauzer girişi bu dəfə işlədi: 1536px-də açıq və qaranlıq rejimə baxıldı, slayd xaricində kəsilən mətn tapılmadı. Mobil eni ayrıca yoxlanmayıb. Bütün check və build keçdi.
+
+
+## Son faylların yoxlanışı (2026-10-31)
+
+İstifadəçi son faylları yoxlamağı istədi. Git vəziyyəti, son oxunaqlılıq CSS fərqləri, package-lock yeniləmələri və mərhələ 9–11 qeydləri nəzərdən keçirildi. Mənbə koduna bu yoxlamada dəyişiklik edilmədi. npm run check-in bütün 10 skripti və npm run build təzədən keçdi. npm audit --omit=dev: 0 məlum zəiflik. Əsas quraşdırılmış paketlərin versiyaları lock ilə uyğundur (canvas 1.1.0, rollup 4.67.2, vite 6.4.5, react 18.3.1, pdfjs-dist 6.4.299, pptxgenjs 3.12.0). git diff --check xəta göstərmədi; yalnız LF/CRLF xəbərdarlıqları var. PDF modulunun 542 kB yığım xəbərdarlığı qalır.
+
+Git HEAD 985d3c7 (mərhələ 11). Son oxunaqlılıq CSS düzəlişləri və lock yeniləməsi diskdədir, lakin hələ commit edilməyib; bu yoxlama commit/push etmədi. SESSION_HANDOFF son mərhələləri əks etdirmədiyindən aşağıda yeni cari vəziyyət bölməsi əlavə edildi. Əvvəlki Teqdim-backup ZIP-ləri Desktopda bu yoxlamada tapılmadı; cari mənbə/dist fayllarından Teqdim-backup-2026-10-31-reviewed.zip yaradılır və tamlığı yoxlanır. Bu, browser localStorage təqdimatlarını və Git tarixçəsini daxil etmir. Bu turda brauzerdə vizual yoxlama aparılmadı; əvvəlki oxunaqlılıq qeydi öz vizual yoxlamasını ayrıca təsvir edir.
+
+
+## Yerli commit (2026-10-31)
+
+İstifadəçi son yoxlanmış dəyişiklikləri commit etməyi istədi. Oxunaqlılıq/kontrast CSS düzəlişləri, package-lock yeniləməsi və cari vəziyyət qeydləri birlikdə yerli Git commit-inə daxil edilir. Mənbə məntiqi əvvəlki yoxlamadan sonra dəyişməyib; bütün 10 check və build nəticələri həmin yoxlamadadır. Uzaq repoya push bu istəyə daxil deyil və edilməyib.

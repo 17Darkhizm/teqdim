@@ -41,13 +41,13 @@
   margin-bottom: 17px;
 }
 .data-editor-title h3 {
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   color: #82618f;
   margin: 0;
 }
 .data-editor-title > span {
-  font-size: 8px;
+  font-size: 12px;
   color: #a58eaf;
 }
 .table-input-scroll {
@@ -71,7 +71,7 @@
   vertical-align: middle;
 }
 .table-input-scroll input {
-  font-size: 10px;
+  font-size: 13px;
   padding: 8px;
   min-width: 65px;
 }
@@ -82,7 +82,7 @@
 .table-input-scroll th .icon-button {
   margin: 4px auto 2px;
   display: flex;
-  font-size: 7px;
+  font-size: 11.5px;
 }
 .data-actions {
   display: flex;
@@ -90,7 +90,7 @@
   flex-wrap: wrap;
 }
 .data-actions .text-button {
-  font-size: 9px;
+  font-size: 12.5px;
 }
 .table-paste {
   border-top: 1px solid #ece1f3;
@@ -98,29 +98,29 @@
   padding-top: 13px;
 }
 .table-paste summary {
-  font-size: 10px;
+  font-size: 13px;
   color: #9470a5;
   cursor: pointer;
 }
 .table-paste p {
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.8;
   color: #957da3;
 }
 .table-paste textarea {
   min-height: 100px;
-  font-size: 10px;
+  font-size: 13px;
   white-space: pre;
   tab-size: 8;
   margin: 5px 0 10px;
   font-family: monospace;
 }
 .table-paste .secondary {
-  font-size: 9px;
+  font-size: 12.5px;
   padding: 8px;
 }
 .data-warning {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.8;
   color: #aa844d;
   background: #fff7e8;
@@ -130,7 +130,7 @@
   margin: 10px 0 0;
 }
 .data-hint {
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.8;
   color: #9981a7;
   margin: 7px 0 0;
@@ -145,7 +145,7 @@
   background: #fff;
   border-radius: 6px;
   padding: 8px 16px;
-  font-size: 10px;
+  font-size: 13px;
   color: #9776a7;
 }
 .chart-type-options button.chosen {
@@ -154,7 +154,7 @@
   color: #7d5199;
 }
 .data-editor .field-row input {
-  font-size: 10px;
+  font-size: 13px;
   padding: 9px;
 }
 .chart-points {
@@ -169,11 +169,11 @@
   align-items: center;
 }
 .chart-points > div > span {
-  font-size: 8px;
+  font-size: 12px;
   color: #a38aaf;
 }
 .chart-points input {
-  font-size: 11px;
+  font-size: 13.5px;
   padding: 9px;
 }
 .slide.content-table .slide-copy,
@@ -350,27 +350,27 @@
     gap: 5px;
   }
   .data-editor-title h3 {
-    font-size: 11px;
+    font-size: 13.5px;
   }
   .chart-points > div {
     gap: 5px;
     grid-template-columns: 16px minmax(0, 1fr) minmax(58px, 0.6fr) 21px;
   }
   .chart-points input {
-    font-size: 10px;
+    font-size: 13px;
     padding: 8px;
   }
   .data-actions {
     gap: 14px;
   }
   .data-actions .text-button {
-    font-size: 8px;
+    font-size: 12px;
   }
   .data-editor .field-row {
     grid-template-columns: 1fr;
   }
   .data-warning {
-    font-size: 9px;
+    font-size: 12.5px;
   }
 }
 

@@ -7,7 +7,7 @@
   display: grid;
   gap: 8px;
   margin-bottom: 12px;
-  font-size: 11px;
+  font-size: 13.5px;
 }
 .navigator-tools input:not([type="checkbox"]),
 .navigator-tools select {
@@ -29,7 +29,7 @@
   accent-color: var(--purple);
 }
 .navigator-tools .text-button {
-  font-size: 10px;
+  font-size: 13px;
   padding: 4px 0;
   white-space: normal;
 }
@@ -55,7 +55,7 @@
   font-style: normal;
 }
 .navigator-empty {
-  font-size: 11px;
+  font-size: 13.5px;
   line-height: 1.7;
   color: var(--muted);
   padding: 8px;
@@ -67,7 +67,7 @@
   flex-wrap: wrap;
   gap: 7px;
   margin: 10px 0;
-  font-size: 11px;
+  font-size: 13.5px;
 }
 .slide-jump input {
   width: 64px;
@@ -79,7 +79,7 @@
 }
 .slide-jump .secondary {
   padding: 7px 10px;
-  font-size: 11px;
+  font-size: 13.5px;
 }
 .slide-jump small {
   flex-basis: 100%;
@@ -89,13 +89,13 @@
 .slide-statistics {
   text-align: center;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 13.5px;
   line-height: 1.7;
 }
 .notes-count {
   display: block;
   color: var(--muted);
-  font-size: 10px;
+  font-size: 13px;
   text-align: right;
   margin-top: 5px;
 }
@@ -107,10 +107,10 @@
   margin-top: 20px;
 }
 .text-export-tools strong {
-  font-size: 12px;
+  font-size: 14px;
 }
 .text-export-tools button {
-  font-size: 11px;
+  font-size: 13.5px;
   white-space: normal;
   text-align: left;
 }
@@ -121,7 +121,7 @@
 }
 .outline-import label {
   display: block;
-  font-size: 12px;
+  font-size: 14px;
   margin: 16px 0 7px;
 }
 .outline-import textarea {
@@ -150,11 +150,11 @@
   border-bottom: 1px solid var(--line);
 }
 .outline-import-preview strong {
-  font-size: 13px;
+  font-size: 14.5px;
 }
 .outline-import-preview p {
   white-space: pre-wrap;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
 }
 .practice-pacing {
@@ -167,15 +167,15 @@
   overflow-wrap: anywhere;
 }
 .practice-pacing strong {
-  font-size: 13px;
+  font-size: 14.5px;
 }
 .practice-pacing p {
-  font-size: 11px;
+  font-size: 13.5px;
   line-height: 1.7;
   color: #b6b6cc;
 }
 .practice-pacing span {
-  font-size: 12px;
+  font-size: 14px;
   display: block;
   line-height: 1.7;
 }
@@ -193,7 +193,7 @@
 }
 @media (max-width: 1200px) {
   .navigator-tools select {
-    font-size: 10px;
+    font-size: 13px;
   }
   .editor-toolbar {
     flex-wrap: wrap;
@@ -232,7 +232,7 @@
     gap: 10px;
   }
   .slide-statistics {
-    font-size: 10px;
+    font-size: 13px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -249,7 +249,7 @@
 /* Stage 9: reorder, clipped text, presentation tools */
 .rail-hint {
   margin: 4px 0 8px;
-  font-size: 9px;
+  font-size: 12.5px;
   line-height: 1.5;
   color: var(--aic-muted, #6f685b);
 }
@@ -357,7 +357,7 @@
 }
 .hidden-note {
   margin: 10px 0 0;
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.6;
   color: var(--aic-muted, #6f685b);
 }

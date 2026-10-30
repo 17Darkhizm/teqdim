@@ -65,3 +65,14 @@ Bütün 7 check skripti və build keçdi; 10 theme × 2 profil × 10 layout nati
 ## Son rəng dəyişikliyi — AIC (2026-10-30)
 
 İnterfeys src/aic-brand.css ilə AIC kağız/mürəkkəb/laym/bənövşəyi palitrasına keçirildi. Rəng mənbələri AIC/src/app/globals.css və tailwind.config.ts idi; AIC reposu dəyişmədi. Yeni CSS main-də son importdur. Açıq/qaranlıq, modallar/qalereya və presenter alətləri uyğunlaşdırılıb; SlideView --s-* rəngləri ayrıdır. Build keçdi, əsas token kontrastları yoxlandı, HTTP 200 və yeni CSS importu təsdiqləndi. Həqiqi vizual yoxlama hələ blokludur. Aic-colors adlı ayrıca ZIP Desktopda saxlanır.
+
+
+## Cari vəziyyət — 2026-10-31 yoxlanılıb
+
+Bu bölmə əvvəlki tarixi qeydlərdən yenidir. CONTEXT.md-nin son bölmələrini və WORKFLOW-09/10/11.md-ni oxu. Repo GitHub 17Darkhizm/teqdim şəxsi reposu ilə işləyir; hazırkı HEAD 985d3c7 (mərhələ 11). Son şrift/kontrast CSS düzəlişləri, package-lock və qeydlər 2026-10-31 tarixində istifadəçinin istəyi ilə yerli commit-ə daxil edilir. İstifadəçi istəmədən main-ə push etmə.
+
+Mərhələ 9: görünən mətn daşmasının ölçülməsi, tam ekran təqdimat, irəliləyiş/kliklə keçid, sürükləyib sıralama və Alt+ox. Mərhələ 10: bütün slaydların ölçü qatı ilə daşma qeydləri, B/. qara ekran, məşqdə növbəti slayd, role=alert xəta bildirişləri. Mərhələ 11: Slide.hidden, yalnız görünən slaydlarla təqdimat/məşq/çap/PPTX, son görünən slaydın qorunması və nömrə+Enter keçidi. Mənbələrdə bu imkanlar hazırdır.
+
+2026-10-31 oxunaqlılıq dəyişiklikləri interfeys şriftlərini böyüdüb, yan sütunları genişləndirib, muted/placeholder rənglərini gücləndirib; slayd ölçüləri ayrıca qalır. CONTEXT əvvəlki turda 1536px brauzer yoxlamasının işlədiyini qeyd edir; köhnə bütün brauzer girişlərinin mütləq bloklu olması qeydləri tarixi vəziyyətdir. Bu yoxlamada brauzerə giriş sınanmayıb və yeni vizual nəticə təsdiqlənməyib.
+
+npm run check (10 skript), npm run build və production audit keçdi (0 məlum zəiflik). Əsas quraşdırılmış versiyalar lock-a uyğundur. PDF chunk ölçü xəbərdarlığı qalır. Əvvəlki ZIP-lər Desktopda tapılmadığı üçün cari mənbə/dist reviewed ZIP-i yaradılıb; browser localStorage və .git tarixçəsi daxil deyil. Yerli commit istifadəçinin istəyi ilə yaradılır; push edilməyib.

@@ -257,7 +257,9 @@
 }
 .design-gallery-button {
   margin: 0 0 15px;
-  font-size: 11px;
+  font-size: 13.5px;
+  white-space: normal;
+  line-height: 1.35;
 }
 .design-gallery {
   width: min(1120px, calc(100vw - 36px));
@@ -285,7 +287,7 @@
   background: #fff;
   color: inherit;
   font: inherit;
-  font-size: 11px;
+  font-size: 13.5px;
   width: 100%;
   min-width: 0;
 }
@@ -295,7 +297,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 16px;
-  font-size: 11px;
+  font-size: 13.5px;
   color: var(--muted);
 }
 .gallery-grid {
@@ -334,13 +336,13 @@
 }
 .gallery-card-copy > span {
   display: block;
-  font-size: 11px;
+  font-size: 13.5px;
   margin: 5px 0;
   line-height: 1.6;
   color: var(--muted);
 }
 .gallery-card-copy > small {
-  font-size: 10px;
+  font-size: 13px;
   color: var(--muted);
 }
 .palette-dots {
@@ -358,7 +360,7 @@
 }
 .palette-dots > small {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 13px;
   color: var(--muted);
 }
 .gallery-apply {
@@ -373,7 +375,7 @@
   background: #fff;
   border-top: 1px solid var(--line);
   z-index: 3;
-  font-size: 12px;
+  font-size: 14px;
 }
 .gallery-apply > div {
   display: flex;
@@ -386,11 +388,11 @@
 }
 .design-controls > label {
   display: block;
-  font-size: 11px;
+  font-size: 13.5px;
   margin: 15px 0 6px;
 }
 .design-controls p {
-  font-size: 10px;
+  font-size: 13px;
   line-height: 1.7;
   color: var(--muted);
 }
@@ -405,7 +407,7 @@
   margin: 0;
 }
 .design-controls .text-button {
-  font-size: 10px;
+  font-size: 13px;
   white-space: normal;
   text-align: left;
   margin-top: 10px;
@@ -449,7 +451,7 @@
   }
   .gallery-apply button {
     flex: 1;
-    font-size: 11px;
+    font-size: 13.5px;
   }
   .gallery-card-copy > strong {
     font-size: 15px;

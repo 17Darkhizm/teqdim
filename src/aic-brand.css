@@ -8,9 +8,9 @@
   --aic-page: #f3efe6;
   --aic-surface: #fbf9f4;
   --aic-raised: #ebe5d8;
-  --aic-border: #ddd5c4;
+  --aic-border: #d3cab6;
   --aic-text: #16140f;
-  --aic-muted: #6f685b;
+  --aic-muted: #575143;
   --aic-accent: #5b3df5;
   --aic-accent-wash: #e7e0ff;
   --aic-lime-wash: #e6ff8a;
@@ -31,7 +31,7 @@
   --aic-raised: #26231c;
   --aic-border: #3a362c;
   --aic-text: #f3efe6;
-  --aic-muted: #9e9787;
+  --aic-muted: #b8b1a1;
   --aic-accent: #a592ff;
   --aic-accent-wash: #302344;
   --aic-lime-wash: #2f3815;
@@ -192,9 +192,23 @@
   color: var(--aic-text);
   border-color: var(--aic-border);
 }
+:root[data-mode] :is(.shortcut-list h3):not(.slide, .slide *) {
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(
+    .brief-summary,
+    .slide-rail button > span,
+    .draft-status:not(.error)
+  ):not(.slide, .slide *) {
+  color: var(--aic-muted);
+}
+:root[data-mode] :is(label > span:not(.label-hint), .footer-star) {
+  color: var(--aic-accent);
+}
 :root[data-mode] :is(input, textarea)::placeholder {
   color: var(--aic-muted);
-  opacity: 0.8;
+  opacity: 1;
 }
 :root[data-mode]
   :is(
@@ -493,7 +507,7 @@
   --aic-surface: #1c1a14;
   --aic-raised: #26231c;
   --aic-text: #f3efe6;
-  --aic-muted: #9e9787;
+  --aic-muted: #b8b1a1;
   --aic-accent: #a592ff;
   --aic-border: #3a362c;
   background: var(--aic-page);
