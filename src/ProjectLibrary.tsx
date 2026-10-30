@@ -265,7 +265,7 @@ export default function ProjectLibrary({
                       );
                     }
                   }}
-                  title="Slayd, dizayn, qeydlər və çıxarılmış PDF mətnlərini yüklə"
+                  title="Slayd, dizayn, qeydlər və sənədlərdən çıxarılmış mətnləri yüklə"
                 >
                   <Download size={13} />
                   Ehtiyat nüsxə
@@ -283,8 +283,8 @@ export default function ProjectLibrary({
         </div>
       )}
       <p className="library-privacy">
-        Ehtiyat nüsxə .teqdim.json faylıdır. Slaydlar, çıxış qeydləri və PDF-dən
-        çıxarılmış mətnləri saxlayır; orijinal PDF daxil edilmir.
+        Ehtiyat nüsxə .teqdim.json faylıdır. Slaydlar, çıxış qeydləri və sənədlərdən
+        çıxarılmış mətnləri saxlayır; orijinal sənəd faylları daxil edilmir.
       </p>
     </section>
   );

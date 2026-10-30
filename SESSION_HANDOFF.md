@@ -76,3 +76,6 @@ Mərhələ 9: görünən mətn daşmasının ölçülməsi, tam ekran təqdimat,
 2026-10-31 oxunaqlılıq dəyişiklikləri interfeys şriftlərini böyüdüb, yan sütunları genişləndirib, muted/placeholder rənglərini gücləndirib; slayd ölçüləri ayrıca qalır. CONTEXT əvvəlki turda 1536px brauzer yoxlamasının işlədiyini qeyd edir; köhnə bütün brauzer girişlərinin mütləq bloklu olması qeydləri tarixi vəziyyətdir. Bu yoxlamada brauzerə giriş sınanmayıb və yeni vizual nəticə təsdiqlənməyib.
 
 npm run check (10 skript), npm run build və production audit keçdi (0 məlum zəiflik). Əsas quraşdırılmış versiyalar lock-a uyğundur. PDF chunk ölçü xəbərdarlığı qalır. Əvvəlki ZIP-lər Desktopda tapılmadığı üçün cari mənbə/dist reviewed ZIP-i yaradılıb; browser localStorage və .git tarixçəsi daxil deyil. Yerli commit istifadəçinin istəyi ilə yaradılır; push edilməyib.
+
+
+2026-10-31: codex/document-import branch-ində ümumi sənəd idxalı hazırlandı. PDF ilə yanaşı DOCX/ODT/RTF, HTML/XML və sadə mətn formatları qəbul olunur; DOC/Pages üçün çevirmə tələb edilir. README və docs/PROJECT.md cari təlimatdır. Bütün 11 yoxlama və build keçdi; yeni parser Node 24.22.1 ilə də yoxlanıb. Ətraflı nəticə CONTEXT.md-nin son bölməsindədir. Uzağa push/yayımlama edilməyib.

@@ -119,7 +119,7 @@ URL.createObjectURL=blob=>{downloads.push({blob});return `blob:editing-${downloa
 dom.window.HTMLAnchorElement.prototype.click=function(){downloads.at(-1).name=this.download;};
 try{
  await click(button('Diaqram məlumatını TSV kimi yüklə'));assert.ok(downloads.at(-1).name.endsWith('.tsv'));assert.ok(downloads.at(-1).blob.type.startsWith('text/tab-separated-values'));assert.ok((await downloads.at(-1).blob.text()).includes('Yeni A\t-2.5'));
- await click(button('PDF mətnlərini yüklə'));assert.ok((await downloads.at(-1).blob.text()).includes('Səhifə 3'));
+ await click(button('Mənbə mətnlərini yüklə'));assert.ok((await downloads.at(-1).blob.text()).includes('Səhifə 3'));
  await act(async()=>new Promise(resolve=>setTimeout(resolve,1100)));assert.equal(revoked.length,2);
 }finally{URL.createObjectURL=oldCreate;URL.revokeObjectURL=oldRevoke;dom.window.HTMLAnchorElement.prototype.click=oldClick;}
 await settle();saved=readDraft();assert.deepEqual(JSON.parse(JSON.stringify(decodeBackup(encodeBackup(saved.project)).slides)),saved.project.slides.map(slide=>({...slide,notes:slide.notes||'',citationReview:!!slide.citationReview})));

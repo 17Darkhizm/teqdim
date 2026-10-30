@@ -7,9 +7,10 @@
     "dev": "vite --host 127.0.0.1 --port 5174 --strictPort",
     "build": "tsc -b && vite build",
     "preview": "vite preview --host 127.0.0.1 --port 5174",
-    "check": "node scripts/check-export.mjs && node scripts/check-data.mjs && node scripts/check-visuals.mjs && node scripts/check-pdf.mjs && node scripts/check-workspace.mjs && node scripts/check-editing.mjs && node scripts/check-design-studio.mjs && node scripts/check-stage9.mjs && node scripts/check-stage10.mjs && node scripts/check-stage11.mjs"
+    "check": "node scripts/check-export.mjs && node scripts/check-data.mjs && node scripts/check-visuals.mjs && node scripts/check-pdf.mjs && node scripts/check-workspace.mjs && node scripts/check-editing.mjs && node scripts/check-design-studio.mjs && node scripts/check-stage9.mjs && node scripts/check-stage10.mjs && node scripts/check-stage11.mjs && node scripts/check-documents.mjs"
   },
   "dependencies": {
+    "jszip": "^3.10.2",
     "lucide-react": "^0.468.0",
     "pdfjs-dist": "^6.4.299",
     "pptxgenjs": "^3.12.0",
@@ -22,7 +23,6 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "jsdom": "^30.1.3",
-    "jszip": "^3.10.2",
     "typescript": "^5.6.3",
     "vite": "^6.1.0"
   },

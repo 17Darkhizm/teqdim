@@ -34,19 +34,19 @@ function validateBackupProject(project: unknown): asserts project is Project {
     (project.references?.length || 0) > 3 ||
     project.references?.some((r) => r.pages.length > 50)
   )
-    throw new Error("PDF materiallarının sayı və ya səhifə limiti aşılır.");
+    throw new Error("Materialların sayı və ya səhifə limiti aşılır.");
   if (projectImageSize(project.slides) > PROJECT_IMAGE_LIMIT)
     throw new Error("Layihədəki şəkillər yaddaş limitini aşır.");
   const refs = project.references || [];
   if (new Set(refs.map((r) => r.id)).size !== refs.length)
-    throw new Error("PDF identifikatorları təkrarlanır.");
+    throw new Error("Material identifikatorları təkrarlanır.");
   if (
     refs.reduce(
       (sum, r) => sum + r.pages.reduce((n, p) => n + p.text.length, 0),
       0,
     ) > 100000
   )
-    throw new Error("PDF mətnləri 100 000 simvol limitini aşır.");
+    throw new Error("Material mətnləri 100 000 simvol limitini aşır.");
 }
 export function encodeBackup(project: Project): string {
   validateBackupProject(project);

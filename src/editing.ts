@@ -6,6 +6,7 @@ import {
   layoutFor,
   parseChartNumber,
   Reference,
+  sourcePosition,
   Slide,
   TableData,
   uid,
@@ -302,11 +303,11 @@ export function sourceText(references: Reference[]): string {
     references
       .map(
         (ref) =>
-          `${ref.name}\n${ref.pageCount} fiziki səhifəli fayldan əlavə edilmiş mətn\n\n` +
+          `${ref.name}\n${/\.pdf$/i.test(ref.name) ? `${ref.pageCount} fiziki səhifəli fayldan əlavə edilmiş mətn` : "Sənəddən çıxarılmış mətn"}\n\n` +
           ref.pages
             .map(
               (page) =>
-                `Səhifə ${page.number}\n\n${page.text || "Bu səhifədə oxuna bilən mətn yoxdur."}`,
+                `${sourcePosition(ref.name, page.number, true)}\n\n${page.text || "Oxuna bilən mətn yoxdur."}`,
             )
             .join("\n\n---\n\n"),
       )

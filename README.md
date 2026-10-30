@@ -2,7 +2,7 @@
 
 Azərbaycan dilində təqdimat hazırlamaq üçün React + TypeScript tətbiqi. **Mövzunu yaz. Fikrini təqdim et.** AIC tərəfindən hazırlanıb.
 
-Öz mətnini və PDF materiallarını slaydlara çevir, redaktə et, dizayn seç və PowerPoint kimi yüklə. Layihəni Codex, Claude Code və ya Cursor ilə inkişaf etdirə bilərsən.
+Öz mətnini, PDF, Word və digər mətn sənədlərini slaydlara çevir, redaktə et, dizayn seç və PowerPoint kimi yüklə. Layihəni Codex, Claude Code və ya Cursor ilə inkişaf etdirə bilərsən.
 
 > Tətbiqdə AI bağlantısı, hesab, ödəniş və bulud yaddaşı yoxdur. Mətn yerli alqoritmlə bölünür. AI kod aləti ilə layihəni dəyişdirmək tətbiqdə AI məzmun yaratmaqdan ayrı imkandır.
 
@@ -44,7 +44,7 @@ AI alətlərinin öz quraşdırılması və hesabı ayrıdır. Tətbiqin yerli s
 
 ## İmkanlar
 
-- Mətn və üçədək PDF-dən plan, səhifə istinadları və çıxış qeydləri.
+- Mətn və üçədək sənəddən plan, mənbə istinadları və çıxış qeydləri.
 - 10 dizayn, 10 düzülüş; cədvəl, diaqram, müqayisə, mərhələlər və şəxsi şəkil.
 - Əlavə etmə, bölmə, surət, sıralama, gizlətmə, geri alma və toplu mətn əvəzləmə.
 - Dizayn qalereyası, şrift/ölçü/dekor ayarları, açıq və qaranlıq interfeys.
@@ -56,7 +56,7 @@ AI alətlərinin öz quraşdırılması və hesabı ayrıdır. Tətbiqin yerli s
 
 ```sh
 npm run dev      # Yerli inkişaf serveri, 5174 portu
-npm run check    # Bütün 10 yoxlama skripti
+npm run check    # Bütün 11 yoxlama skripti
 npm run build    # TypeScript və dist/ yığımı
 npm run preview  # Hazır yığımı yerli açmaq
 ```
@@ -67,9 +67,17 @@ Yoxlamalar `.checks/` altında müvəqqəti fayllar yaradır. jsdom və PPTX XML
 
 ## Məlumat və məhdudiyyətlər
 
-Təqdimatlar həmin brauzer və ünvanın localStorage yaddaşındadır. Brauzer məlumatlarını silməzdən və ünvanı dəyişməzdən əvvəl `.teqdim.json` çıxar. Git klonu istifadəçinin təqdimatlarını daşımır. Ehtiyat nüsxədə PDF-dən çıxarılmış mətnlər və uyğunlaşdırılmış şəkillər ola bilər; orijinal PDF daxil deyil.
+Təqdimatlar həmin brauzer və ünvanın localStorage yaddaşındadır. Brauzer məlumatlarını silməzdən və ünvanı dəyişməzdən əvvəl `.teqdim.json` çıxar. Git klonu istifadəçinin təqdimatlarını daşımır. Ehtiyat nüsxədə sənədlərdən çıxarılmış mətnlər və uyğunlaşdırılmış şəkillər ola bilər; orijinal sənəd faylları daxil deyil.
 
-PDF brauzerdə emal edilir: ən çox 3 fayl, hərəsi 20 MB, fayl üzrə 50 seçilmiş fiziki səhifə/60 000 simvol, ümumilikdə 100 000 simvol. OCR və parollu PDF dəstəyi yoxdur. Ən çox 80 slayd və 2 MB ehtiyat nüsxəsi qəbul olunur. Faktlar avtomatik təsdiqlənmir. PowerPoint və brauzer görünüşündə fərqlər ola bilər. Material serverə göndərilmir; Google Fonts üçün şəbəkə sorğusu gedir, alınmasa sistem şrifti işləyir.
+Sənədlər brauzerdə emal edilir: ən çox 3 fayl, hərəsi 20 MB, fayl üzrə 60 000 simvol, ümumilikdə 100 000 simvol. PDF-də ən çox 50 fiziki səhifə seçilir. Ən çox 80 slayd və 2 MB ehtiyat nüsxəsi qəbul olunur. Faktlar avtomatik təsdiqlənmir. PowerPoint və brauzer görünüşündə fərqlər ola bilər. Material serverə göndərilmir; Google Fonts üçün şəbəkə sorğusu gedir, alınmasa sistem şrifti işləyir.
+
+### Sənəd formatları
+
+PDF, DOCX, ODT, RTF, TXT/TEXT, MD/MARKDOWN, HTML/HTM, XML, CSV, TSV, JSON, YAML/YML, RST, ADOC, TEX, LOG, ORG, SRT, VTT, INI və CFG qəbul olunur. Brauzerin `text/*` kimi tanıdığı başqa fayllar da mətn kimi oxunur. Sadə mətn üçün UTF-8 və BOM-lu UTF-16 dəstəyi var; kodlaşdırma oxunmursa faylı UTF-8 kimi saxla.
+
+PDF üçün səhifə aralığı seçilir. Başqa sənədlərdə çıxarılan bütöv mətn əvvəlcə göstərilir, «Materiala əlavə et» ilə təsdiqlənir. Onlara uydurma səhifə nömrəsi verilmir; istinadda «Sənəd mətni» yazılır. Mətn alınır, sənədin dizaynı və şəkilləri köçürülmür. DOCX/ODT-də əsas mətn və cədvəl hüceyrələrinin mətnləri oxunur; görünüş, başlıq/altlıq və mürəkkəb yerləşdirmənin eyni qalmasına zəmanət verilmir. RTF-nin əsas mətn idarələri oxunur, yerləşdirilmiş obyektlər oxunmur. Arxiv daxilində mətn hissəsi üçün 8 MB və fayl sayı üçün 2000 həddi var.
+
+Köhnə DOC, DOCM, WPS və Apple Pages fayllarını əvvəlcə DOCX, ODT, RTF və ya TXT kimi saxla. Parollu/zədələnmiş sənədlər, skan OCR-i və dəstəklənməyən kodlaşdırmalar üçün aydın xəta göstərilir. Heç bir mətn limitə çatanda səssizcə kəsilmir.
 
 ## Layihəyə qoşulmaq
 

@@ -1252,7 +1252,7 @@ export default function App() {
                     <div className="honest-note">
                       <span>İLKİN VERSİYA HAQQINDA</span>
                       <p>
-                        Öz qeydlərini və ya PDF materiallarını əlavə et. Süni
+                        Öz qeydlərini və ya mətn sənədlərini əlavə et. Süni
                         intellektlə mətn və mənbə hazırlama növbəti mərhələdə
                         əlavə ediləcək.
                       </p>
@@ -1949,8 +1949,8 @@ export default function App() {
             <h2 id="help-title">İlk təqdimatına üç addım</h2>
             <p>
               <b>01. Materialını əlavə et.</b> Mövzunu və qeydlərini yaz və ya
-              PDF əlavə et. İstifadə edəcəyin səhifələri seç. Mətn slaydlara
-              bölünür, PDF adı və səhifələr mənbə kimi göstərilir.
+              PDF, Word və ya digər mətn sənədi əlavə et. PDF üçün səhifələri seç.
+              Mətn slaydlara bölünür, fayl adı mənbə kimi göstərilir.
             </p>
             <p>
               <b>02. Planı yoxla.</b> Başlıqları və mətnləri redaktə et,

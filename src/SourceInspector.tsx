@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { BookOpen, Check, Link2, Search, X } from "lucide-react";
 import type { Citation, Reference, Slide } from "./model";
+import { sourcePosition } from "./model";
 import { downloadText } from "./authoring";
 import { sourceText } from "./editing";
 
@@ -47,11 +48,11 @@ export default function SourceInspector({
       <div className="source-title">
         <BookOpen size={17} />
         <h3>Mənbəyə qayıt</h3>
-        <span>{references.length} PDF</span>
+        <span>{references.length} fayl</span>
       </div>
       <p className="source-intro">
         Slaydın fikrini orijinal materialdan çıxarılmış mətnlə tutuşdur. Bu,
-        PDF-in vizual görüntüsü deyil.
+        sənədin vizual görüntüsü deyil.
       </p>
       <div className="attached-citations">
         {(slide.citations || []).map((c) => (
@@ -71,11 +72,11 @@ export default function SourceInspector({
           >
             <Link2 size={12} />
             <span>
-              {c.name} · səh. {c.page}
+              {c.name} · {sourcePosition(c.name, c.page)}
             </span>
             <button
               className="icon-button"
-              aria-label={`${c.name} səhifə ${c.page} istinadını çıxar`}
+              aria-label={`${c.name} ${sourcePosition(c.name, c.page, true)} istinadını çıxar`}
               onClick={() =>
                 onChange(
                   (slide.citations || []).filter(
@@ -92,7 +93,7 @@ export default function SourceInspector({
       </div>
       {!references.length ? (
         <div className="source-empty">
-          <p>Hələ PDF materialı əlavə etməmisən.</p>
+          <p>Hələ sənəd əlavə etməmisən.</p>
           <button className="secondary" onClick={onEditMaterial}>
             Material əlavə et
           </button>
@@ -123,7 +124,7 @@ export default function SourceInspector({
               value={source}
               onChange={(e) => setSource(e.target.value)}
             >
-              <option value="all">Bütün PDF-lər</option>
+              <option value="all">Bütün sənədlər</option>
               {references.map((ref) => (
                 <option key={ref.id} value={ref.id}>
                   {ref.name}
@@ -141,7 +142,7 @@ export default function SourceInspector({
                   <summary>
                     <span>
                       <b>{ref.name}</b>
-                      <small>Səhifə {page.number}</small>
+                      <small>{sourcePosition(ref.name, page.number, true)}</small>
                     </span>
                     {attached(ref.id, page.number) && <Check size={14} />}
                   </summary>
@@ -168,20 +169,20 @@ export default function SourceInspector({
                 </details>
               ))
             ) : (
-              <p className="source-empty">Uyğun səhifə tapılmadı.</p>
+              <p className="source-empty">Uyğun mətn tapılmadı.</p>
             )}
           </div>
           <button
             className="text-button"
             onClick={() =>
-              downloadText("Teqdim", "pdf-metnleri", sourceText(references))
+              downloadText("Teqdim", "menbe-metnleri", sourceText(references))
             }
           >
-            PDF mətnlərini yüklə
+            Mənbə mətnlərini yüklə
           </button>
           <p className="source-footnote">
             İstinad bağlamaq məzmunun doğruluğunu avtomatik təsdiqləmir. Səhifə
-            nömrəsi fayldakı fiziki sıradır.
+            nömrəsi yalnız PDF üçün fayldakı fiziki sıradır. Digər sənədlər bütöv mətn kimi göstərilir.
           </p>
         </>
       )}

@@ -24,3 +24,6 @@
 @media(max-width:640px){.theme-options{grid-template-columns:repeat(3,minmax(0,1fr))}.theme-swatch{height:73px}.theme-option>span{font-size:11.5px}.pdf-file-heading strong{font-size:12.5px}.upload-drop{padding:20px 10px}.design-choice{min-width:90px}.preview-column{display:block}.preview-heading{margin-bottom:12px}.preview-caption{margin-top:12px;margin-bottom:22px}.theme-options{margin-bottom:25px}.sample-card{margin-top:20px}.honest-note{padding-top:20px}}
 
 .aic-brand-icon{width:34px;height:34px;object-fit:contain;flex-shrink:0}.aic-footer-icon{width:20px;height:20px;object-fit:contain;margin-left:12px;vertical-align:middle}.workspace-footer>span:last-child{display:inline-flex;align-items:center}
+.document-preview { margin: 12px 0; }
+.document-preview summary { cursor: pointer; font-size: 14px; }
+.document-preview pre { max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 14px; padding: 12px; border: 1px solid var(--aic-border, #ccc); border-radius: 10px; }

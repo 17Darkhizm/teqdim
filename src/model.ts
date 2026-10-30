@@ -257,7 +257,9 @@ export const themeColors = {
   prism: { bg: "F4F6FF", fg: "17234F", accent: "294FD8" },
 };
 export const citationLabel = (citations: Citation[] = []) =>
-  citations.map((c) => `${c.name} · səh. ${c.page}`).join("; ");
+  citations.map((c) => `${c.name} · ${sourcePosition(c.name, c.page)}`).join("; ");
+export const sourcePosition = (name: string, page: number, full = false) =>
+  /\.pdf$/i.test(name) ? `${full ? "Səhifə" : "səh."} ${page}` : "Sənəd mətni";
 export const layouts: { id: Layout; name: string; detail: string }[] = [
   { id: "cover", name: "Üz qabığı", detail: "İri başlıq və qısa giriş" },
   { id: "text", name: "Mətn", detail: "Başlıq və əsas izah" },
@@ -814,10 +816,10 @@ export function inspectDeck(
     )
       add(
         "citation",
-        "İstinadın səhifəsi əlavə edilmiş materiallarda tapılmır.",
+        "İstinadın mətni əlavə edilmiş materiallarda tapılmır.",
       );
     if (s.citationReview && s.citations?.length)
-      add("citation", "Mətn dəyişib: səhifə istinadını yoxla.");
+      add("citation", "Mətn dəyişib: mənbə istinadını yoxla.");
     return issues;
   });
 }
@@ -921,11 +923,11 @@ export function createSlides(
     }
   if (!groups.length)
     throw new Error(
-      "Təqdimat üçün mətn və ya oxuna bilən PDF materialı əlavə et.",
+      "Təqdimat üçün mətn və ya oxuna bilən sənəd əlavə et.",
     );
   if (groups.length + overhead > 80)
     throw new Error(
-      "Material 80-dən çox slayd tələb edir. Daha az PDF səhifəsi seç və ya mətni qısalt.",
+      "Material 80-dən çox slayd tələb edir. Daha az material seç və ya mətni qısalt.",
     );
   const slides: Slide[] = [createCover(topic, brief)];
   groups.forEach((group, i) => {
@@ -966,7 +968,7 @@ export function createSlides(
     const sourceText = references
       .map(
         (r) =>
-          `${r.name}\nSəhifələr: ${r.pages.map((p) => p.number).join(", ")}`,
+          `${r.name}\n${/\.pdf$/i.test(r.name) ? `Səhifələr: ${r.pages.map((p) => p.number).join(", ")}` : "Sənəddən çıxarılmış mətn"}`,
       )
       .join("\n\n");
     splitText(sourceText).forEach((body, i) =>
@@ -981,7 +983,7 @@ export function createSlides(
     );
   }
   if (slides.length > 80)
-    throw new Error("Material çox uzundur. Daha az səhifə seç.");
+    throw new Error("Material çox uzundur. Daha az material seç.");
   return slides;
 }
 

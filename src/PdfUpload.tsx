@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { Reference, uid } from "./model";
+import { DOCUMENT_ACCEPT, DOCUMENT_FORMATS, validateDocumentFile, readDocument } from "./documents";
 
 export default function PdfUpload({
   references,
@@ -20,6 +21,7 @@ export default function PdfUpload({
   const [pending, setPending] = useState<{
     name: string;
     count: number;
+    pages?: Reference["pages"];
   } | null>(null);
   const [from, setFrom] = useState(1);
   const [to, setTo] = useState(1);
@@ -49,16 +51,23 @@ export default function PdfUpload({
     [],
   );
   async function select(file?: File) {
-    if (!file || busy) return;
+    if (!file || busy || references.length >= 3) return;
     setError("");
     setPending(null);
     setBusy(true);
-    setProgress("PDF açılır…");
+    setProgress("Sənəd açılır…");
     const current = ++generation.current;
     let opened: PDFDocumentProxy | null = null;
     try {
       await doc.current?.loadingTask.destroy();
       doc.current = null;
+      const ext = validateDocumentFile(file);
+      if (ext !== "pdf") {
+        const pages = await readDocument(file);
+        if (generation.current !== current) return;
+        setPending({ name: file.name, count: 1, pages });
+        return;
+      }
       const { openPdf } = await import("./pdf");
       opened = await openPdf(file);
       if (generation.current !== current) {
@@ -71,7 +80,7 @@ export default function PdfUpload({
       setTo(Math.min(10, opened.numPages));
     } catch (e) {
       if (current === generation.current)
-        setError(e instanceof Error ? e.message : "PDF açılmadı.");
+        setError(e instanceof Error ? e.message : "Sənəd açılmadı.");
     } finally {
       if (current === generation.current) {
         setBusy(false);
@@ -81,17 +90,19 @@ export default function PdfUpload({
     }
   }
   async function extract() {
-    if (!doc.current || !pending || busy) return;
+    if (!pending || busy || references.length >= 3 || (!pending.pages && !doc.current)) return;
     const current = generation.current;
     setBusy(true);
     setError("");
     setProgress("Mətn oxunur…");
     try {
-      const { readPdfPages } = await import("./pdf");
-      const pages = await readPdfPages(doc.current, from, to, (page) => {
-        if (generation.current === current)
-          setProgress(`${page - from + 1} / ${to - from + 1} səhifə oxunur…`);
-      });
+      const pages = pending.pages || await (async () => {
+        const { readPdfPages } = await import("./pdf");
+        return readPdfPages(doc.current!, from, to, (page) => {
+          if (generation.current === current)
+            setProgress(`${page - from + 1} / ${to - from + 1} səhifə oxunur…`);
+        });
+      })();
       if (generation.current !== current) return;
       const total =
         references.reduce(
@@ -100,7 +111,7 @@ export default function PdfUpload({
         ) + pages.reduce((n, p) => n + p.text.length, 0);
       if (total > 100000)
         throw new Error(
-          "Ümumi PDF mətni 100 000 simvolu keçir. Daha az səhifə seç və ya əvvəlki faylı çıxar.",
+          "Ümumi material mətni 100 000 simvolu keçir. Daha qısa sənəd seç və ya əvvəlki faylı çıxar.",
         );
       onChange([
         ...references,
@@ -120,19 +131,19 @@ export default function PdfUpload({
     }
   }
   return (
-    <section className="pdf-upload" aria-label="PDF istinad materialları">
+    <section className="pdf-upload" aria-label="İstinad sənədləri">
       <div className="upload-label">
         <label htmlFor="pdf-file">
           İstinad materialları <span className="optional">İstəyə bağlı</span>
         </label>
-        <span>{references.length}/3 PDF</span>
+        <span>{references.length}/3 fayl</span>
       </div>
       <input
         ref={input}
         id="pdf-file"
         className="sr-only"
         type="file"
-        accept=".pdf,application/pdf"
+        accept={DOCUMENT_ACCEPT}
         disabled={busy || references.length >= 3}
         onChange={(e) => void select(e.target.files?.[0])}
       />
@@ -164,8 +175,8 @@ export default function PdfUpload({
               <UploadCloud size={23} />
             )}
           </span>
-          <strong>{busy ? progress : "PDF-i buraya at və ya seç"}</strong>
-          <span>Dərslik, məqalə, mühazirə qeydləri · ən çox 20 MB</span>
+          <strong>{busy ? progress : "Sənədi buraya at və ya seç"}</strong>
+          <span>PDF, Word, ODT, RTF, mətn faylları · ən çox 20 MB</span>
           <em>Yalnız bu brauzerdə oxunur</em>
         </button>
       )}
@@ -176,13 +187,13 @@ export default function PdfUpload({
             <div>
               <strong>{pending.name}</strong>
               <span>
-                {pending.count} səhifə · İstifadə edəcəyin aralığı seç
+                {pending.pages ? `${pending.pages[0].text.length.toLocaleString("az-AZ")} simvol · Əlavə etməzdən əvvəl mətni yoxla` : `${pending.count} səhifə · İstifadə edəcəyin aralığı seç`}
               </span>
             </div>
             <button
               type="button"
               className="icon-button"
-              aria-label="PDF seçimini ləğv et"
+              aria-label="Sənəd seçimini ləğv et"
               disabled={busy}
               onClick={() => {
                 generation.current++;
@@ -195,7 +206,7 @@ export default function PdfUpload({
               <X size={16} />
             </button>
           </div>
-          <div className="pdf-range">
+          {pending.pages ? <details className="document-preview"><summary>Çıxarılmış mətnə bax</summary><pre>{pending.pages[0].text}</pre></details> : <><div className="pdf-range">
             <div>
               <label htmlFor="pdf-from">İlk səhifə</label>
               <input
@@ -226,6 +237,7 @@ export default function PdfUpload({
             Bir dəfəyə ən çox 50 səhifə. Səhifə nömrəsi fayldakı sıraya
             əsaslanır.
           </p>
+          </>}
           <button
             type="button"
             className="primary full"
@@ -254,15 +266,15 @@ export default function PdfUpload({
           <div>
             <strong>{ref.name}</strong>
             <span>
-              {ref.pages.length} səhifə əlavə edilib ·{" "}
+              {/\.pdf$/i.test(ref.name) ? `${ref.pages.length} səhifə əlavə edilib` : "Sənədin mətni əlavə edilib"} ·{" "}
               {ref.pages.filter((p) => !p.text.trim()).length
                 ? `${ref.pages.filter((p) => !p.text.trim()).length} səhifədə mətn yoxdur`
                 : `${ref.pages.reduce((n, p) => n + p.text.length, 0).toLocaleString("az-AZ")} simvol`}
             </span>
-            <span className="reference-range">
+            {/\.pdf$/i.test(ref.name) && <span className="reference-range">
               Səh. {ref.pages[0].number}–
               {ref.pages[ref.pages.length - 1].number}
-            </span>
+            </span>}
           </div>
           <Check size={15} className="reference-check" />
           <button
@@ -279,7 +291,7 @@ export default function PdfUpload({
             <div>
               {ref.pages.map((p) => (
                 <section key={p.number}>
-                  <b>Səhifə {p.number}</b>
+                  <b>{/\.pdf$/i.test(ref.name) ? `Səhifə ${p.number}` : "Sənəd mətni"}</b>
                   <p>{p.text || "Bu səhifədə oxuna bilən mətn yoxdur."}</p>
                 </section>
               ))}
@@ -293,8 +305,7 @@ export default function PdfUpload({
         </p>
       )}
       <p className="upload-hint">
-        PDF-dəki mətn mənbə kimi istifadə olunur, dizaynı köçürülmür. Skan
-        sənədlər üçün OCR hələ yoxdur.
+        {DOCUMENT_FORMATS}. Yalnız mətn oxunur, dizayn köçürülmür. PDF-dən başqa sənədlərə səhifə nömrəsi verilmir. Skan üçün OCR yoxdur. Köhnə DOC faylını əvvəlcə DOCX kimi saxla.
       </p>
     </section>
   );
