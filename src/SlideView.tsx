@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import {
   AcademicBrief,
@@ -16,6 +17,18 @@ import {
 import DataGraphic from "./DataGraphic";
 import VisualContent from "./VisualContent";
 
+// Slide CSS clips long text (max-height + overflow:hidden). This finds text the
+// viewer cannot see. Elements without layout (jsdom) report 0 and never match.
+const CLIPPABLE =
+  ".slide-copy, .slide-copy h2, .slide-copy p, .slide-copy li > div";
+export function clippedText(root: HTMLElement): boolean {
+  return [...root.querySelectorAll<HTMLElement>(CLIPPABLE)].some(
+    (el) =>
+      el.scrollHeight - el.clientHeight > 2 ||
+      el.scrollWidth - el.clientWidth > 2,
+  );
+}
+
 export default function SlideView({
   slide,
   index,
@@ -26,6 +39,7 @@ export default function SlideView({
   mini = false,
   brief,
   design,
+  onOverflow,
 }: {
   slide: Slide;
   index: number;
@@ -36,13 +50,40 @@ export default function SlideView({
   mini?: boolean;
   brief?: AcademicBrief;
   design?: DesignSettings;
+  /** Reports whether rendered text is clipped; only the main editor needs it. */
+  onOverflow?: (clipped: boolean) => void;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const reported = useRef<boolean | null>(null);
+  const latest = useRef(onOverflow);
+  latest.current = onOverflow;
+  const measure = () => {
+    const root = rootRef.current;
+    if (!root || !latest.current) return;
+    const clipped = clippedText(root);
+    if (clipped === reported.current) return;
+    reported.current = clipped;
+    latest.current(clipped);
+  };
+  // Content and theme change on every edit, so measure after each render.
+  useLayoutEffect(measure);
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root || !onOverflow) return;
+    const observer =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(measure);
+    observer?.observe(root);
+    // Web fonts change line breaks once they finish loading.
+    void document.fonts?.ready.then(measure);
+    return () => observer?.disconnect();
+  }, [!!onOverflow]);
   const settings = resolveDesign(design);
   const palette = themeColors[theme];
   const layout = layoutFor(slide, index);
   const columns = layout === "columns" ? textColumns(slide.body) : null;
   return (
     <div
+      ref={rootRef}
       style={
         {
           "--s-bg": `#${palette.bg}`,

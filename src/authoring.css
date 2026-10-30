@@ -245,3 +245,61 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Stage 9: reorder, clipped text, presentation tools */
+.rail-hint {
+  margin: 4px 0 8px;
+  font-size: 9px;
+  line-height: 1.5;
+  color: var(--aic-muted, #6f685b);
+}
+.slide-rail > button[draggable="true"] {
+  cursor: grab;
+}
+.slide-rail > button.dragging {
+  opacity: 0.45;
+}
+.slide-rail > button.drop-target .slide {
+  outline: 2px dashed var(--aic-accent, #5b3df5);
+  outline-offset: 2px;
+}
+.overflow-warning {
+  margin: 10px 0 0;
+}
+.presentation-overlay > .slide {
+  cursor: pointer;
+}
+.presentation-progress {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #ffffff1a;
+}
+.presentation-progress > span {
+  display: block;
+  height: 100%;
+  background: #ccff00;
+  transition: width 0.2s ease;
+}
+.presentation-actions {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  display: flex;
+  gap: 8px;
+}
+.presentation-actions .presentation-close {
+  position: static;
+}
+.presentation-overlay:fullscreen {
+  padding: 24px 2vw 70px;
+}
+.presentation-overlay:fullscreen > .slide {
+  width: min(96vw, 165vh);
+  max-height: 88vh;
+}
+@media (prefers-reduced-motion: reduce) {
+  .presentation-progress > span {
+    transition: none;
+  }
+}

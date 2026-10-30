@@ -175,6 +175,10 @@ export default function App() {
   const [replaceOpen, setReplaceOpen] = useState(false);
   const [agendaOpen, setAgendaOpen] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [clipped, setClipped] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  const canFullscreen =
+    typeof document.documentElement.requestFullscreen === "function";
   const [deleteId, setDeleteId] = useState<string | null>(null);
   useDialogKeyboard(
     !!(
@@ -208,9 +212,38 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [toast]);
   useEffect(() => {
+    const sync = () => setFullscreen(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", sync);
+    return () => document.removeEventListener("fullscreenchange", sync);
+  }, []);
+  useEffect(() => {
+    // Leaving presentation mode (button, Esc or dialog close) also leaves fullscreen.
+    if (!presenting && document.fullscreenElement)
+      void document.exitFullscreen?.().catch(() => undefined);
+  }, [presenting]);
+  function toggleFullscreen() {
+    if (document.fullscreenElement)
+      void document.exitFullscreen().catch(() => undefined);
+    else
+      void document
+        .querySelector<HTMLElement>(".presentation-overlay")
+        ?.requestFullscreen?.()
+        .catch(() => setToast("Brauzer tam ekran rejiminə icazə vermədi."));
+  }
+  useEffect(() => {
     if (!presenting) return;
     const handle = (e: KeyboardEvent) => {
       if (e.key === "Escape") setPresenting(false);
+      if (
+        canFullscreen &&
+        e.key.toLowerCase() === "f" &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey
+      ) {
+        e.preventDefault();
+        toggleFullscreen();
+      }
       if (e.key === "Home" || e.key === "End") {
         e.preventDefault();
         setSelected(e.key === "Home" ? 0 : slides.length - 1);
@@ -411,12 +444,15 @@ export default function App() {
     );
   }
   function moveSlide(i: number, direction: number) {
+    moveTo(i, i + direction);
+  }
+  function moveTo(from: number, to: number) {
+    if (from === to || to < 0 || to >= slides.length || !slides[from]) return;
     const next = [...slides];
-    const target = i + direction;
-    if (target < 0 || target >= next.length) return;
-    [next[i], next[target]] = [next[target], next[i]];
+    const [item] = next.splice(from, 1);
+    next.splice(to, 0, item);
     setSlides(next);
-    setSelected(target);
+    setSelected(to);
   }
   function updateTable(table: TableData, group?: string) {
     const id = slides[selected].id;
@@ -631,6 +667,11 @@ export default function App() {
       if (!command && !event.altKey && (key === "home" || key === "end")) {
         event.preventDefault();
         setSelected(key === "home" ? 0 : slides.length - 1);
+      }
+      if (!command && event.altKey && (key === "arrowup" || key === "arrowdown")) {
+        event.preventDefault();
+        moveSlide(selected, key === "arrowup" ? -1 : 1);
+        return;
       }
       if (command && key === "d") {
         event.preventDefault();
@@ -1274,6 +1315,7 @@ export default function App() {
                       project={currentProject()}
                       selected={selected}
                       onSelect={setSelected}
+                      onMove={moveTo}
                     />
                     <div className="editor-center">
                       <SlideView
@@ -1285,7 +1327,15 @@ export default function App() {
                         author={author}
                         brief={brief}
                         design={design}
+                        onOverflow={setClipped}
                       />
+                      {clipped && (
+                        <p className="warning overflow-warning" role="status">
+                          Mətnin bir hissəsi slayda sığmır və görünmür. Mətni
+                          qısalt, “Böl” düyməsindən istifadə et və ya başqa
+                          düzülüş seç.
+                        </p>
+                      )}
                       <div className="slide-navigation">
                         <button
                           className="icon-button"
@@ -1784,7 +1834,7 @@ export default function App() {
                 <span>Geri al</span>
               </p>
               <p>
-                <kbd>Ctrl / ⌘ + Shift + Z</kbd>
+                <kbd>Ctrl / ⌘ + Shift + Z · Ctrl + Y</kbd>
                 <span>Yenidən et</span>
               </p>
               <p>
@@ -1798,8 +1848,22 @@ export default function App() {
                 </span>
               </p>
               <p>
+                <kbd>Alt + ↑ / ↓</kbd>
+                <span>
+                  Seçilən slaydı yuxarı/aşağı köçür · siyahıda sürükləyə də
+                  bilərsən
+                </span>
+              </p>
+              <p>
                 <kbd>Delete</kbd>
                 <span>Seçilən slaydı çıxar</span>
+              </p>
+              <p>
+                <kbd>F · PageUp / PageDown</kbd>
+                <span>
+                  Təqdimatda tam ekran və slayd keçidi · slayda klik növbətiyə
+                  keçir
+                </span>
               </p>
               <small>
                 Mətn sahəsində yazarkən redaktorun qısayolları yazıya mane
@@ -1854,15 +1918,45 @@ export default function App() {
           role="dialog"
           aria-modal="true"
           aria-label="Slayd təqdimatı"
+          onClick={(e) => {
+            if (
+              (e.target as HTMLElement).closest(".slide") &&
+              selected < slides.length - 1
+            )
+              setSelected(selected + 1);
+          }}
         >
-          <button
-            className="presentation-close secondary"
-            autoFocus
-            onClick={() => setPresenting(false)}
+          <div
+            className="presentation-progress"
+            role="progressbar"
+            aria-label="Təqdimatın gedişi"
+            aria-valuemin={1}
+            aria-valuemax={slides.length}
+            aria-valuenow={selected + 1}
           >
-            <X size={17} />
-            Bağla · Esc
-          </button>
+            <span
+              style={{ width: `${((selected + 1) / slides.length) * 100}%` }}
+            />
+          </div>
+          <div className="presentation-actions">
+            {canFullscreen && (
+              <button
+                className="secondary"
+                onClick={toggleFullscreen}
+                aria-pressed={fullscreen}
+              >
+                {fullscreen ? "Tam ekrandan çıx · F" : "Tam ekran · F"}
+              </button>
+            )}
+            <button
+              className="presentation-close secondary"
+              autoFocus
+              onClick={() => setPresenting(false)}
+            >
+              <X size={17} />
+              Bağla · Esc
+            </button>
+          </div>
           <SlideView
             slide={slides[selected]}
             index={selected}

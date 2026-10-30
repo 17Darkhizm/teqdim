@@ -233,3 +233,16 @@ npm run build keçdi. Əsas mətn, köməkçi mətn və vurğu rənglərinin fon
 - index.html: theme-color köhnə bənövşəyi #7047eb əvəzinə AIC kağız #F3EFE6 / tünd #0E0D0A.
 
 npm run build və npm run check (7 skript) yenidən keçdi. Vizual brauzer yoxlaması bu turda da aparılmayıb. Dəyişiklikdən əvvəlki src surəti sessiya scratchpad qovluğunda saxlanılıb (layihə git deyil).
+
+
+## Doqquzuncu mərhələ — 30 dəqiqəlik təkmilləşdirmə (2026-10-30)
+
+WORKFLOW-09.md-də 7/7 iş. Repo artıq git-dədir: şəxsi GitHub `17Darkhizm/teqdim`, `main`.
+
+- SlideView `onOverflow` propu və `clippedText`: `.slide-copy` daxilində h2/p/məqam mətninin scrollHeight/clientHeight fərqi (>2 px) ilə CSS-in səssizcə kəsdiyi mətn aşkarlanır. Redaktorda «Mətnin bir hissəsi slayda sığmır…» xəbərdarlığı. Hər renderdən sonra, ResizeObserver və `document.fonts.ready` ilə yenidən ölçülür. Yalnız əsas redaktor slaydı ölçülür.
+- Təqdimat rejimi: Fullscreen API varsa «Tam ekran · F» düyməsi və F qısayolu; təqdimat bağlananda tam ekrandan çıxılır, rədd edilsə bildiriş. Yuxarıda irəliləyiş zolağı (role=progressbar), slayda klik növbətiyə keçir (düymələr sayılmır).
+- Sıralama: SlideNavigator `onMove` — sürüklə-burax (drop-target/dragging stilləri, ipucu sətri), App `moveTo` bir history addımıdır. Alt+↑/↓ seçilən slaydı köçürür, mətn sahələrində işləmir.
+- Qısayollar bələdçisi: Ctrl+Y, Alt+↑/↓, F və PageUp/PageDown.
+- Yeni CSS authoring.css sonundadır. Yeni runtime asılılığı yoxdur.
+
+Yoxlama: npm run check 8 skriptlə (yeni check-stage9.mjs) və npm run build keçdi. jsdom-da layout olmadığı üçün daşma ölçü əvəzləməsi ilə, fullscreen isə saxta API ilə sınanıb. Həqiqi brauzer renderi təsdiqlənməyib.

@@ -7,11 +7,15 @@ export default function SlideNavigator({
   project,
   selected,
   onSelect,
+  onMove,
 }: {
   project: Project;
   selected: number;
   onSelect: (index: number) => void;
+  onMove?: (from: number, to: number) => void;
 }) {
+  const [dragged, setDragged] = useState<number | null>(null);
+  const [dropTarget, setDropTarget] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [layout, setLayout] = useState<Layout | "all">("all");
   const [problems, setProblems] = useState(false);
@@ -68,12 +72,41 @@ export default function SlideNavigator({
           </button>
         )}
       </div>
+      {onMove && (
+        <p className="rail-hint">Sıranı dəyişmək üçün slaydı sürüklə.</p>
+      )}
       <div className="slide-rail">
         {visible.map(({ slide, index, hasIssue }) => (
           <button
             key={slide.id}
-            className={index === selected ? "selected" : ""}
+            className={`${index === selected ? "selected" : ""} ${dropTarget === index && dragged !== index ? "drop-target" : ""} ${dragged === index ? "dragging" : ""}`}
             onClick={() => onSelect(index)}
+            draggable={!!onMove}
+            onDragStart={(event) => {
+              setDragged(index);
+              event.dataTransfer.effectAllowed = "move";
+              // Firefox starts a drag only when some data is set.
+              event.dataTransfer.setData("text/plain", String(index + 1));
+            }}
+            onDragOver={(event) => {
+              if (dragged === null) return;
+              event.preventDefault();
+              event.dataTransfer.dropEffect = "move";
+              setDropTarget(index);
+            }}
+            onDragLeave={() =>
+              setDropTarget((value) => (value === index ? null : value))
+            }
+            onDrop={(event) => {
+              event.preventDefault();
+              if (dragged !== null) onMove?.(dragged, index);
+              setDragged(null);
+              setDropTarget(null);
+            }}
+            onDragEnd={() => {
+              setDragged(null);
+              setDropTarget(null);
+            }}
             aria-current={index === selected ? "true" : undefined}
             aria-label={`${index + 1} nömrəli slaydı seç`}
             aria-describedby={hasIssue ? `slide-issue-${index}` : undefined}
