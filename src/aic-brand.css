@@ -1,0 +1,533 @@
+/* AIC UI palette: AIC/src/app/globals.css and tailwind.config.ts.
+   These tokens style the workspace; slide palettes keep their own --s-* tokens. */
+:root {
+  --aic-paper: #f3efe6;
+  --aic-ink: #16140f;
+  --aic-lime: #ccff00;
+  --aic-violet: #5b3df5;
+  --aic-page: #f3efe6;
+  --aic-surface: #fbf9f4;
+  --aic-raised: #ebe5d8;
+  --aic-border: #ddd5c4;
+  --aic-text: #16140f;
+  --aic-muted: #6f685b;
+  --aic-accent: #5b3df5;
+  --aic-accent-wash: #e7e0ff;
+  --aic-lime-wash: #e6ff8a;
+  --aic-positive: #445500;
+  --aic-warning: #8a4b15;
+  --aic-warning-wash: #fff0d8;
+  --aic-danger: #b52e21;
+  --aic-danger-wash: #fbe6df;
+  --line: var(--aic-border);
+  --muted: var(--aic-muted);
+  --purple: var(--aic-accent);
+  background: var(--aic-page);
+  color: var(--aic-text);
+}
+:root[data-mode="dark"] {
+  --aic-page: #0e0d0a;
+  --aic-surface: #1c1a14;
+  --aic-raised: #26231c;
+  --aic-border: #3a362c;
+  --aic-text: #f3efe6;
+  --aic-muted: #9e9787;
+  --aic-accent: #a592ff;
+  --aic-accent-wash: #302344;
+  --aic-lime-wash: #2f3815;
+  --aic-positive: #ccff00;
+  --aic-warning: #efc58a;
+  --aic-warning-wash: #3b2a17;
+  --aic-danger: #ffb09f;
+  --aic-danger-wash: #3d201b;
+  --line: var(--aic-border);
+  --muted: var(--aic-muted);
+  --purple: var(--aic-accent);
+  background: var(--aic-page);
+  color: var(--aic-text);
+}
+:root[data-mode] :is(body, .app-shell, main, .topbar) {
+  background: var(--aic-page);
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(
+    .sidebar,
+    .panel,
+    .edit-fields,
+    .design-panel,
+    .project-card,
+    .modal,
+    .quality-panel,
+    .source-inspector,
+    .empty,
+    .gallery-card,
+    .gallery-apply,
+    .pdf-pending,
+    .pdf-reference,
+    .sample-card
+  ) {
+  background: var(--aic-surface);
+  border-color: var(--aic-border);
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(
+    .sidebar,
+    .topbar,
+    .brief-form,
+    .library-tools,
+    .source-title,
+    .design-controls,
+    .text-export-tools,
+    .replace-dialog fieldset,
+    .agenda-choices,
+    .replace-preview article,
+    .agenda-preview article,
+    .chart-paste-preview th,
+    .chart-paste-preview td
+  ) {
+  border-color: var(--aic-border);
+}
+:root[data-mode]
+  :is(
+    .brand,
+    .page-title h1,
+    .panel-heading h2,
+    .section-heading h2,
+    .empty h2,
+    .deck-metrics b,
+    .quality-title > span:first-child,
+    .source-title h3,
+    .pdf-file-heading strong,
+    .pdf-reference strong,
+    .visual-editor h3,
+    .data-editor-title h3,
+    .modal p b,
+    .gallery-card-copy > strong,
+    .block-card strong
+  ):not(.slide, .slide *) {
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(
+    .breadcrumb,
+    .nav-label,
+    .nav-end,
+    .local-badge,
+    .sidebar-footer,
+    .sidebar-footer small,
+    .workspace-footer,
+    .workspace-footer > span:last-child,
+    .page-title p,
+    .panel-heading p,
+    .section-heading p,
+    .input-bottom,
+    .material-note,
+    .label-hint,
+    .under-button,
+    .preview-heading,
+    .preview-heading > span:last-child,
+    .preview-caption,
+    .theme-heading > span,
+    .theme-option > span,
+    .sample-card p,
+    .honest-note p,
+    .local-note,
+    .design-panel > p,
+    .project-meta span,
+    .modal p,
+    .info-box,
+    .optional,
+    .upload-label > span,
+    .upload-drop > span:not(.upload-glyph),
+    .upload-drop em,
+    .upload-hint,
+    .pdf-file-heading span,
+    .pdf-reference > div > span,
+    .pdf-range > span,
+    .pdf-range label,
+    .range-note,
+    .pdf-reference .reference-range,
+    .notes-hint,
+    .notes-count,
+    .brief-heading,
+    .brief-heading > span:last-child,
+    .academic-details summary,
+    .academic-details p,
+    .source-title > span,
+    .source-intro,
+    .source-footnote,
+    .source-empty,
+    .data-hint,
+    .data-editor-title > span,
+    .table-paste summary,
+    .table-paste p,
+    .chart-points > div > span,
+    .timeline-inputs > div > span,
+    .comparison-inputs small,
+    .image-meta,
+    .deck-metrics span,
+    .duration-hint,
+    .quality-summary,
+    .quality-disclaimer,
+    .navigator-tools > span,
+    .navigator-empty,
+    .slide-statistics,
+    .library-tools > span,
+    .library-privacy,
+    .shortcut-list small,
+    .gallery-summary,
+    .gallery-card-copy > span,
+    .gallery-card-copy > small,
+    .palette-dots > small,
+    .design-controls p,
+    .block-card > span
+  ):not(.slide, .slide *) {
+  color: var(--aic-muted);
+}
+:root[data-mode]
+  :is(input:not([type="checkbox"]), textarea, select):not(.slide, .slide *) {
+  background: var(--aic-surface);
+  color: var(--aic-text);
+  border-color: var(--aic-border);
+}
+:root[data-mode] :is(input, textarea)::placeholder {
+  color: var(--aic-muted);
+  opacity: 0.8;
+}
+:root[data-mode]
+  :is(
+    .search-field,
+    .counter button,
+    .slide-manage .icon-button,
+    .attached-citations > div,
+    .source-pages details,
+    .timeline-inputs > div,
+    .chart-type-options button,
+    .purpose-options button,
+    .layout-picker > button,
+    .block-card,
+    .info-box,
+    .export-note,
+    .shortcut-list kbd,
+    .edit-fields textarea.speaker-notes
+  ) {
+  background: var(--aic-raised);
+  color: var(--aic-text);
+  border-color: var(--aic-border);
+}
+:root[data-mode]
+  :is(
+    .text-button,
+    .icon-button,
+    .breadcrumb span,
+    .count-row > div > span,
+    .outline-fields input,
+    .source-pages summary,
+    .source-page-text,
+    .pdf-reference summary,
+    .pdf-reference details p,
+    .pdf-reference details b,
+    .editor-citations,
+    .editor-citations b,
+    .attached-citations > div
+  ):not(.slide, .slide *) {
+  color: var(--aic-text);
+}
+:root[data-mode] :is(.primary, .new-button) {
+  border-color: var(--aic-ink);
+  box-shadow: 0 3px 0 #16140f14;
+}
+:root[data-mode] .primary {
+  background: var(--aic-text);
+  color: var(--aic-page);
+}
+:root[data-mode] .new-button {
+  background: var(--aic-lime);
+  color: var(--aic-ink);
+}
+:root[data-mode] .brand-mark {
+  background: var(--aic-violet);
+  color: var(--aic-paper);
+}
+:root[data-mode] .brand-mark span {
+  color: var(--aic-lime);
+}
+:root[data-mode] :is(.secondary, .presentation-controls button) {
+  background: var(--aic-surface);
+  border-color: var(--aic-border);
+  color: var(--aic-text);
+}
+:root[data-mode] .secondary:hover:not(:disabled) {
+  background: var(--aic-raised);
+}
+:root[data-mode] :is(.beta, .tiny-tag, .panel-icon, .avatar) {
+  background: var(--aic-accent-wash);
+  border-color: var(--aic-border);
+  color: var(--aic-accent);
+  box-shadow: none;
+}
+:root[data-mode]
+  :is(
+    .page-title em,
+    .page-title h1 > span,
+    .eyebrow,
+    .aic-logo span,
+    .modal > svg,
+    .workspace-footer i,
+    .outline-number,
+    .editor-citations b,
+    .table-paste summary,
+    .source-pages summary > svg,
+    .pdf-reference summary
+  ) {
+  color: var(--aic-accent);
+}
+:root[data-mode] :is(nav button, .design-choice) {
+  color: var(--aic-muted);
+}
+:root[data-mode] nav button.active {
+  background: var(--aic-lime-wash);
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(
+    .nav-dot,
+    .live-dot,
+    .local-badge > span,
+    .draft-status > span,
+    .eyebrow > span
+  ) {
+  background: var(--aic-lime);
+  box-shadow: 0 0 0 1px #16140f24;
+}
+:root[data-mode] .nav-count {
+  background: var(--aic-raised);
+  color: var(--aic-text);
+}
+:root[data-mode] :is(.sidebar-note, .honest-note) {
+  background: var(--aic-lime-wash);
+  border-color: var(--aic-border);
+  color: var(--aic-text);
+}
+:root[data-mode] :is(.sidebar-note p, .note-icon, .honest-note > span) {
+  color: var(--aic-text);
+}
+:root[data-mode] .note-line {
+  background: var(--aic-accent);
+}
+:root[data-mode] .step {
+  color: var(--aic-muted);
+}
+:root[data-mode] .step > span {
+  background: var(--aic-surface);
+  border-color: var(--aic-border);
+  color: var(--aic-muted);
+}
+:root[data-mode] .step.current {
+  color: var(--aic-accent);
+}
+:root[data-mode] .step.current > span {
+  background: var(--aic-violet);
+  border-color: var(--aic-violet);
+  color: var(--aic-paper);
+}
+:root[data-mode] .step.done {
+  color: var(--aic-positive);
+}
+:root[data-mode] .step.done > span {
+  background: var(--aic-lime);
+  border-color: var(--aic-lime);
+  color: var(--aic-ink);
+}
+:root[data-mode] .step-line {
+  background: var(--aic-border);
+}
+:root[data-mode]
+  :is(
+    .purpose-options button.chosen,
+    .layout-picker > button.chosen,
+    .chart-type-options button.chosen,
+    .design-choice.chosen,
+    .source-pages details.linked,
+    .block-open-button,
+    .return-to-deck
+  ) {
+  background: var(--aic-accent-wash);
+  border-color: var(--aic-accent);
+  color: var(--aic-accent);
+}
+:root[data-mode] :is(.gallery-card.chosen, .slide-rail .selected .slide) {
+  border-color: var(--aic-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--aic-accent) 22%, transparent);
+}
+:root[data-mode] .slide-rail button > span {
+  color: var(--aic-muted);
+}
+:root[data-mode] .slide-navigation {
+  color: var(--aic-muted);
+}
+:root[data-mode] :is(.upload-drop, .manual-start) {
+  background: var(--aic-surface);
+  border-color: var(--aic-border);
+  color: var(--aic-text);
+}
+:root[data-mode] .upload-drop.dragging {
+  background: var(--aic-accent-wash);
+  border-color: var(--aic-accent);
+}
+:root[data-mode] .upload-drop strong {
+  color: var(--aic-text);
+}
+:root[data-mode] :is(.upload-glyph, .pdf-file-icon, .sample-symbol) {
+  background: var(--aic-violet);
+  color: var(--aic-paper);
+}
+:root[data-mode] .sample-card button {
+  background: var(--aic-lime);
+  color: var(--aic-ink);
+  border-color: var(--aic-lime);
+}
+:root[data-mode] .quality-issues > button {
+  background: var(--aic-warning-wash);
+  border-color: var(--aic-border);
+  color: var(--aic-warning);
+}
+:root[data-mode] :is(.quality-issues span, .quality-issues b, .quality-count) {
+  color: var(--aic-warning);
+}
+:root[data-mode] .quality-count {
+  background: var(--aic-warning-wash);
+}
+:root[data-mode]
+  :is(.quality-count.ready, .library-message, .quality-ready, .time-budget) {
+  background: var(--aic-lime-wash);
+  color: var(--aic-positive);
+  border-color: var(--aic-border);
+}
+:root[data-mode] :is(.under-button svg, .reference-check) {
+  color: var(--aic-positive);
+}
+:root[data-mode] :is(.warning, .data-warning, .slide-issue-dot) {
+  background: var(--aic-warning-wash);
+  color: var(--aic-warning);
+}
+:root[data-mode]
+  :is(
+    .danger,
+    .pdf-error,
+    .draft-status.error,
+    .attached-citations > div.missing,
+    .slide-jump small,
+    .outline-import [role="alert"],
+    .replace-dialog [role="alert"],
+    .agenda-builder [role="alert"],
+    .chart-paste [role="alert"],
+    .time-budget.over
+  ) {
+  color: var(--aic-danger);
+}
+:root[data-mode] .attached-citations > div.missing {
+  background: var(--aic-danger-wash);
+  border-color: var(--aic-danger);
+}
+:root[data-mode] .toast {
+  background: var(--aic-text);
+  color: var(--aic-page);
+  border-color: var(--aic-border);
+}
+:root[data-mode] :is(.toast > svg, .toast button) {
+  color: var(--aic-lime);
+}
+:root[data-mode="dark"] :is(.toast > svg, .toast button) {
+  color: var(--aic-violet);
+}
+:root[data-mode] .color-mode-toggle {
+  background: var(--aic-raised);
+  color: var(--aic-accent);
+  border-color: var(--aic-border);
+}
+:root[data-mode] .block-sketch {
+  background: var(--aic-raised);
+  color: var(--aic-accent);
+}
+:root[data-mode] .block-sketch i {
+  background: var(--aic-surface);
+  border-color: var(--aic-accent);
+}
+:root[data-mode]
+  :is(
+    input[type="checkbox"],
+    .editing-checkboxes input,
+    .agenda-choices input
+  ) {
+  accent-color: var(--aic-violet);
+}
+:root[data-mode] :is(input, textarea, select):focus {
+  border-color: var(--aic-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aic-accent) 17%, transparent);
+}
+:root[data-mode] .search-field input {
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+:root[data-mode] .search-field:focus-within {
+  border-color: var(--aic-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--aic-accent) 17%, transparent);
+}
+:root[data-mode] :is(button, a, input, textarea, select):focus-visible {
+  outline-color: var(--aic-accent);
+}
+:root[data-mode="dark"] :is(button, a, input, textarea, select):focus-visible {
+  outline-color: var(--aic-lime);
+}
+:root[data-mode] ::selection {
+  background: var(--aic-lime);
+  color: var(--aic-ink);
+}
+/* Presenter tools stay dark in either workspace mode. */
+:root[data-mode] :is(.practice-overlay, .presentation-overlay) {
+  --aic-page: #0e0d0a;
+  --aic-surface: #1c1a14;
+  --aic-raised: #26231c;
+  --aic-text: #f3efe6;
+  --aic-muted: #9e9787;
+  --aic-accent: #a592ff;
+  --aic-border: #3a362c;
+  background: var(--aic-page);
+  color: var(--aic-text);
+}
+:root[data-mode] :is(.practice-timer, .practice-notes, .practice-pacing) {
+  background: var(--aic-surface);
+  border-color: var(--aic-border);
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(
+    .practice-overlay header p,
+    .practice-navigation > span,
+    .practice-local,
+    .practice-timer > span,
+    .practice-timer > p,
+    .practice-pacing p,
+    .practice-notes > span,
+    .presentation-controls
+  ) {
+  color: var(--aic-muted);
+}
+:root[data-mode]
+  :is(.practice-notes h3, .practice-notes p, .practice-timer output) {
+  color: var(--aic-text);
+}
+:root[data-mode]
+  :is(.practice-timer.overtime output, .practice-timer.overtime > p) {
+  color: #ffb09f;
+}
+:root[data-mode] .time-track {
+  background: var(--aic-raised);
+}
+:root[data-mode] .time-track > span {
+  background: var(--aic-lime);
+}
