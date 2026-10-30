@@ -1,0 +1,9 @@
+---
+description: Təqdim layihəsinin ümumi iş qaydaları
+alwaysApply: true
+---
+
+İşə başlamazdan əvvəl AGENTS.md, docs/PROJECT.md və CONTRIBUTING.md
+fayllarını tam oxu və onlara əməl et. Əsas qayda mənbəyi AGENTS.md-dir.
+Mətnlər Azərbaycan dilindədir. Əmrləri repo kökündən işlət;
+şəxsi kompüterə aid mütləq yollardan istifadə etmə.

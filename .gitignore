@@ -3,4 +3,8 @@ dist/
 *.tsbuildinfo
 .env
 .env.local
+.env.*
+!.env.example
+*.teqdim.json
+*.log
 .checks/

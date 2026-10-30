@@ -288,3 +288,11 @@ Git HEAD 985d3c7 (mərhələ 11). Son oxunaqlılıq CSS düzəlişləri və lock
 ## Yerli commit (2026-10-31)
 
 İstifadəçi son yoxlanmış dəyişiklikləri commit etməyi istədi. Oxunaqlılıq/kontrast CSS düzəlişləri, package-lock yeniləməsi və cari vəziyyət qeydləri birlikdə yerli Git commit-inə daxil edilir. Mənbə məntiqi əvvəlki yoxlamadan sonra dəyişməyib; bütün 10 check və build nəticələri həmin yoxlamadadır. Uzaq repoya push bu istəyə daxil deyil və edilməyib.
+
+## Reponun ümumi istifadəyə hazırlanması (2026-10-31)
+
+İstifadəçi başqalarının reponu götürüb Codex, Claude Code və ya Cursor ilə işlətməsini istəyir; tətbiqə şəxsi API açarı qoşmaq bu tapşırığa daxil deyil. İş branch-i codex/repository-readiness-dir. README ümumi klonlama/npm ci təlimatı, AI tapşırıq nümunəsi və məhdudiyyətlərlə yeniləndi. AGENTS.md portativ qaydalara çevrildi; CLAUDE.md və Cursor qaydası həmin mənbəyə yönəldir. docs/PROJECT.md layihə xəritəsi, CONTRIBUTING.md töhfə qaydaları, LICENSE MIT mətni, .nvmrc və Windows/Linux GitHub Actions yoxlaması əlavə olundu. package.json Node >=24.15.0 <25 tələbini, repo ünvanını və MIT lisenziyasını bildirir; testlərin birbaşa istifadə etdiyi jszip artıq ayrıca dev asılılığıdır. private: true yalnız npm nəşrini bloklayır, GitHub görünüşünü dəyişmir. .env variantları, şəxsi .teqdim.json və loqlar ignore edilir.
+
+Mövcud mənbə və Git tarixçəsində seçilmiş token/private-key nümunələri tapılmadı; bu, bütün mümkün məxfi məlumatlara zəmanət deyil. Tarixçədəki şəxsi sessiya qeydləri qorunur. Repo görünüşü hələ PRIVATE-dır, uzağa push və yayımlama aparılmayıb. Açıq repo və main-ə push üçün istifadəçinin ayrıca razılığı gözlənilir.
+
+Yoxlama: ayrıca .checks/repo-readiness qovluğunda təmiz npm ci, bütün 10 check skripti və build uğurla tamamlandı (Node 24.21.0, npm 12.2.0). npm ci audit-i 0 zəiflik göstərdi. PDF chunk ölçü xəbərdarlığı qalır. GitHub Actions hələ uzaqda işlədilməyib; Linux nəticəsi təsdiqlənməyib. Məhsulun mənbə məntiqi və dizaynı bu işdə dəyişdirilmədi. Hazırlıq yerli commit-də saxlanır; push və görünüş dəyişikliyi edilməyib.
