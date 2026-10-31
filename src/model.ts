@@ -964,27 +964,29 @@ export function createSlides(
           : "Əsas nəticələrini və müzakirə sualını buraya yaz.",
     layout: "text",
   });
-  if (references.length) {
-    const sourceText = references
-      .map(
-        (r) =>
-          `${r.name}\n${/\.pdf$/i.test(r.name) ? `Səhifələr: ${r.pages.map((p) => p.number).join(", ")}` : "Sənəddən çıxarılmış mətn"}`,
-      )
-      .join("\n\n");
-    splitText(sourceText).forEach((body, i) =>
-      slides.push({
-        id: uid(),
-        title: i
-          ? "İstifadə olunan materiallar (davamı)"
-          : "İstifadə olunan materiallar",
-        body,
-        layout: "text",
-      }),
-    );
-  }
+  slides.push(...sourcesSlides(references));
   if (slides.length > 80)
     throw new Error("Material çox uzundur. Daha az material seç.");
   return slides;
+}
+
+/** Closing slides that list the added documents; no bibliographic data is invented. */
+export function sourcesSlides(references: Reference[]): Slide[] {
+  if (!references.length) return [];
+  const sourceText = references
+    .map(
+      (r) =>
+        `${r.name}\n${/\.pdf$/i.test(r.name) ? `Səhifələr: ${r.pages.map((p) => p.number).join(", ")}` : "Sənəddən çıxarılmış mətn"}`,
+    )
+    .join("\n\n");
+  return splitText(sourceText).map((body, i) => ({
+    id: uid(),
+    title: i
+      ? "İstifadə olunan materiallar (davamı)"
+      : "İstifadə olunan materiallar",
+    body,
+    layout: "text",
+  }));
 }
 
 export async function exportPptx(project: Project) {

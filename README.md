@@ -4,7 +4,7 @@ Azərbaycan dilində təqdimat hazırlamaq üçün React + TypeScript tətbiqi. 
 
 Öz mətnini, PDF, Word və digər mətn sənədlərini slaydlara çevir, redaktə et, dizayn seç və PowerPoint kimi yüklə. Layihəni Codex, Claude Code və ya Cursor ilə inkişaf etdirə bilərsən.
 
-> Tətbiqdə AI bağlantısı, hesab, ödəniş və bulud yaddaşı yoxdur. Mətn yerli alqoritmlə bölünür. AI kod aləti ilə layihəni dəyişdirmək tətbiqdə AI məzmun yaratmaqdan ayrı imkandır.
+> Tətbiqdə hesab, ödəniş və bulud yaddaşı yoxdur. Adi planda mətn yerli alqoritmlə bölünür. İstəyə bağlı DeepSeek planı yalnız öz API açarınla işə saldığın yerli serverlə işləyir ([docs/BACKEND.md](docs/BACKEND.md)). AI kod aləti ilə layihəni dəyişdirmək tətbiqdə AI məzmun yaratmaqdan ayrı imkandır.
 
 ## Başlamaq
 
@@ -17,7 +17,7 @@ npm ci
 npm run dev
 ```
 
-[http://127.0.0.1:5174/](http://127.0.0.1:5174/) ünvanını aç. Terminal açıq qalsın; dayandırmaq üçün Ctrl+C bas. Windows-da asılılıqları quraşdırdıqdan sonra `Baslat.cmd` də işləyir. API açarı və `.env` tələb olunmur.
+[http://127.0.0.1:5174/](http://127.0.0.1:5174/) ünvanını aç. Terminal açıq qalsın; dayandırmaq üçün Ctrl+C bas. Windows-da asılılıqları quraşdırdıqdan sonra `Baslat.cmd` də işləyir; o, AI serverini də ayrıca pəncərədə açır. Adi iş üçün API açarı və `.env` tələb olunmur.
 
 Repo gizli olduğu müddətdə klonlamaq üçün giriş icazəsi lazımdır. Açıq edildikdən sonra hər kəs klonlaya bilər. ZIP endirirsənsə, arxivi çıxar və terminalı `package.json` olan qovluqda aç.
 
@@ -45,6 +45,7 @@ AI alətlərinin öz quraşdırılması və hesabı ayrıdır. Tətbiqin yerli s
 ## İmkanlar
 
 - Mətn və üçədək sənəddən plan, mənbə istinadları və çıxış qeydləri.
+- İstəyə bağlı DeepSeek: AI planı və seçilən slayd üçün «Qısalt», «Aydın yaz», «Çıxış qeydi yaz». Nəticə önizləmədən sonra tətbiq olunur, geri alınır ([docs/BACKEND.md](docs/BACKEND.md)).
 - 10 dizayn, 10 düzülüş; cədvəl, diaqram, müqayisə, mərhələlər və şəxsi şəkil.
 - Əlavə etmə, bölmə, surət, sıralama, gizlətmə, geri alma və toplu mətn əvəzləmə.
 - Dizayn qalereyası, şrift/ölçü/dekor ayarları, açıq və qaranlıq interfeys.
@@ -56,7 +57,8 @@ AI alətlərinin öz quraşdırılması və hesabı ayrıdır. Tətbiqin yerli s
 
 ```sh
 npm run dev      # Yerli inkişaf serveri, 5174 portu
-npm run check    # Bütün 11 yoxlama skripti
+npm run api      # İstəyə bağlı AI serveri (DeepSeek), 8787 portu
+npm run check    # Bütün 13 yoxlama skripti
 npm run build    # TypeScript və dist/ yığımı
 npm run preview  # Hazır yığımı yerli açmaq
 ```
@@ -69,7 +71,7 @@ Yoxlamalar `.checks/` altında müvəqqəti fayllar yaradır. jsdom və PPTX XML
 
 Təqdimatlar həmin brauzer və ünvanın localStorage yaddaşındadır. Brauzer məlumatlarını silməzdən və ünvanı dəyişməzdən əvvəl `.teqdim.json` çıxar. Git klonu istifadəçinin təqdimatlarını daşımır. Ehtiyat nüsxədə sənədlərdən çıxarılmış mətnlər və uyğunlaşdırılmış şəkillər ola bilər; orijinal sənəd faylları daxil deyil.
 
-Sənədlər brauzerdə emal edilir: ən çox 3 fayl, hərəsi 20 MB, fayl üzrə 60 000 simvol, ümumilikdə 100 000 simvol. PDF-də ən çox 50 fiziki səhifə seçilir. Ən çox 80 slayd və 2 MB ehtiyat nüsxəsi qəbul olunur. Faktlar avtomatik təsdiqlənmir. PowerPoint və brauzer görünüşündə fərqlər ola bilər. Material serverə göndərilmir; Google Fonts üçün şəbəkə sorğusu gedir, alınmasa sistem şrifti işləyir.
+Sənədlər brauzerdə emal edilir: ən çox 3 fayl, hərəsi 20 MB, fayl üzrə 60 000 simvol, ümumilikdə 100 000 simvol. PDF-də ən çox 50 fiziki səhifə seçilir. Ən çox 80 slayd və 2 MB ehtiyat nüsxəsi qəbul olunur. Faktlar avtomatik təsdiqlənmir. PowerPoint və brauzer görünüşündə fərqlər ola bilər. Adi planda material serverə göndərilmir; DeepSeek seçimi yalnız razılığınla göndərir. Google Fonts üçün şəbəkə sorğusu gedir, alınmasa sistem şrifti işləyir.
 
 ### Sənəd formatları
 
@@ -81,6 +83,6 @@ Köhnə DOC, DOCM, WPS və Apple Pages fayllarını əvvəlcə DOCX, ODT, RTF v�
 
 ## Layihəyə qoşulmaq
 
-[Layihə xəritəsi](docs/PROJECT.md) · [Töhfə qaydaları](CONTRIBUTING.md) · [İnkişaf planı](ROADMAP.md) · [AI iş qaydaları](AGENTS.md)
+[Layihə xəritəsi](docs/PROJECT.md) · [AI serveri](docs/BACKEND.md) · [Töhfə qaydaları](CONTRIBUTING.md) · [İnkişaf planı](ROADMAP.md) · [AI iş qaydaları](AGENTS.md)
 
 Kod üçün MIT lisenziyası [LICENSE](LICENSE) faylındadır. AIC/Təqdim ad və loqoları brend elementləridir; kod lisenziyası rəsmi tərəfdaşlıq və ya brend adından çıxış etmək hüququ vermir. Üçüncü tərəf paketləri öz lisenziyaları ilə qalır.

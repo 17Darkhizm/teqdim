@@ -81,6 +81,9 @@ import {
 } from "./storage";
 import { useDraft } from "./useDraft";
 import PdfUpload from "./PdfUpload";
+import AiDraft from "./AiDraft";
+import SlideAssist from "./SlideAssist";
+import type { AssistResult } from "./ai";
 import ProjectLibrary from "./ProjectLibrary";
 import { downloadBackup } from "./backup";
 import { useHistory } from "./useHistory";
@@ -119,9 +122,10 @@ export default function App() {
   }, [darkMode]);
   const [restored] = useState(readDraft);
   const [pendingAction, setPendingAction] = useState<
-    "new" | "rebuild" | Project | null
+    "new" | "rebuild" | "ai" | Project | null
   >(null);
   const [projects, setProjects] = useState<Project[]>(readProjects);
+  const [aiCandidate, setAiCandidate] = useState<{ slides: Slide[]; key: string } | null>(null);
   const [page, setPage] = useState<"create" | "projects">("create");
   const [step, setStep] = useState(restored?.step || 1);
   const [topic, setTopic] = useState(restored?.project.topic || "");
@@ -200,6 +204,14 @@ export default function App() {
   const [projectId, setProjectId] = useState<string>(
     () => restored?.project.id || uid(),
   );
+  const aiInputKey = JSON.stringify([projectId, topic, material, references, count, brief]);
+  function applyAiPlan(candidate: { slides: Slide[]; key: string }) {
+    if (candidate.key !== aiInputKey) { setToast("Material dəyişib. AI planını yenidən hazırla.", "error"); return; }
+    if (slides.length) history.set(deck => ({ ...deck, slides: candidate.slides }));
+    else history.replace({ theme, design, slides: candidate.slides });
+    setSelected(0); setStep(2); setAiCandidate(null);
+    setToast("AI planı tətbiq edildi. Faktları və mənbə uyğunluğunu yoxla.");
+  }
   const [toastTone, setToastTone] = useState<"info" | "error">("info");
   const [toast, setToastText] = useState(
     restored && (restored.project.topic || restored.project.slides.length)
@@ -596,6 +608,29 @@ export default function App() {
       `notes:${id}`,
     );
   }
+  const assistKeyFor = (s: Slide) =>
+    JSON.stringify([projectId, s.id, s.title, s.body, s.notes || "", s.layout || ""]);
+  function applyAssist(result: AssistResult, key: string) {
+    const current = slides[selected];
+    if (!current || key !== assistKeyFor(current)) {
+      setToast("Slayd dəyişib. AI düzəlişini yenidən hazırla.", "error");
+      return;
+    }
+    // One history step, so a single undo restores the slide.
+    setSlides((items) =>
+      items.map((s) => {
+        if (s.id !== current.id) return s;
+        if (result.mode === "notes") return { ...s, notes: result.slide.notes };
+        const changed = s.title !== result.slide.title || s.body !== result.slide.body;
+        return {
+          ...s,
+          ...result.slide,
+          citationReview: changed && !!s.citations?.length ? true : s.citationReview,
+        };
+      }),
+    );
+    setToast("AI düzəlişi tətbiq edildi. Faktları yoxla; geri almaq üçün Ctrl+Z.");
+  }
   function insertBlock(kind: BlockKind) {
     if (slides.length >= 80) return;
     const block = createBlock(kind);
@@ -844,6 +879,7 @@ export default function App() {
                 onClick={() => {
                   if (pendingAction === "new") reset(true);
                   else if (pendingAction === "rebuild") generatePlan();
+                  else if (pendingAction === "ai") { if (aiCandidate) applyAiPlan(aiCandidate); }
                   else load(pendingAction, true);
                   setPendingAction(null);
                 }}
@@ -1157,8 +1193,14 @@ export default function App() {
                     </button>
                     <p className="under-button">
                       <CheckCheck size={14} />
-                      Qeydiyyat tələb olunmur · Materialın serverə göndərilmir
+                      Adi plan yerli hazırlanır · AI yalnız razılığınla işləyir
                     </p>
+                    <AiDraft input={{ topic, material, references, count, brief }} inputKey={aiInputKey} onApply={(slides, key) => {
+                      const candidate = { slides, key };
+                      if (candidate.key !== aiInputKey) return;
+                      if (history.value.slides.length) { setAiCandidate(candidate); setPendingAction("ai"); }
+                      else applyAiPlan(candidate);
+                    }} />
                   </form>
                   <div className="preview-column">
                     <div className="preview-heading">
@@ -1252,9 +1294,9 @@ export default function App() {
                     <div className="honest-note">
                       <span>İLKİN VERSİYA HAQQINDA</span>
                       <p>
-                        Öz qeydlərini və ya mətn sənədlərini əlavə et. Süni
-                        intellektlə mətn və mənbə hazırlama növbəti mərhələdə
-                        əlavə ediləcək.
+                        Adi plan materialını yerli bölür. DeepSeek ilə plan
+                        üçün server bağlantısı və ayrıca razılığın tələb olunur.
+                        AI-nin yazdığı faktları özün yoxla.
                       </p>
                     </div>
                   </div>
@@ -1446,7 +1488,8 @@ export default function App() {
                         <p className="warning overflow-warning" role="status">
                           Mətnin bir hissəsi slayda sığmır və görünmür. Mətni
                           qısalt, “Böl” düyməsindən istifadə et və ya başqa
-                          düzülüş seç.
+                          düzülüş seç. AI serveri qurulubsa, aşağıdakı «AI ilə
+                          düzəliş» bölməsində «Qısalt» da kömək edir.
                         </p>
                       )}
                       <div className="slide-navigation">
@@ -1752,6 +1795,15 @@ export default function App() {
                         <p className="notes-hint">
                           Qeydlər PowerPoint-in çıxış qeydlərinə əlavə edilir.
                         </p>
+                        <SlideAssist
+                          slide={slides[selected]}
+                          layout={layoutFor(slides[selected], selected)}
+                          topic={topic}
+                          brief={brief}
+                          references={references}
+                          contentKey={assistKeyFor(slides[selected])}
+                          onApply={applyAssist}
+                        />
                       </div>
                       <SourceInspector
                         key={projectId}
@@ -2018,9 +2070,9 @@ export default function App() {
               </small>
             </div>
             <div className="info-box">
-              Bu, yerli ilkin versiyadır. Hesab, ödəniş və süni intellekt
-              bağlantısı hələ əlavə edilməyib. Məlumatlar yalnız brauzer
-              yaddaşında saxlanır.
+              Təqdimatlar brauzer yaddaşında saxlanır. Hesab və ödəniş yoxdur.
+              Adi plan yerli işləyir; DeepSeek seçimini təsdiqlədikdə material
+              server üzərindən AI xidmətinə göndərilir.
             </div>
           </section>
         </div>

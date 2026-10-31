@@ -25,5 +25,42 @@
 
 .aic-brand-icon{width:34px;height:34px;object-fit:contain;flex-shrink:0}.aic-footer-icon{width:20px;height:20px;object-fit:contain;margin-left:12px;vertical-align:middle}.workspace-footer>span:last-child{display:inline-flex;align-items:center}
 .document-preview { margin: 12px 0; }
+.ai-draft { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--aic-border, #ccc); }
+.ai-draft-body { display: grid; gap: 12px; padding-top: 12px; }
+.ai-draft-body p { font-size: 14px; line-height: 1.6; margin: 0; }
+.ai-draft-body .ai-consent { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; }
+/* The base input rule (width 100%, padding) is for text fields; it stretched every checkbox and pushed its label aside. */
+input[type="checkbox"], input[type="radio"] { width: auto; padding: 0; }
+.ai-consent input[type="checkbox"] { margin: 3px 0 0; flex: none; }
+.ai-plan-preview { display: grid; gap: 12px; }
+.ai-plan-preview details { max-height: 280px; overflow: auto; overflow-wrap: anywhere; font-size: 14px; }
+.ai-plan-preview section { padding: 10px 0; border-bottom: 1px solid var(--aic-border, #ccc); }
+.ai-draft .ai-warning { padding: 10px; border-left: 3px solid var(--aic-accent, #5b3df5); }
+.ai-server-status { display: grid; gap: 6px; padding: 10px 12px; border: 1px solid var(--aic-border, #ccc); border-radius: 10px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.ai-server-status span { display: inline-flex; align-items: flex-start; gap: 6px; }
+.ai-server-status.ready { border-color: var(--aic-accent, #5b3df5); }
+.ai-server-status.offline, .ai-server-status.unconfigured { border-left: 3px solid #b52e21; }
+.ai-server-status .text-button { justify-self: start; }
+.slide-assist { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--aic-border, #ccc); }
+.slide-assist-body { display: grid; gap: 10px; padding-top: 10px; }
+.slide-assist-body p { font-size: 14px; line-height: 1.6; margin: 0; }
+.slide-assist-body .ai-consent { display: flex; align-items: flex-start; gap: 8px; font-size: 14px; line-height: 1.5; }
+.slide-assist-modes, .assist-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.slide-assist-modes button, .assist-actions button { display: inline-flex; align-items: center; gap: 6px; }
+.assist-busy { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.assist-result, .assist-compare { display: grid; gap: 10px; }
+.assist-row { display: grid; gap: 6px; }
+.assist-row > div { padding: 8px 10px; border: 1px solid var(--aic-border, #ccc); border-radius: 8px; }
+.assist-row > div.after { border-color: var(--aic-accent, #5b3df5); }
+.assist-row small { display: block; margin-bottom: 4px; font-size: 13px; color: var(--aic-muted, #575143); }
+.assist-row p { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 220px; overflow: auto; }
+.slide-assist .ai-warning { padding: 8px 10px; border-left: 3px solid var(--aic-accent, #5b3df5); }
+/* Phones: the three nowrap step labels overflow ~36px at 390px. Keep the current one visible, the rest for screen readers. */
+@media (max-width: 480px) {
+  .step { position: relative; }
+  .step:not(.current) strong { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+}
+/* On phones the rail scrolls sideways; an .sr-only label without a positioned ancestor escaped it and widened the page by ~86px. */
+.slide-rail button { position: relative; }
 .document-preview summary { cursor: pointer; font-size: 14px; }
 .document-preview pre { max-height: 260px; overflow: auto; white-space: pre-wrap; overflow-wrap: anywhere; font: inherit; font-size: 14px; padding: 12px; border: 1px solid var(--aic-border, #ccc); border-radius: 10px; }

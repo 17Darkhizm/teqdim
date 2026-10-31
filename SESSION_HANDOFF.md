@@ -79,3 +79,14 @@ npm run check (10 skript), npm run build və production audit keçdi (0 məlum z
 
 
 2026-10-31: codex/document-import branch-ində ümumi sənəd idxalı hazırlandı. PDF ilə yanaşı DOCX/ODT/RTF, HTML/XML və sadə mətn formatları qəbul olunur; DOC/Pages üçün çevirmə tələb edilir. README və docs/PROJECT.md cari təlimatdır. Bütün 11 yoxlama və build keçdi; yeni parser Node 24.22.1 ilə də yoxlanıb. Ətraflı nəticə CONTEXT.md-nin son bölməsindədir. Uzağa push/yayımlama edilməyib.
+
+
+## Cari vəziyyət — 2026-10-31 axşam (AI)
+
+Aktiv branch `codex/backend-deepseek`-dir. Repo hazırlığı (900eb9d), sənəd idxalı (f88f92c) və AI commit-i buradadır, heç biri main-ə birləşməyib və push edilməyib. AI işinin iki hissəsi var:
+- İlk addımda «DeepSeek ilə plan hazırla».
+- Redaktorda seçilən slayd üçün «AI ilə düzəliş»: Qısalt / Aydın yaz / Çıxış qeydi yaz.
+
+Server `server/` qovluğundadır. Quraşdırma, API və xəta kodları docs/BACKEND.md-dədir. Plan və nəticələr WORKFLOW-12.md və WORKFLOW-13.md-də, təfərrüat CONTEXT.md-nin son bölmələrindədir. Sınaq skriptlərinin sayı 13-dür.
+
+Davam etmək üçün: `.env`-ə `DEEPSEEK_API_KEY` yazılıb ilk real sınaq aparılmalıdır (indiyə qədər yalnız saxta provayderlə sınanıb). `Baslat.cmd` AI serverini də açır. Vizual yoxlama Chrome headless + CDP ilə aparılıb (Playwright paketi yoxdur).

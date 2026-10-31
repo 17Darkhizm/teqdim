@@ -306,3 +306,50 @@ PdfUpload adı uyğunluq üçün saxlanıb, amma interfeys ümumi sənəd idxal�
 Model/backup versiyası dəyişmir: qeyri-PDF Reference.pages daxilində number=1/pageCount=1 olan bütöv mətn saxlayır; bu fiziki səhifə deyil. sourcePosition fayl adı PDF olduqda fiziki səhifəni, başqa halda “Sənəd mətni” yazısını göstərir. Slayd, PPTX, mənbə paneli, mətn ixracı və kitabxana izahları uyğunlaşdırıldı. Əvvəlki PDF ehtiyat nüsxələri qorunur. jszip runtime asılılığına keçirildi və yalnız arxiv sənədi oxunanda tənbəl yüklənir. Təqdimatlar və materiallar hələ də yerli saxlanır; API bağlantısı əlavə edilməyib.
 
 Yoxlama: bütün 11 npm run check skripti və npm run build keçdi. Son HTML/format dəyişikliklərindən sonra check-documents.mjs Node 24.22.1 ilə, build isə yenidən işləndi və keçdi. Tam sınaq turu sistem Node 26.13.0 ilə idi; layihənin tövsiyə edilən Node 24.x tələbi dəyişdirilmədi. Yeni sınaq real sintetik DOCX/ODT ZIP, RTF Unicode/kodlaşdırma, UTF-8/UTF-16, HTML/XML, zədələnmə/arxiv genişlənmə/həcm limitləri, önizləmə/təsdiq, gecikmiş nəticə, ümumi limit, v4 backup və PPTX mənbə mətnini yoxlayır. npm audit --omit=dev: 0 zəiflik. Git diff --check təmizdir (yalnız CRLF xəbərdarlıqları). PDF modulunun 542 kB xəbərdarlığı qalır. Bu turda brauzer və PowerPoint vizual renderi yoxlanmayıb; sınaqlar Node/jsdom/XML-dir. Push, görünüş dəyişikliyi və yayımlama edilməyib.
+
+## DeepSeek AI planı — backend və panel (2026-10-31)
+
+Branch `codex/backend-deepseek` (`codex/document-import` commit-inin üstündə). İş sonrakı bölmədəki işlə birlikdə bir yerli commit-də saxlanılıb (bax «Yerli commit — AI»). Plan WORKFLOW-12.md-dədir.
+
+Codex hissəsi: `server/` yerli Node HTTP serveridir (`/api/health`, `/api/generate`; Host/Origin yoxlaması, 512 KB body, dəqiqəlik sorğu və paralellik limiti, ləğv, məxfi məlumatsız loq). `schema.mjs` giriş/çıxış sxemidir: istinad yalnız göndərilmiş sənədin mətni olan səhifəsinə ola bilər; universitet/müəllim/qrup provayderə ötürülmür. `deepseek.mjs`: `https://api.deepseek.com/chat/completions`, `deepseek-flash` / `deepseek-v4-pro`, `thinking: disabled`, `response_format: json_object`. Müştəri tərəfi `src/ai.ts`, `src/AiDraft.tsx`-dir (razılıq, önizləmə, təsdiqlə tətbiq, bir addımda undo). Bunlardan əlavə Vite `/api` proxy, `.env.example`, check-backend.mjs və check-ai.mjs var.
+
+Claude hissəsi (təxminən 30 dəqiqə):
+- DeepSeek-in rəsmi sənədləri ilə müqayisə edildi: model adları, `thinking` (enabled/disabled), JSON rejimi (promptda "json" və nümunə, boş content halı). Kod onlara uyğundur.
+- AiDraft panel açılanda `/api/health` yoxlayır və «işləmir», «açar qurulmayıb» və ya «hazırdır (model)» göstərir. Server hazır olmayanda «AI planını yarat» bağlıdır, «Yenidən yoxla» düyməsi var, panel bağlananda yoxlama ləğv edilir. Əvvəl düymə server və açar olmadan da işlək görünürdü.
+- Panel mətnində universitet, müəllim və qrupun da göndərilmədiyi yazılıb.
+- `Baslat.cmd` AI serverini ayrıca pəncərədə də açır.
+- `docs/BACKEND.md` yazıldı: `server/index.mjs` ona istinad edirdi, amma fayl yox idi. README və docs/PROJECT.md-dəki «AI/server yoxdur» cümlələri yeniləndi, yoxlama sayı 13 oldu.
+- check-ai.mjs-ə health vəziyyətləri, JSON olmayan proxy cavabı və yoxlamanın ləğvi sınaqları əlavə edildi.
+
+Yoxlama: npm run check (13 skript), npm run build və git diff --check keçdi. Sistem Node 26.13.0 idi; layihə 24.x tövsiyə edir. Real HTTP sınağında API və Vite birlikdə işə salındı. Proxy üzərindən health `configured:false`, generate `503 AI_NOT_CONFIGURED`, yad Origin isə `403 ORIGIN_DENIED` qaytardı; sonra hər iki proses dayandırıldı. **Real DeepSeek açarı ilə sınaq aparılmayıb** (açar yoxdur). Bu turda brauzerdə vizual yoxlama aparılmayıb; vizual yoxlama sonrakı bölmədədir.
+
+Növbəti addımlar: istifadəçi `.env`-ə açar yazıb bir real sınaq edir, nəticəyə görə prompt və limitlər tənzimlənir, sonra branch commit edilir. Videoda və mətnlərdə Təqdimin AI-si hələ «işləyir» kimi göstərilməməlidir.
+
+## Backend auditi və slayd köməkçisi (2026-10-31, axşam)
+
+İstifadəçi yeni imkanlar və bütün backend-in yoxlanmasını istədi. Eyni branch-də (`codex/backend-deepseek`), əvvəlki bölmədəki işlə birlikdə yerli commit edilib. Plan və nəticə cədvəli WORKFLOW-13.md-dədir, istifadə təlimatı docs/BACKEND.md-dədir.
+
+Backend düzəlişləri:
+- `max_tokens` 6000 sabit idi; indi `min(12000, 1500 + məzmun slaydı × 900)`. Bu, 3300–11400 edir; DeepSeek-in maksimum cavabı 384K-dır (rəsmi səhifədən).
+- `schema.mjs` yenidən quruldu: `LIMITS`, `readReferences`/`readBrief` köməkçiləri, səbəbi ayıran mesajlar («limitini aşır» / «idarəetmə simvolu»). Cavab yoxlaması `{ slides, warnings }` qaytarır. Say ±1, 460-dan uzun mətn və sənəd planında istinadsız slayd artıq rədd edilmir, xəbərdarlıq olur. Naməlum düzülüş `text` olur, təkrar istinad birləşir, `"1"` kimi səhifə qəbul olunur. Uydurma istinad, 3000+ mətn və boş başlıq əvvəlki kimi rədd edilir.
+- Sənəd varsa model `count − 2` slayd yazır (`contentCount`). Müştəri `sourcesSlides()` ilə «İstifadə olunan materiallar» slaydını əlavə edir; bu funksiya createSlides-dən çıxarılıb.
+- Provayderə fayl adları getmir (`anonymous`). İstinad adı müştəridə yerli sənəddən bərpa olunur, server/müştəri adının uyğunsuzluğu artıq planı pozmur.
+- Xətalar: 400/422 → `AI_REQUEST_REJECTED`, `content_filter` → `AI_FILTERED`, `insufficient_system_resource` → `AI_UNAVAILABLE`.
+- `app.mjs`: marşrut cədvəli (`Object.hasOwn`), ləğv edilmiş sorğu `REQUEST_CANCELLED` + status `null`, daxili xətanın yalnız növü loqa düşür. `index.mjs` config xətasında dəyişənin adını yazır.
+- Müştəri (`ai.ts`) sənəddən gələn idarəetmə simvollarını göndərməzdən əvvəl boşluqla əvəz edir; əvvəl real PDF-dəki belə simvol bütün sorğunu 400 ilə dayandıra bilərdi.
+
+Yeni imkan, slayd köməkçisi: `/api/slide` (`validateAssistInput`/`validateAssistOutput`, `createDeepseekAssist`), `SlideAssist.tsx`, `AiStatus.tsx` (`useAiServer` + `AiServerStatus`, AiDraft da bundan istifadə edir). Redaktorda «AI ilə düzəliş (DeepSeek)» bölməsinin rejimləri: Qısalt (çıxarılan təfərrüat qeydlərin sonuna, doludursa `NOTES_FULL`), Aydın yaz (qeydlərə toxunmur), Çıxış qeydi yaz (yalnız qeydi dəyişir, bütün düzülüşlərdə işləyir). Üz qabığında yalnız qeyd var. Razılıq hər slayd üçün ayrıca soruşulur. Nəticə «İndiki / AI təklifi» müqayisəsi kimi görünür; «Tətbiq et» bir history addımıdır və istinadlı slaydda `citationReview` qoyur. Slayd dəyişəndə köhnə təklif atılır. Göndərilənlər: slaydın mətnləri, struktur slaydında görünən mətn, yalnız istinad etdiyi səhifələr.
+
+Vizual yoxlama: Playwright paketi kompüterdə yoxdur. Chrome headless DevTools protokolu (Node 26-nın daxili WebSocket-i) ilə idarə olundu: real tətbiq Vite ilə, API isə saxta (health hazır, `/api/slide` hazır cavab). Açıq/qaranlıq, 1440 və 390 px yoxlanıb. Tapılıb düzəldilənlər:
+- qlobal `input { width: 100%; padding }` bütün checkbox-ları uzadırdı (AI razılıqları, «Yoxlanmalı», dizayn, əvəzləmə, plan seçimi); indi `input[type=checkbox|radio] { width: auto; padding: 0 }`;
+- telefonda nowrap addım adları 36 px daşırdı; 480 px-dən dar ekranda yalnız cari ad görünür, digərləri ekran oxuyucu üçün qalır;
+- miniatürdəki `.sr-only` «Yoxlanmalı məqam var» yerləşdirilmiş valideyni olmadığı üçün zolaqdan çıxıb səhifəni 86 px genişləndirirdi; `.slide-rail button { position: relative }`.
+390 px-də daşma indi 0-dır.
+
+Yoxlama: npm run check (13 skript), build, git diff --check və `npm audit --omit=dev` (0) keçdi. Real HTTP-də `/api/slide` proxy üzərindən açarsız `503`, GET `405` qaytarır. Vite yad Origin preflight-ına ACAO vermir, API yad Origin POST-unu `403` ilə rədd edir, yad Host və `/.env.example` Vite-da `403`-dür. Real DeepSeek açarı ilə sınaq yenə aparılmayıb.
+
+## Yerli commit — AI (2026-10-31)
+
+İstifadəçi indiyə qədər görülən bütün işləri saxlayıb commit etməyi istədi. `codex/backend-deepseek` branch-ində bir commit yaradıldı. İçindədir: Codex-in DeepSeek backend-i və AI plan paneli (WORKFLOW-12), server vəziyyəti göstəricisi, `Baslat.cmd`-də AI serveri, docs/BACKEND.md, backend audit düzəlişləri, slayd köməkçisi və vizual düzəlişlər (WORKFLOW-13). Ara vəziyyətlər diskdə saxlanmadığı üçün iş mərhələlərə bölünmədi.
+
+Commit-dən əvvəl bütün 13 check skripti, build, git diff --check və production audit (0) keçdi. **Push edilməyib.** Branch-lərin vəziyyəti: lokal `main` 98fddb7-dir və origin/main-dən (985d3c7) 1 commit qabaqdadır. Bu branch-in main-də olmayan commit-ləri: 900eb9d (repo hazırlığı), f88f92c (sənəd idxalı) və AI commit-i. main-ə birləşdirmə və push yalnız istifadəçinin razılığı ilə edilir.

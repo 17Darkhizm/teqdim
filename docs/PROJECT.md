@@ -1,6 +1,6 @@
 # Layihə xəritəsi
 
-Təqdim Azərbaycan dilində təqdimat redaktorudur. React 18, TypeScript və Vite istifadə edir. Hesab/server/AI/ödəniş yoxdur. Mətn bölgüsü deterministikdir; fakt və xülasə yaratmır. İnkişaf mühiti Node.js 24-dür. Əmrlər repo kökündən işlədilir.
+Təqdim Azərbaycan dilində təqdimat redaktorudur. React 18, TypeScript və Vite istifadə edir. Hesab/ödəniş yoxdur. Adi mətn bölgüsü deterministikdir; fakt və xülasə yaratmır. İstəyə bağlı DeepSeek planı yerli Node serveri ilə işləyir (server/, docs/BACKEND.md). İnkişaf mühiti Node.js 24-dür. Əmrlər repo kökündən işlədilir.
 
 ## Əsas fayllar
 
@@ -17,6 +17,8 @@ Təqdim Azərbaycan dilində təqdimat redaktorudur. React 18, TypeScript və Vi
 | Mətn, plan, axtarış və TSV | authoring.ts, editing.ts və uyğun komponentlər |
 | Dizayn qalereyası və ayarlar | design.ts, DesignGallery.tsx, DesignControls.tsx |
 | Məşq, kitabxana, son baxış | PracticeMode.tsx, ProjectLibrary.tsx, QualityPanel.tsx |
+| AI (müştəri) | ai.ts (health/generate/slide sorğuları, cavab yoxlaması), AiStatus.tsx (server vəziyyəti), AiDraft.tsx (plan), SlideAssist.tsx (slayd köməkçisi) |
+| AI serveri (src/ xaricində) | server/: app.mjs (marşrutlar, limitlər), schema.mjs (giriş/çıxış sxemi), deepseek.mjs (təlimatlar, provayder), config.mjs |
 | İnterfeys rəngləri | aic-brand.css — main.tsx-də son CSS qatı |
 | Slayd görünüşü | style.css, design-studio.css və struktur CSS faylları |
 
@@ -33,6 +35,6 @@ Slaydın --s-* rəngləri ilə interfeysin --aic-* rənglərini qarışdırma. P
 
 ## Yoxlama
 
-npm ci, npm run check, npm run build. scripts/check-*.mjs altında 11 ardıcıl skript var: model/PPTX, cədvəl/diaqram, şəkil/blok, PDF, iş məkanı, mətn redaktəsi, dizayn studiyası, mərhələ 9–11 və sənəd idxalı. check-documents.mjs formatları, kodlaşdırmanı, arxiv/həcm xətalarını, təsdiq və köhnə async nəticə qorumasını, mənbələrin backup/PPTX-də saxlanmasını yoxlayır. jsdom real səhifə düzülüşü yaratmır. Görünüş dəyişəndə brauzerdə açıq/tünd və dar/geniş ekranı, uyğun olduqda PPTX və çapı ayrıca yoxla. İmkan yoxdursa bunu qeyd et.
+npm ci, npm run check, npm run build. scripts/check-*.mjs altında 13 ardıcıl skript var: model/PPTX, cədvəl/diaqram, şəkil/blok, PDF, iş məkanı, mətn redaktəsi, dizayn studiyası, mərhələ 9–11, sənəd idxalı, AI serveri və AI paneli. Backend sınaqları saxta provayderlə işləyir, xarici API çağırmır. check-documents.mjs formatları, kodlaşdırmanı, arxiv/həcm xətalarını, təsdiq və köhnə async nəticə qorumasını, mənbələrin backup/PPTX-də saxlanmasını yoxlayır. jsdom real səhifə düzülüşü yaratmır. Görünüş dəyişəndə brauzerdə açıq/tünd və dar/geniş ekranı, uyğun olduqda PPTX və çapı ayrıca yoxla. İmkan yoxdursa bunu qeyd et.
 
 CONTEXT.md, SESSION_HANDOFF.md və WORKFLOW*.md əvvəlki işlərin tarixçəsidir. Yerli yollar və köhnə server/icazə qeydləri yeni istifadəçi üçün tələb deyil. Məhsul istiqaməti ROADMAP.md-dədir. Repo AIC saytından ayrıdır; saytın deploy əmrləri burada tətbiq edilmir.
