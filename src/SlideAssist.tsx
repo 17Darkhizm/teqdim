@@ -28,10 +28,8 @@ export default function SlideAssist({ slide, layout, topic, brief, references, c
     generation.current++; controller.current?.abort(); controller.current = null;
     setBusy(null);
   }
-  // Consent covers one slide; switching slides asks again.
-  useEffect(() => { setConsent(false); }, [slide.id]);
   useEffect(() => {
-    cancel(); setResult(null); setError("");
+    cancel(); setConsent(false); setResult(null); setError("");
     return () => { generation.current++; controller.current?.abort(); };
   }, [contentKey]);
   async function run(mode: AssistMode) {
@@ -65,7 +63,7 @@ export default function SlideAssist({ slide, layout, topic, brief, references, c
       setOpen(!open);
     }}><WandSparkles size={14} /> AI ilə düzəliş (DeepSeek)</button>
     {open && <div className="slide-assist-body">
-      <p>Seçilən slaydın başlığı, mətni, çıxış qeydləri və istinad etdiyi sənəd səhifələri DeepSeek-ə göndərilir. Fayl adları və şəxsi sahələr göndərilmir.</p>
+      <p>Təqdimatın mövzusu, məqsədi, auditoriya seçimi və hədəf müddəti, eləcə də slaydın başlığı, mətni, çıxış qeydləri və istinad etdiyi sənəd mətnləri DeepSeek-ə göndərilir. Fayl adları və şəxsi sahələr göndərilmir.</p>
       <AiServerStatus server={server} onRetry={() => void check()} />
       <label className="ai-consent"><input type="checkbox" checked={consent} disabled={!!busy} onChange={event => setConsent(event.target.checked)} /> Bu slaydın DeepSeek-ə göndərilməsinə razıyam.</label>
       <div className="slide-assist-modes">

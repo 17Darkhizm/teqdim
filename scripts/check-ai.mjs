@@ -95,8 +95,8 @@ try {
   await act(async () => root.unmount());
 
   // Plan client: control characters are cleaned, names come from the local document, the sources slide is appended.
-  const { requestAiPlan } = await import(moduleUrl('ai'));
-  const docInput = { topic: 'Mətn\u0007', material: 'Qeyd\u0000 mətni.', count: 5, brief: defaultBrief,
+  const { requestAiPlan, requestSlideAssist } = await import(moduleUrl('ai'));
+  const docInput = { topic: 'Mətn\u0007', material: 'Qeyd\u0000 mətni.', count: 5, brief: { ...defaultBrief, institution: 'Yerli universitet', teacher: 'Yerli müəllim', group: 'Yerli qrup' },
     references: [{ id: 'doc', name: 'Mənbə.pdf', pageCount: 3, pages: [{ number: 2, text: 'Səhifə\u000c mətni.' }] }] };
   const docSlides = count => [{ id: 'c', title: 'Mətn', body: 'Örtük', layout: 'cover' },
     ...Array.from({ length: count }, (_, i) => ({ id: `s${i}`, title: `B${i}`, body: 'İzah.', notes: '', layout: 'text', citations: [{ sourceId: 'doc', name: 'başqa ad', page: 2 }] }))];
@@ -104,12 +104,25 @@ try {
   const docPlan = await requestAiPlan(docInput, new AbortController().signal);
   const sent = requests.at(-1).body;
   assert.ok(!/[\u0000-\u0008\u000b\u000c]/.test(sent.topic + sent.material + sent.references[0].pages[0].text), 'İdarəetmə simvolları göndərilmir');
+  const expectedBrief = { purpose: defaultBrief.purpose, audience: defaultBrief.audience, targetMinutes: defaultBrief.targetMinutes, goal: defaultBrief.goal };
+  assert.deepEqual(sent.brief, expectedBrief);
+  assert.equal(sent.references[0].name, 'Sənəd');
   assert.equal(docPlan.slides.length, 6); assert.equal(docPlan.slides.at(-1).title, 'İstifadə olunan materiallar');
   assert.equal(docPlan.slides[1].citations[0].name, 'Mənbə.pdf'); assert.equal(docPlan.slides[1].citationReview, true);
   handler = async () => Response.json({ provider: 'deepseek', model: 'deepseek-flash', warnings: [], slides: docSlides(6) });
   await assert.rejects(requestAiPlan(docInput, new AbortController().signal), error => error.message.includes('quruluşu'));
   handler = async () => Response.json({ provider: 'deepseek', model: 'deepseek-flash', warnings: [], slides: docSlides(3).map((s, i) => i ? { ...s, citations: [{ sourceId: 'doc', page: 3 }] } : s) });
   await assert.rejects(requestAiPlan(docInput, new AbortController().signal), error => error.message.includes('quruluşu'), 'Mətni olmayan səhifəyə istinad rədd edilir');
+
+  slideHandler = async () => Response.json({ slide: { title: 'Başlıq', body: 'Mətn', notes: 'Qeyd' }, warnings: [] });
+  await requestSlideAssist({
+    mode: 'notes', topic: docInput.topic, brief: docInput.brief,
+    references: [{ ...docInput.references[0], pages: [...docInput.references[0].pages, { number: 3, text: 'İstinadsız mətn.' }] }],
+    slide: docPlan.slides[1], layout: 'text',
+  }, new AbortController().signal);
+  const sentAssist = slideRequests.pop().body;
+  assert.deepEqual(sentAssist.brief, expectedBrief);
+  assert.deepEqual(sentAssist.references, sent.references, 'Yalnız istinad edilən səhifə, yerli fayl adı olmadan göndərilir');
 
   const { default: App } = await import(moduleUrl('App'));
   root = createRoot(document.getElementById('root')); handler = async () => Response.json(plan);
@@ -155,21 +168,32 @@ try {
   await click(button('Geri al'));
   assert.equal(document.getElementById('edit-body').value, 'Materialdan izah.', 'Bir geri alma slaydı tam bərpa edir');
   assert.equal(document.getElementById('edit-title').value, 'AI başlığı 1'); assert.equal(document.getElementById('speaker-notes').value, 'Qeyd');
+  await click(assistConsent());
   await click(mode('Qısalt')); assert.ok(document.querySelector('.assist-compare'));
   await fill('edit-body', 'Əl ilə yazdığım yeni mətn.');
   assert.equal(document.querySelector('.assist-compare'), null, 'Slayd dəyişəndə köhnə təklif silinir');
-  assert.equal(assistConsent().checked, true, 'Eyni slaydda razılıq qalır');
+  assert.equal(assistConsent().checked, false, 'Mətn dəyişəndə yenidən razılıq tələb olunur');
+  assert.equal(mode('Qısalt').disabled, true);
+  await click(assistConsent());
   slideHandler = async () => Response.json({ slide: { title: 'X', body: 'Y', notes: 'AI çıxış qeydi.' }, warnings: [] });
   await click(mode('Çıxış qeydi yaz')); await click(inside('.assist-actions button', 'Tətbiq et'));
   assert.equal(document.getElementById('speaker-notes').value, 'AI çıxış qeydi.');
   assert.equal(document.getElementById('edit-body').value, 'Əl ilə yazdığım yeni mətn.', 'Qeyd rejimi slayd mətninə toxunmur');
   slideHandler = async () => Response.json({ error: { message: 'Çıxış qeydləri dolu olduğu üçün qısaldılmış təfərrüatlar oraya sığmır.' } }, { status: 422 });
+  await click(assistConsent());
   await click(mode('Qısalt')); assert.ok(document.querySelector('.slide-assist [role="alert"]').textContent.includes('dolu'));
   const pendingSlide = deferred(); slideHandler = () => pendingSlide.promise;
   await click(mode('Aydın yaz')); assert.ok(document.querySelector('.assist-busy'));
   await click(inside('.assist-busy button', 'Ləğv et')); assert.equal(slideRequests.at(-1).signal.aborted, true);
   await act(async () => { pendingSlide.resolve(Response.json({ slide: { title: 'Gec', body: 'Gec cavab.', notes: '' }, warnings: [] })); await new Promise(resolve => setTimeout(resolve, 5)); });
   assert.equal(document.querySelector('.assist-compare'), null, 'Ləğv edilmiş sorğunun cavabı görünmür');
+  const staleSlide = deferred(); slideHandler = () => staleSlide.promise;
+  await click(mode('Aydın yaz'));
+  await fill('edit-body', 'Sorğu gedərkən dəyişən mətn.');
+  assert.equal(slideRequests.at(-1).signal.aborted, true);
+  assert.equal(assistConsent().checked, false);
+  await act(async () => { staleSlide.resolve(Response.json({ slide: { title: 'Köhnə', body: 'Köhnə mətn.', notes: '' }, warnings: [] })); await staleSlide.promise; });
+  assert.equal(document.querySelector('.assist-compare'), null);
   console.log('Keçdi: AI serverinin vəziyyəti (işləmir/açarsız/hazır, ləğv), plan müştərisi (mənbələr slaydı, yerli fayl adı, idarəetmə simvolları), slayd köməkçisi (razılıq, önizləmə, tətbiq/geri alma, köhnə təklif, qeyd rejimi, xəta, ləğv), AI razılığı, önizləmə/təsdiq, server xətaları, saxta mənbənin rəddi, köhnə nəticə və ləğv, App planına tətbiq və bir addımda geri alma. Şəbəkə saxta API ilə əvəzlənib.');
 } finally {
   await act(async () => root.unmount()); globalThis.fetch = previousFetch; dom.window.close();

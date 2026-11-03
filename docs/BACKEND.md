@@ -11,10 +11,12 @@ API açarı yalnız serverin mühit dəyişənində saxlanır, brauzerə çıxm�
 
 | | AI planı | Slayd köməkçisi |
 | --- | --- | --- |
-| Göndərilir | mövzu, material, sənədlərdən çıxarılmış səhifə mətnləri, slayd sayı, məqsəd, auditoriya, hədəf müddət | mövzu, seçilən slaydın başlığı, mətni, çıxış qeydləri, düzülüşü (cədvəl/diaqram slaydında görünən mətn), yalnız bu slaydın istinad etdiyi səhifələr |
+| Göndərilir | mövzu, material, sənədlərdən çıxarılmış səhifə mətnləri, slayd sayı, məqsəd, auditoriya, hədəf müddət | mövzu, məqsəd, auditoriya, hədəf müddət, seçilən slaydın başlığı, mətni, çıxış qeydləri, düzülüşü (cədvəl/diaqram slaydında görünən mətn), yalnız bu slaydın istinad etdiyi səhifələr |
 | Göndərilmir | ilkin fayllar, fayl adları, «Hazırlayan», universitet, müəllim, qrup | eyni sahələr və digər slaydlar |
 
-Sorğu yalnız razılıq qutusu işarələnəndə və düymə basılanda gedir. Slayd köməkçisində razılıq hər slayd üçün ayrıca soruşulur.
+Brauzer universitet, müəllim və qrup sahələrini sorğuya əlavə etmir. Fayl adı yerli API üçün ümumi etiketlə əvəzlənir. İstinadın əsl adı redaktorda yerli sənəddən götürülür.
+
+Sorğu yalnız razılıq qutusu işarələnəndə və düymə basılanda gedir. Slayd köməkçisində seçilən slayd və ya göndəriləcək məlumat dəyişəndə razılıq yenidən alınır. Gözləyən sorğu ləğv olunur və əvvəlki təklif bağlanır.
 
 ## Quraşdırma
 
@@ -82,3 +84,10 @@ DeepSeek yalnız məzmun slaydlarını yazır: sənəd yoxdursa `count − 1`, v
 | `AI_FILTERED` | DeepSeek bu material üçün cavab vermədi |
 | `AI_INCOMPLETE`, `EMPTY_AI_RESPONSE`, `INVALID_AI_OUTPUT` | Cavab natamam, boş və ya sxemə uyğun deyil |
 | `NOTES_FULL` | «Qısalt» üçün çıxış qeydlərində yer yoxdur |
+
+## Real provayderlə ilk sınaq
+
+1. Yerli serveri başladıb paneldə «hazırdır» vəziyyətini yoxla.
+2. Şəxsi məlumatı olmayan, istinad səhifəsi məlum olan bir nümunə sənədlə 4 slaydlıq plan hazırla. Önizləmədə Azərbaycan dilini, mənbənin düzgün səhifəsini və mətndə uydurma fakt olub-olmadığını yoxla.
+3. Planı tətbiq et və məzmun slaydında «Qısalt» rejimini yoxla. Çıxarılan təfərrüatların çıxış qeydlərinə keçdiyini, istinadın yerində qaldığını və bir geri alma ilə slaydın bərpa olunduğunu yoxla.
+4. Nəticə problemli olarsa sorğu ID-sini, modeli və xəta kodunu qeyd et. Açarı və sənədin mətnini paylaşma.

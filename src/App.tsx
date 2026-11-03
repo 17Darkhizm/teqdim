@@ -83,7 +83,7 @@ import { useDraft } from "./useDraft";
 import PdfUpload from "./PdfUpload";
 import AiDraft from "./AiDraft";
 import SlideAssist from "./SlideAssist";
-import type { AssistResult } from "./ai";
+import { slideAssistPayload, type AssistResult } from "./ai";
 import ProjectLibrary from "./ProjectLibrary";
 import { downloadBackup } from "./backup";
 import { useHistory } from "./useHistory";
@@ -609,7 +609,9 @@ export default function App() {
     );
   }
   const assistKeyFor = (s: Slide) =>
-    JSON.stringify([projectId, s.id, s.title, s.body, s.notes || "", s.layout || ""]);
+    JSON.stringify([projectId, s.id, slideAssistPayload({
+      slide: s, layout: layoutFor(s, selected), topic, brief, references,
+    })]);
   function applyAssist(result: AssistResult, key: string) {
     const current = slides[selected];
     if (!current || key !== assistKeyFor(current)) {

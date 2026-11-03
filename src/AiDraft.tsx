@@ -50,7 +50,7 @@ export default function AiDraft({ input, inputKey, onApply }: {
       setOpen(!open);
     }}><Sparkles size={16} /> DeepSeek ilə plan hazırla</button>
     {open && <div className="ai-draft-body">
-      <p>AI mövzunu, materialını, sənədlərdən çıxarılmış mətnləri, məqsəd və auditoriya seçimini DeepSeek-ə göndərir. İlkin fayllar, fayl adları, “Hazırlayan”, universitet, müəllim və qrup sahələri göndərilmir.</p>
+      <p>AI mövzunu, materialını, sənədlərdən çıxarılmış mətnləri, məqsədi, auditoriya seçimini və hədəf müddəti DeepSeek-ə göndərir. İlkin fayllar, fayl adları, “Hazırlayan”, universitet, müəllim və qrup sahələri göndərilmir.</p>
       <AiServerStatus server={server} onRetry={() => void check()} />
       <label className="ai-consent"><input type="checkbox" checked={consent} disabled={busy} onChange={event => setConsent(event.target.checked)} /> Bu məlumatların DeepSeek-ə göndərilməsinə razıyam.</label>
       <button type="button" className="primary full" disabled={busy || !ready || !consent || !input.topic.trim() || (!input.material.trim() && !input.references.some(ref => ref.pages.some(page => page.text.trim())))} onClick={() => void generate()}>

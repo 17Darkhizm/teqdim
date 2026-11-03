@@ -16,11 +16,11 @@ export const contentSlideCount = (count: number, hasReferences: boolean) => coun
 const BAD_PLAN = "AI planının quruluşu düzgün deyil. Cari təqdimat qorundu.";
 const BAD_SLIDE = "AI düzəlişinin quruluşu düzgün deyil. Slayd dəyişdirilmədi.";
 
-const cleanBrief = (brief: AcademicBrief): AcademicBrief => ({
-  ...brief, goal: cleanText(brief.goal), institution: cleanText(brief.institution), teacher: cleanText(brief.teacher), group: cleanText(brief.group),
+const cleanBrief = ({ purpose, audience, targetMinutes, goal }: AcademicBrief) => ({
+  purpose, audience, targetMinutes, goal: cleanText(goal),
 });
 const cleanReference = (ref: Reference): Reference => ({
-  id: ref.id, name: cleanText(ref.name), pageCount: ref.pageCount, pages: ref.pages.map(page => ({ number: page.number, text: cleanText(page.text) })),
+  id: ref.id, name: "Sənəd", pageCount: ref.pageCount, pages: ref.pages.map(page => ({ number: page.number, text: cleanText(page.text) })),
 });
 const isText = (value: unknown, max: number): value is string => typeof value === "string" && value.length <= max;
 const isWarnings = (value: unknown): value is string[] => Array.isArray(value) && value.every(item => typeof item === "string");
@@ -113,14 +113,19 @@ export function assistModes(slide: Slide, layout: Layout): AssistMode[] {
   return modes;
 }
 
-export async function requestSlideAssist(input: AssistInput, signal: AbortSignal): Promise<AssistResult> {
-  const { slide, layout, mode } = input;
+export function slideAssistPayload(input: Omit<AssistInput, "mode">) {
+  const { slide, layout } = input;
   const structural = !TEXT_LAYOUTS.includes(layout) && layout !== "cover";
-  const value = await postJson("/api/slide", {
-    mode, topic: cleanText(input.topic), consent: true, brief: cleanBrief(input.brief),
+  return {
+    topic: cleanText(input.topic), consent: true, brief: cleanBrief(input.brief),
     slide: { title: cleanText(slide.title), body: cleanText(slide.body), notes: cleanText(slide.notes || ""), layout, content: structural ? cleanText(visibleSlideText(slide)) : "" },
     references: citedSources(slide, input.references).map(cleanReference),
-  }, signal);
+  };
+}
+
+export async function requestSlideAssist(input: AssistInput, signal: AbortSignal): Promise<AssistResult> {
+  const { mode } = input;
+  const value = await postJson("/api/slide", { ...slideAssistPayload(input), mode }, signal);
   const s = value?.slide;
   if (!s || !isText(s.title, 160) || !isText(s.body, 3000) || !isText(s.notes, 8000) || !isWarnings(value?.warnings) ||
     (mode === "notes" ? !s.notes.trim() : !s.title.trim() || !s.body.trim()))

@@ -353,3 +353,13 @@ Yoxlama: npm run check (13 skript), build, git diff --check və `npm audit --omi
 İstifadəçi indiyə qədər görülən bütün işləri saxlayıb commit etməyi istədi. `codex/backend-deepseek` branch-ində bir commit yaradıldı. İçindədir: Codex-in DeepSeek backend-i və AI plan paneli (WORKFLOW-12), server vəziyyəti göstəricisi, `Baslat.cmd`-də AI serveri, docs/BACKEND.md, backend audit düzəlişləri, slayd köməkçisi və vizual düzəlişlər (WORKFLOW-13). Ara vəziyyətlər diskdə saxlanmadığı üçün iş mərhələlərə bölünmədi.
 
 Commit-dən əvvəl bütün 13 check skripti, build, git diff --check və production audit (0) keçdi. **Push edilməyib.** Branch-lərin vəziyyəti: lokal `main` 98fddb7-dir və origin/main-dən (985d3c7) 1 commit qabaqdadır. Bu branch-in main-də olmayan commit-ləri: 900eb9d (repo hazırlığı), f88f92c (sənəd idxalı) və AI commit-i. main-ə birləşdirmə və push yalnız istifadəçinin razılığı ilə edilir.
+
+## DeepSeek sınağına hazırlıq (2026-11-03)
+
+Bir saatlıq plan: 10 dəqiqə cari axın, 25 dəqiqə razılıq və gecikmiş cavablar, 20 dəqiqə sınaq, 5 dəqiqə təhvil qeydi. İş branch-i `codex/ai-consent-snapshot` (əsas `002df1f`).
+
+Slayd köməkçisinin razılığı cari slayda və serverə göndərilən məlumata bağlandı. Məzmun, düzülüş, mövzu, akademik seçim və ya istinad edilən material dəyişəndə razılıq yenilənir, gözləyən sorğu ləğv olunur və köhnə təklif bağlanır. UI sınağı redaktədən sonra gecikmiş cavabın görünmədiyini yoxlayır. Real provayder üçün ilk sınağın addımları docs/BACKEND.md-dədir. Bu sessiyada yerli .env tapılmadığı üçün real DeepSeek çağırışı edilmədi.
+
+## AI sorğularında yerli məlumatların qorunması (2026-11-03)
+
+Plan və slayd köməkçisi brauzerdən yerli API-yə yalnız məqsədi, auditoriyanı, hədəf müddəti və məqsəd mətnini akademik məlumat kimi göndərir. Universitet, müəllim və qrup sorğuya daxil edilmir. Faylın əsl adı yerli sənəddə qalır, sorğuda ümumi etiket işlənir. İstinadlar sənəd ID-si və səhifə ilə yoxlanır, redaktorda əsl fayl adı bərpa olunur. Sınaq plan və slayd sorğularını, həmçinin slayd köməkçisinin yalnız istinad edilən səhifəni göndərdiyini yoxlayır.
