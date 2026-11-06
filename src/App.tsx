@@ -1109,40 +1109,11 @@ export default function App() {
                       required
                     />
                     <div className="input-bottom">
-                      <span>Aydın mövzu, daha yaxşı başlanğıc.</span>
+                      <span>Mövzu üz qabığında görünür.</span>
                       <span>{topic.length}/160</span>
                     </div>
-                    <div className="field-row">
-                      <div>
-                        <label htmlFor="subject">Fənn və ya sahə</label>
-                        <input
-                          id="subject"
-                          placeholder="Məsələn, İnformatika"
-                          value={subject}
-                          onChange={(e) => setSubject(e.target.value)}
-                          maxLength={70}
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="author">Hazırlayan</label>
-                        <input
-                          id="author"
-                          placeholder="Adın və soyadın"
-                          value={author}
-                          onChange={(e) => setAuthor(e.target.value)}
-                          maxLength={90}
-                        />
-                      </div>
-                    </div>
-                    <BriefForm value={brief} onChange={setBrief} />
-                    <PdfUpload
-                      references={references}
-                      onChange={setReferences}
-                    />
                     <label htmlFor="material">
                       {references.length ? "Əlavə qeydlərin" : "Materialın"}{" "}
-                      {!references.length && <span>*</span>}
-                      <span className="label-hint">Abzaslarla ayır</span>
                     </label>
                     <textarea
                       id="material"
@@ -1151,13 +1122,45 @@ export default function App() {
                       value={material}
                       onChange={(e) => setMaterial(e.target.value)}
                       maxLength={12000}
+                      aria-describedby="material-hint"
                       required={!references.length}
                     />
-                    <div className="material-note">
-                      <FileText size={13} />
-                      Mətnin slaydlara bölünür. Başlıqları növbəti addımda
-                      düzəldə bilərsən.
+                    <div className="input-bottom material-help">
+                      <span id="material-hint">Mətni abzaslara ayır və ya aşağıdan sənəd əlavə et.</span>
+                      <span>{material.length.toLocaleString("az-AZ")} / 12 000</span>
                     </div>
+                    <PdfUpload
+                      references={references}
+                      onChange={setReferences}
+                    />
+                    <details className="setup-options">
+                      <summary>Təqdimat məlumatları <small>İstəyə bağlı</small></summary>
+                      <div className="setup-options-body">
+                        <div className="field-row">
+                          <div>
+                            <label htmlFor="subject">Fənn və ya sahə</label>
+                            <input
+                              id="subject"
+                              placeholder="Məsələn, İnformatika"
+                              value={subject}
+                              onChange={(e) => setSubject(e.target.value)}
+                              maxLength={70}
+                            />
+                          </div>
+                          <div>
+                            <label htmlFor="author">Hazırlayan</label>
+                            <input
+                              id="author"
+                              placeholder="Adın və soyadın"
+                              value={author}
+                              onChange={(e) => setAuthor(e.target.value)}
+                              maxLength={90}
+                            />
+                          </div>
+                        </div>
+                        <BriefForm value={brief} onChange={setBrief} />
+                      </div>
+                    </details>
                     <div className="count-row">
                       <div>
                         <label htmlFor="count">Təxmini slayd sayı</label>

@@ -545,3 +545,41 @@
 :root[data-mode] .time-track > span {
   background: var(--aic-lime);
 }
+
+.setup-options {
+  border-block: 1px solid currentColor;
+  border-color: color-mix(in srgb, currentColor 22%, transparent);
+}
+
+.setup-options > summary {
+  cursor: pointer;
+  padding: 0.85rem 0.2rem;
+  font-weight: 700;
+}
+
+.setup-options > summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.setup-options small {
+  margin-inline-start: 0.4rem;
+  color: var(--aic-muted);
+  font-weight: 500;
+}
+
+.setup-options-body {
+  display: grid;
+  gap: 0.85rem;
+  padding-bottom: 0.85rem;
+}
+
+.material-help {
+  gap: 0.75rem;
+  line-height: 1.45;
+}
+
+.material-help > :last-child {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
