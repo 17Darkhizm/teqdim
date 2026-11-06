@@ -20,7 +20,10 @@ import VisualContent from "./VisualContent";
 // Slide CSS clips long text (max-height + overflow:hidden). This finds text the
 // viewer cannot see. Elements without layout (jsdom) report 0 and never match.
 const CLIPPABLE =
-  ".slide-copy, .slide-copy h2, .slide-copy p, .slide-copy li > div";
+  ".slide-copy, .slide-copy h2, .slide-copy p, .slide-copy li > div, " +
+  // Comparison titles have their own max-height; cards can also clip a title
+  // and body that each fit individually. Neither reaches slide-copy's bounds.
+  ".slide-copy .comparison-view, .slide-copy .comparison-view > div, .slide-copy .comparison-view h3";
 export function clippedText(root: HTMLElement): boolean {
   return [...root.querySelectorAll<HTMLElement>(CLIPPABLE)].some(
     (el) =>

@@ -1,6 +1,6 @@
 # Təqdim — inkişaf planları
 
-Son yenilənmə: 2026-10-30. Aşağıdakılar tamamlanmış funksiya vədi deyil; hər mərhələnin qəbul meyarı ayrıca verilib.
+Son yenilənmə: 2026-11-06. Aşağıdakılar tamamlanmış funksiya vədi deyil; hər mərhələnin qəbul meyarı ayrıca verilib.
 
 ## 1. Hazır yerli iş məkanı
 
@@ -27,6 +27,10 @@ Qəbul meyarı: faktiki API ilə uğurlu sınaq; boş, gecikən və yanlış str
 5. Universitet/fənn şablonları və istifadəçinin verdiyi titul məlumatları. Mənbə, müəllim və universitet adları uydurulmur.
 
 Qəbul meyarı: razılaşdırılmış müxtəlif uzunluqlu nümunələrdə kəsilməyən mətn, oxunaqlı qrafiklər və düzgün ixrac; Azərbaycan dili keyfiyyət baxışı.
+
+### §3.3 yenilənməsi — 2026-11-06
+
+Mərhələ 10-da bütün slaydlar üçün faktiki ölçmə qatı artıq var idi. `clippedText` müqayisə blokunun ayrıca kəsilən `h3` başlığını və kartını yoxlamırdı. İndi başlıq, kart və bütöv müqayisə blokunun üfüqi/şaquli daşması da `scroll`/`client` ölçüləri ilə, mövcud 2 px həddi saxlanaraq yoxlanır və mövcud xəbərdarlıq kanalına ötürülür. `scripts/check-overflow.mjs` ümumi `check` zəncirinə əlavə edilib. §3.3 bütövlükdə tamamlanmış sayılmır: digər struktur blokları, avtomatik yerləşdirmə və real brauzer/PDF/PPTX müqayisəsi qalır. Sınaq nəticələri və məhdudiyyətlər: WORKFLOW-14.md.
 
 ## 4. SaaS infrastrukturu
 
