@@ -27,6 +27,8 @@ export default function QualityPanel({
   brief,
   design,
   clipped,
+  canSplitOverflow,
+  onSplitOverflow,
 }: {
   slides: Slide[];
   references?: Reference[];
@@ -34,6 +36,8 @@ export default function QualityPanel({
   design?: DesignSettings;
   clipped?: ReadonlySet<string>;
   onSelect: (index: number) => void;
+  canSplitOverflow: boolean;
+  onSplitOverflow: () => void;
 }) {
   const issues = withClippedIssues(
     inspectDeck(slides, references, design),
@@ -151,6 +155,14 @@ export default function QualityPanel({
           <span>Mətn həcmi və tamamlanma yoxlamaları keçdi.</span>
         </div>
       )}
+      <button
+        type="button"
+        className="secondary"
+        disabled={!canSplitOverflow}
+        onClick={onSplitOverflow}
+      >
+        Sığmayan mətn slaydlarını böl
+      </button>
       <p className="quality-disclaimer">
         Bu yoxlama faktların və akademik istinadların doğruluğunu təsdiqləmir.
       </p>

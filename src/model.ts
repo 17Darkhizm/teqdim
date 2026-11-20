@@ -733,14 +733,17 @@ export function splitText(text: string, limit = BODY_LIMIT): string[] {
   if (rest) chunks.push(rest);
   return chunks;
 }
-export function splitSlide(slide: Slide): Slide[] {
+export function splitSlideBodies(slide: Slide): string[] {
   if (
     ["table", "chart", "comparison", "timeline", "image"].includes(
       slide.layout || "",
     )
   )
-    return [slide];
-  const chunks = splitText(slide.body);
+    return [slide.body];
+  return splitText(slide.body);
+}
+export function splitSlide(slide: Slide): Slide[] {
+  const chunks = splitSlideBodies(slide);
   if (chunks.length < 2) return [slide];
   return chunks.map((body, i) => ({
     ...slide,
@@ -753,7 +756,7 @@ export function splitSlide(slide: Slide): Slide[] {
         ? "text"
         : slide.layout,
     notes: i === 0 ? slide.notes : "",
-    citationReview: !!slide.citations?.length,
+    citationReview: !!slide.citations?.length || slide.citationReview,
   }));
 }
 export const wordCount = (text: string) =>
@@ -1001,6 +1004,12 @@ export function sourcesSlides(references: Reference[]): Slide[] {
   }));
 }
 
+export class PptxSlideError extends Error {
+  constructor(readonly slideId: string, index: number, problem: string) {
+    super(`Slayd ${index + 1}: ${problem}`);
+  }
+}
+
 export async function exportPptx(project: Project) {
   const shown = shownSlides(project.slides);
   if (!shown.length)
@@ -1008,7 +1017,7 @@ export async function exportPptx(project: Project) {
   // Hidden slides may be unfinished drafts; they must not block the export.
   for (const { slide: item, index } of shown) {
     const problem = dataProblems(item)[0];
-    if (problem) throw new Error(`Slayd ${index + 1}: ${problem}`);
+    if (problem) throw new PptxSlideError(item.id, index, problem);
   }
   const { default: PptxGenJS } = await import("pptxgenjs");
   const pptx = new PptxGenJS();

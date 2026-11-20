@@ -62,12 +62,14 @@ import {
   exportPptx,
   layoutFor,
   layouts,
+  PptxSlideError,
   Project,
   Reference,
   sample,
   shownSlides,
   Slide,
   splitSlide,
+  splitSlideBodies,
   Theme,
   themes,
   uid,
@@ -144,6 +146,12 @@ export default function App() {
     restored?.project.brief || defaultBrief,
   );
   const [material, setMaterial] = useState(restored?.project.material || "");
+  const [planError, setPlanError] = useState<{
+    field: "topic" | "material";
+  } | null>(null);
+  useEffect(() => {
+    if (planError) document.getElementById(planError.field)?.focus();
+  }, [planError]);
   const [references, setReferences] = useState<Reference[]>(
     restored?.project.references || [],
   );
@@ -234,9 +242,34 @@ export default function App() {
       ? "Son qaralaman bərpa edildi."
       : "",
   );
-  function setToast(text: string, tone: "info" | "error" = "info") {
+  const [toastSlide, setToastSlide] = useState<{
+    projectId: string;
+    slideId: string;
+  }>();
+  const toastSlideIndex = toastSlide?.projectId === projectId
+    ? slides.findIndex((slide) => slide.id === toastSlide.slideId)
+    : -1;
+  const editFields = useRef<HTMLDivElement>(null);
+  const [focusEditor, setFocusEditor] = useState(false);
+  useEffect(() => {
+    if (!focusEditor) return;
+    const editor = editFields.current;
+    const field = editor?.querySelector<HTMLElement>(
+      '.data-editor input, .visual-editor input:not([type="file"])',
+    )
+      ?? editor?.querySelector<HTMLElement>(".visual-editor button")
+      ?? editor?.querySelector<HTMLElement>("#edit-title");
+    field?.focus();
+    setFocusEditor(false);
+  }, [focusEditor]);
+  function setToast(
+    text: string,
+    tone: "info" | "error" = "info",
+    slideId?: string,
+  ) {
     setToastTone(tone);
     setToastText(text);
+    setToastSlide(slideId ? { projectId, slideId } : undefined);
   }
   const [exporting, setExporting] = useState(false);
   const [presenting, setPresenting] = useState(false);
@@ -259,6 +292,21 @@ export default function App() {
       else next.delete(id);
       return next;
     });
+  }
+  const overflowSplitIds = new Set<string>();
+  if (slides.length < 80 && clippedIds.size) {
+    let remainingSlideSlots = 80 - slides.length;
+    let remainingImageSpace = PROJECT_IMAGE_LIMIT - projectImageSize(slides);
+    for (const slide of slides) {
+      if (!clippedIds.has(slide.id)) continue;
+      const added = splitSlideBodies(slide).length - 1;
+      if (added < 1 || added > remainingSlideSlots) continue;
+      const imageSize = projectImageSize([slide]) * added;
+      if (imageSize > remainingImageSpace) continue;
+      overflowSplitIds.add(slide.id);
+      remainingSlideSlots -= added;
+      remainingImageSpace -= imageSize;
+    }
   }
   const [blackout, setBlackout] = useState(false);
   const [jump, setJump] = useState("");
@@ -293,10 +341,10 @@ export default function App() {
     },
   );
   useEffect(() => {
-    if (!toast) return;
+    if (!toast || toastSlideIndex >= 0) return;
     const timer = setTimeout(() => setToast(""), 4500);
     return () => clearTimeout(timer);
-  }, [toast]);
+  }, [toast, toastSlideIndex]);
   useEffect(() => {
     const sync = () => setFullscreen(!!document.fullscreenElement);
     document.addEventListener("fullscreenchange", sync);
@@ -395,6 +443,7 @@ export default function App() {
     body: brief.goal.trim() || firstSlide.body,
   };
   const hasMaterial = !!(material.trim() || references.length);
+  const wantsPlan = !!(material || references.length);
   const hasDraftContent = !!(topic.trim() || hasMaterial || slides.length);
   const currentProject = (): Project => ({
     id: projectId,
@@ -466,6 +515,16 @@ export default function App() {
       `Mətn ${chunks.length} oxunaqlı slayda bölündü. İstinadları yoxla.`,
     );
   }
+  function splitOverflowingSlides() {
+    if (!overflowSplitIds.size) return;
+    const selectedId = slides[selected].id;
+    const next = slides.flatMap((slide) =>
+      overflowSplitIds.has(slide.id) ? splitSlide(slide) : [slide],
+    );
+    setSlides(next);
+    setSelected(next.findIndex((slide) => slide.id === selectedId));
+    setToast("Sığmayan mətn bölündü. İstinadları yoxla.");
+  }
   function persist(next: Project[]) {
     try {
       localStorage.setItem(PROJECTS_KEY, JSON.stringify(next));
@@ -500,6 +559,7 @@ export default function App() {
           .join("\n\n"),
     );
     setCount(Math.min(12, Math.max(4, p.slides.length)));
+    setPlanError(null);
     setTopic(p.topic);
     setSubject(p.subject);
     setAuthor(p.author);
@@ -520,6 +580,7 @@ export default function App() {
       return;
     }
     setReferences([]);
+    setPlanError(null);
     setTopic("");
     setSubject("");
     setAuthor("");
@@ -550,7 +611,15 @@ export default function App() {
   }
   function build(e: React.FormEvent) {
     e.preventDefault();
-    if (!topic.trim() || !hasMaterial) return;
+    if (!topic.trim()) {
+      setPlanError({ field: "topic" });
+      return;
+    }
+    if (!hasMaterial) {
+      setPlanError({ field: "material" });
+      return;
+    }
+    setPlanError(null);
     if (slides.length) {
       setPendingAction("rebuild");
       return;
@@ -688,6 +757,7 @@ export default function App() {
       document.getElementById("topic")?.focus();
       return;
     }
+    setPlanError(null);
     if (!slides.length) {
       history.replace({
         theme,
@@ -883,6 +953,7 @@ export default function App() {
           ? error.message
           : "Yükləmə alınmadı. Yenidən cəhd et.",
         "error",
+        error instanceof PptxSlideError ? error.slideId : undefined,
       );
     } finally {
       setExporting(false);
@@ -1124,7 +1195,7 @@ export default function App() {
               )}
               {step === 1 ? (
                 <div className="creation-grid">
-                  <form className="panel form-panel" onSubmit={build}>
+                  <form className="panel form-panel" onSubmit={build} noValidate>
                     <div className="panel-heading">
                       <div className="panel-icon">
                         <Sparkles size={20} />
@@ -1145,16 +1216,27 @@ export default function App() {
                       className="topic-input"
                       placeholder="Məsələn, süni intellektin təhsildə rolu"
                       value={topic}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         // A topic is one line: it becomes the cover title and file name.
-                        setTopic(e.target.value.replace(/\s*[\r\n]+\s*/g, " "))
-                      }
+                        setTopic(e.target.value.replace(/\s*[\r\n]+\s*/g, " "));
+                        if (e.target.value.trim() && planError?.field === "topic")
+                          setPlanError(null);
+                      }}
                       onKeyDown={(e) => {
                         if (e.key === "Enter") e.preventDefault();
                       }}
                       maxLength={160}
                       required
+                      aria-invalid={planError?.field === "topic" || undefined}
+                      aria-describedby={
+                        planError?.field === "topic" ? "topic-error" : undefined
+                      }
                     />
+                    {planError?.field === "topic" && (
+                      <p className="warning" id="topic-error">
+                        Təqdimatın mövzusunu yaz.
+                      </p>
+                    )}
                     <div className="input-bottom">
                       <span>Mövzu üz qabığında görünür.</span>
                       <span>{topic.length}/160</span>
@@ -1167,18 +1249,39 @@ export default function App() {
                       className="material-input"
                       placeholder="Qeydlərini və təqdimatda istifadə etmək istədiyin mətni buraya əlavə et…"
                       value={material}
-                      onChange={(e) => setMaterial(e.target.value)}
+                      onChange={(e) => {
+                        setMaterial(e.target.value);
+                        if (
+                          (!e.target.value || e.target.value.trim()) &&
+                          planError?.field === "material"
+                        )
+                          setPlanError(null);
+                      }}
                       maxLength={12000}
-                      aria-describedby="material-hint"
-                      required={hasMaterial && !references.length}
+                      aria-invalid={planError?.field === "material" || undefined}
+                      aria-describedby={
+                        planError?.field === "material"
+                          ? "material-error material-hint"
+                          : "material-hint"
+                      }
+                      required={wantsPlan && !references.length}
                     />
+                    {planError?.field === "material" && (
+                      <p className="warning" id="material-error">
+                        Materialın mətnini yaz və ya sənəd əlavə et.
+                      </p>
+                    )}
                     <div className="input-bottom material-help">
                       <span id="material-hint">Mətni abzaslara ayır və ya aşağıdan sənəd əlavə et.</span>
                       <span>{material.length.toLocaleString("az-AZ")} / 12 000</span>
                     </div>
                     <PdfUpload
                       references={references}
-                      onChange={setReferences}
+                      onChange={(next) => {
+                        setReferences(next);
+                        if (next.length)
+                          setPlanError((error) => error?.field === "material" ? null : error);
+                      }}
                     />
                     <details className="setup-options">
                       <summary>Təqdimat məlumatları <small>İstəyə bağlı</small></summary>
@@ -1235,12 +1338,12 @@ export default function App() {
                     </div>
                     <button
                       className="primary full"
-                      type={hasMaterial ? "submit" : "button"}
-                      onClick={hasMaterial ? undefined : startManual}
+                      type={wantsPlan ? "submit" : "button"}
+                      onClick={wantsPlan ? undefined : startManual}
                     >
-                      {hasMaterial ? "Planı hazırla" : "Boş təqdimat aç"} <ArrowRight size={18} />
+                      {wantsPlan ? "Planı hazırla" : "Boş təqdimat aç"} <ArrowRight size={18} />
                     </button>
-                    {hasMaterial && (
+                    {wantsPlan && (
                       <button type="button" className="manual-start" onClick={startManual}>
                         Material olmadan özüm qurum <ArrowRight size={15} />
                       </button>
@@ -1626,7 +1729,7 @@ export default function App() {
                         <Plus size={16} />
                         Hazır slayd bloku seç <ArrowRight size={16} />
                       </button>
-                      <div className="edit-fields">
+                      <div className="edit-fields" ref={editFields}>
                         <div className="slide-edit-toolbar">
                           <span className="layout-label">Slaydın düzülüşü</span>
                           <div>
@@ -1889,6 +1992,8 @@ export default function App() {
                         brief={brief}
                         design={design}
                         clipped={clippedIds}
+                        canSplitOverflow={overflowSplitIds.size > 0}
+                        onSplitOverflow={splitOverflowingSlides}
                         onSelect={(index) => {
                           setSelected(index);
                           document
@@ -2037,6 +2142,20 @@ export default function App() {
             <CheckCheck size={18} />
           )}
           {toast}
+          {toastSlideIndex >= 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setSelected(toastSlideIndex);
+                setPage("create");
+                setStep(3);
+                setFocusEditor(true);
+                setToast("");
+              }}
+            >
+              Slayda keç
+            </button>
+          )}
           <button onClick={() => setToast("")} aria-label="Bildirişi bağla">
             <X size={16} />
           </button>
