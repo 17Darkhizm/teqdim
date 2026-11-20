@@ -63,14 +63,17 @@ export default function SlideAssist({ slide, layout, topic, brief, references, c
       setOpen(!open);
     }}><WandSparkles size={14} /> AI ilə düzəliş (DeepSeek)</button>
     {open && <div className="slide-assist-body">
-      <p>Təqdimatın mövzusu, məqsədi, auditoriya seçimi və hədəf müddəti, eləcə də slaydın başlığı, mətni, çıxış qeydləri və istinad etdiyi sənəd mətnləri DeepSeek-ə göndərilir. Fayl adları və şəxsi sahələr göndərilmir.</p>
+      <p>Razılıq verib əməliyyatı seçəndə Təqdim həmin əməliyyatı, təqdimatın mövzusunu, növünü, məqsədini, auditoriyasını və planlaşdırdığın çıxış müddətini DeepSeek-ə göndərir. Slaydın düzülüşü, başlığı, mətni (cədvəl və diaqramdakı yazılar da daxil olmaqla) və çıxış qeydləri də göndərilir. İstinad olunan sənədlərin müvafiq mətnləri, səhifə məlumatları və daxili kodları göndərilir. Fayl adları və şəxsi sahələr göndərilmir.</p>
       <AiServerStatus server={server} onRetry={() => void check()} />
-      <label className="ai-consent"><input type="checkbox" checked={consent} disabled={!!busy} onChange={event => setConsent(event.target.checked)} /> Bu slaydın DeepSeek-ə göndərilməsinə razıyam.</label>
+      <label className="ai-consent"><input type="checkbox" checked={consent} disabled={!!busy} onChange={event => setConsent(event.target.checked)} /> Yuxarıda sadalanan məlumatların DeepSeek-ə göndərilməsinə razıyam.</label>
       <div className="slide-assist-modes">
         {modes.map(mode => {
           const Icon = mode.icon;
           const supported = available.includes(mode.id);
-          return <button type="button" key={mode.id} className="secondary" title={supported ? mode.detail : "Bu slayd üçün uyğun deyil: mətn düzülüşü və mətn lazımdır."}
+          return <button type="button" key={mode.id} className="secondary"
+            title={supported ? mode.detail : mode.id === "notes"
+              ? "Əvvəlcə slayda görünən mətn əlavə et."
+              : "Mətn düzülüşü seç və slaydın mətnini yaz."}
             disabled={!ready || !consent || !!busy || !supported} onClick={() => void run(mode.id)}>
             {busy === mode.id ? <Loader2 size={14} className="spin" /> : <Icon size={14} />} {mode.name}
           </button>;

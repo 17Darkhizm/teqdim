@@ -47,7 +47,7 @@ export default function ChartPaste({
           (text
             ? preview.error ||
               `${preview.points.length} göstərici tətbiq üçün hazırdır.`
-            : "Məlumatı yapışdırdıqda əvvəlcə önizləmə görünəcək.")}
+            : "Məlumatı yapışdır, əlavə etməzdən əvvəl onu yoxla.")}
       </p>
       {!!preview.points.length && (
         <table className="chart-paste-preview">

@@ -51,7 +51,7 @@ export function createApiServer(config, { generate = createDeepseek(config), ass
     const entry = clients.get(ip) || { start: time, count: 0 };
     if (time - budget.start >= WINDOW_MS) budget = { start: time, count: 0 };
     if (entry.count >= config.requestsPerMinute || budget.count >= config.requestsPerMinute)
-      throw new ApiError(429, 'RATE_LIMITED', 'Sorğu limitinə çatdın. Bir qədər sonra yenidən yoxla.', Math.max(1, Math.ceil((WINDOW_MS - (time - budget.start)) / 1000)));
+      throw new ApiError(429, 'RATE_LIMITED', 'Sorğu sayının həddinə çatdın. Bir az gözlə, sonra yenidən cəhd et.', Math.max(1, Math.ceil((WINDOW_MS - (time - budget.start)) / 1000)));
     entry.count++;
     budget.count++;
     clients.set(ip, entry);

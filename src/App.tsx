@@ -641,7 +641,7 @@ export default function App() {
       setStep(3);
       if (next.length !== count)
         setToast(
-          `Oxunaqlılıq üçün ${next.length} slayd hazırlandı. Seçdiyin say istiqamət kimi götürülür.`,
+          `Oxunaqlılıq üçün ${next.length} slayd hazırlandı. Slayd sayı materialın həcmindən asılıdır.`,
         );
     } catch (error) {
       setToast(
@@ -840,13 +840,13 @@ export default function App() {
     if (deleteReason) return;
     setSlides((items) => items.filter((_, i) => i !== selected));
     setSelected(Math.min(selected, slides.length - 2));
-    setToast("Slayd çıxarıldı. “Geri al” ilə bərpa edə bilərsən.");
+    setToast("Slayd silindi. Bərpa etmək üçün «Geri al» düyməsini seç.");
   }
   function backupCurrent() {
     try {
       downloadBackup(currentProject());
       setToast(
-        "Ehtiyat nüsxə hazırdır. Təqdimatlarım bölməsindən yenidən aça bilərsən.",
+        "Ehtiyat nüsxə hazırdır. Faylı «Təqdimatlarım» bölməsindəki «Ehtiyat nüsxəni aç» düyməsi ilə aç.",
       );
     } catch (error) {
       setToast(
@@ -1171,10 +1171,10 @@ export default function App() {
                       className="secondary"
                       onClick={history.redo}
                       disabled={!history.canRedo}
-                      title="Yenidən et · Ctrl+Shift+Z"
+                      title="Dəyişikliyi yenidən tətbiq et · Ctrl+Shift+Z"
                     >
                       <Redo2 size={15} />
-                      Yenidən et
+                      Dəyişikliyi yenidən tətbiq et
                     </button>
                   </div>
                   <button className="text-button" onClick={() => setHelp(true)}>
@@ -1345,7 +1345,7 @@ export default function App() {
                     </button>
                     {wantsPlan && (
                       <button type="button" className="manual-start" onClick={startManual}>
-                        Material olmadan özüm qurum <ArrowRight size={15} />
+                        Boş təqdimat aç <ArrowRight size={15} />
                       </button>
                     )}
                     <p className="under-button">
@@ -1440,7 +1440,7 @@ export default function App() {
                     <div className="honest-note">
                       <span>İLKİN VERSİYA HAQQINDA</span>
                       <p>
-                        Adi plan materialını yerli bölür. DeepSeek ilə plan
+                        Adi plan materialını bu brauzerdə slaydlara bölür. DeepSeek ilə plan
                         üçün server bağlantısı və ayrıca razılığın tələb olunur.
                         AI-nin yazdığı faktları özün yoxla.
                       </p>
@@ -1474,7 +1474,7 @@ export default function App() {
                         </span>
                         <div className="outline-fields">
                           <label className="sr-only" htmlFor={`title-${s.id}`}>
-                            {i + 1}-ci slaydın başlığı
+                            Slayd {i + 1} — başlıq
                           </label>
                           <input
                             id={`title-${s.id}`}
@@ -1485,7 +1485,7 @@ export default function App() {
                             maxLength={160}
                           />
                           <label className="sr-only" htmlFor={`body-${s.id}`}>
-                            {i + 1}-ci slaydın mətni
+                            Slayd {i + 1} — mətn
                           </label>
                           <textarea
                             id={`body-${s.id}`}
@@ -1714,7 +1714,7 @@ export default function App() {
                             onClick={deleteCurrent}
                             disabled={!!deleteReason}
                             title={deleteReason}
-                            aria-label={deleteReason || "Seçilən slaydı çıxar"}
+                            aria-label={deleteReason || "Seçilmiş slaydı sil"}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -1954,7 +1954,7 @@ export default function App() {
                           {(slides[selected].notes || "").length} / 8000 simvol
                         </small>
                         <p className="notes-hint">
-                          Qeydlər PowerPoint-in çıxış qeydlərinə əlavə edilir.
+                          Çıxış qeydləri PowerPoint faylında da saxlanır.
                         </p>
                         <SlideAssist
                           slide={slides[selected]}
@@ -2206,7 +2206,7 @@ export default function App() {
               </p>
               <p>
                 <kbd>Ctrl / ⌘ + Shift + Z · Ctrl + Y</kbd>
-                <span>Yenidən et</span>
+                <span>Dəyişikliyi yenidən tətbiq et</span>
               </p>
               <p>
                 <kbd>Ctrl / ⌘ + D</kbd>
@@ -2227,7 +2227,7 @@ export default function App() {
               </p>
               <p>
                 <kbd>Delete</kbd>
-                <span>Seçilən slaydı çıxar</span>
+                <span>Seçilmiş slaydı sil</span>
               </p>
               <p>
                 <kbd>Rəqəm + Enter</kbd>

@@ -305,7 +305,7 @@ export default function PdfUpload({
         </p>
       )}
       <p className="upload-hint">
-        {DOCUMENT_FORMATS}. Yalnız mətn oxunur, dizayn köçürülmür. PDF-dən başqa sənədlərə səhifə nömrəsi verilmir. Skan üçün OCR yoxdur. Köhnə DOC faylını əvvəlcə DOCX kimi saxla.
+        {DOCUMENT_FORMATS}. Yalnız mətn oxunur, dizayn köçürülmür. PDF-dən başqa sənədlərə səhifə nömrəsi verilmir. Skan edilmiş səhifənin şəklindən mətn çıxarmaq olmur. Köhnə DOC faylını əvvəlcə DOCX kimi saxla.
       </p>
     </section>
   );

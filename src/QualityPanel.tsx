@@ -48,7 +48,7 @@ export default function QualityPanel({
   const kinds: { id: QualityIssue["kind"]; name: string }[] = [
     { id: "empty", name: "Boş sahələr" },
     { id: "length", name: "Mətn həcmi" },
-    { id: "placeholder", name: "Qalmış göstərişlər" },
+    { id: "placeholder", name: "Slaydda qalan nümunə mətnləri" },
     { id: "citation", name: "İstinadlar" },
     { id: "data", name: "Struktur məlumatları" },
   ];
@@ -103,7 +103,7 @@ export default function QualityPanel({
         >
           Hədəf: {brief.targetMinutes} dəqiqə.{" "}
           {minutes > brief.targetMinutes
-            ? "Mətnin həcmi hədəf vaxtdan uzundur; qısaltmağı və ya vaxtı artırmağı düşün."
+            ? "Təxmini oxuma müddəti planlaşdırdığın çıxış müddətini aşır. Mətni qısalt və ya müddəti artır."
             : "Təxmini mətn həcmi hədəf vaxta uyğundur."}
         </p>
       )}

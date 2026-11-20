@@ -161,7 +161,7 @@ export function validateAssistOutput(value, input) {
     }
     // Details cut from the slide are appended to the notes, never dropped silently.
     const joined = [slide.notes, moved].filter(Boolean).join('\n\n');
-    if (joined.length > LIMITS.notes) throw new ApiError(422, 'NOTES_FULL', 'Çıxış qeydləri dolu olduğu üçün qısaldılmış təfərrüatlar oraya sığmır. Əvvəl qeydləri qısalt.');
+    if (joined.length > LIMITS.notes) throw new ApiError(422, 'NOTES_FULL', 'Köçürülən mətn çıxış qeydlərinə sığmır. Qeydləri qısaldıb yenidən cəhd et.');
     notes = joined;
     if (body.length >= slide.body.length) warnings.push('AI mətni qısaltmadı. Nəticəni orijinalla müqayisə et.');
   }

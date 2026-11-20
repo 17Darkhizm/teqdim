@@ -186,14 +186,14 @@ await click(document.querySelector('[aria-label="Xəzər dizaynına bax"]'));ass
 await key('Escape');assert.equal(document.querySelector('.design-gallery'),null);assert.equal(document.activeElement,galleryButton);assert.ok(document.querySelector('.editor-center>.slide.theme-sage'));
 await click(galleryButton);await click(document.querySelector('[aria-label="Xəzər dizaynına bax"]'));assert.equal(document.querySelector('[aria-label="Xəzər dizaynına bax"]').getAttribute('aria-pressed'),'true');
 await click(button('Dizaynı tətbiq et'));assert.ok(document.querySelector('.editor-center>.slide.theme-caspian'));
-await click(button('Geri al'));assert.ok(document.querySelector('.editor-center>.slide.theme-sage'));await click(button('Yenidən et'));assert.ok(document.querySelector('.editor-center>.slide.theme-caspian'));
+await click(button('Geri al'));assert.ok(document.querySelector('.editor-center>.slide.theme-sage'));await click(button('Dəyişikliyi yenidən tətbiq et'));assert.ok(document.querySelector('.editor-center>.slide.theme-caspian'));
 await select('#design-font','serif');assert.equal(document.querySelector('.editor-center>.slide h2').style.fontFamily,'Georgia');
 await select('#design-text-size','large');assert.ok(document.querySelector('.editor-center>.slide.text-large'));assert.ok(document.querySelector('.quality-panel').textContent.includes('İri mətn'));
 await select('#design-decoration','minimal');assert.ok(document.querySelector('.editor-center>.slide.decoration-minimal'));
 await click(document.querySelector('.number-toggle input'));assert.equal(document.querySelector('.editor-center .page-number'),null);
 assert.ok([...document.querySelectorAll('.print-slides>.slide')].every(slide=>slide.classList.contains('text-large')&&slide.classList.contains('decoration-minimal')&&!slide.querySelector('.page-number')));
 assert.ok(document.querySelector('.slide-rail .slide.text-large.decoration-minimal'));
-await click(button('Üslub ayarlarını sıfırla'));assert.equal(document.getElementById('design-font').value,'default');await click(button('Geri al'));assert.equal(document.getElementById('design-font').value,'serif');assert.equal(document.getElementById('design-text-size').value,'large');
+await click(button('İlkin üsluba qayıt'));assert.equal(document.getElementById('design-font').value,'default');await click(button('Geri al'));assert.equal(document.getElementById('design-font').value,'serif');assert.equal(document.getElementById('design-text-size').value,'large');
 await click(button('Məşq et'));assert.ok(document.querySelector('.practice-overlay .slide.text-large.decoration-minimal'));await key('Escape');
 await settle();let saved=storage.readDraft();assert.equal(saved.project.theme,'caspian');assert.deepEqual(saved.project.design,custom);
 await click(button('Saxla'));assert.deepEqual(storage.readProjects()[0].design,custom);

@@ -62,7 +62,7 @@ export default function BriefForm({
           </select>
         </div>
         <div>
-          <label htmlFor="target-minutes">Hədəf çıxış vaxtı</label>
+          <label htmlFor="target-minutes">Planlaşdırdığın çıxış müddəti</label>
           <select
             id="target-minutes"
             value={value.targetMinutes}
@@ -79,7 +79,7 @@ export default function BriefForm({
       <label htmlFor="presentation-goal">Təqdimatın əsas məqsədi</label>
       <input
         id="presentation-goal"
-        placeholder="Dinləyici çıxışından hansı fikirlə ayrılmalıdır?"
+        placeholder="Dinləyicinin yadında hansı əsas fikir qalsın?"
         value={value.goal}
         maxLength={160}
         onChange={(e) => update("goal", e.target.value)}
