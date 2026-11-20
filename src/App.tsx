@@ -1935,7 +1935,11 @@ export default function App() {
                       <div className="export-note">
                         <FileText size={20} />
                         <strong>PDF lazımdır?</strong>
-                        <p>Çap pəncərəsində “PDF kimi saxla” seç.</p>
+                        <p>
+                          Çap pəncərəsində “PDF kimi saxla” seç. Kənar
+                          boşluqları “Yox” olaraq seç, “Başlıq və altlıq”
+                          ayarını söndür.
+                        </p>
                         <button
                           className="secondary full"
                           onClick={() => window.print()}
@@ -2327,6 +2331,7 @@ export default function App() {
             key={slides[deckIndex].id}
             slide={slides[deckIndex]}
             index={i}
+            layoutIndex={deckIndex}
             total={shown.length}
             theme={theme}
             subject={subject}

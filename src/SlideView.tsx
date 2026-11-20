@@ -35,6 +35,7 @@ export function clippedText(root: HTMLElement): boolean {
 export default function SlideView({
   slide,
   index,
+  layoutIndex = index,
   total,
   theme,
   subject,
@@ -46,6 +47,7 @@ export default function SlideView({
 }: {
   slide: Slide;
   index: number;
+  layoutIndex?: number;
   total: number;
   theme: Theme;
   subject: string;
@@ -82,7 +84,7 @@ export default function SlideView({
   }, [!!onOverflow]);
   const settings = resolveDesign(design);
   const palette = themeColors[theme];
-  const layout = layoutFor(slide, index);
+  const layout = layoutFor(slide, layoutIndex);
   const columns = layout === "columns" ? textColumns(slide.body) : null;
   return (
     <div
@@ -96,7 +98,7 @@ export default function SlideView({
           color: `#${palette.fg}`,
         } as CSSProperties
       }
-      className={`slide text-${settings.textSize} decoration-${settings.decoration} ${settings.showNumbers ? "" : "numbers-hidden"} layout-${index % 3} content-${layout} theme-${theme} ${layout === "cover" ? "cover" : ""} ${layout === "cover" && coverDetails(brief) ? "has-cover-details" : ""} ${mini ? "mini" : ""} ${slide.body.length > 350 ? "dense" : ""}`}
+      className={`slide text-${settings.textSize} decoration-${settings.decoration} ${settings.showNumbers ? "" : "numbers-hidden"} layout-${layoutIndex % 3} content-${layout} theme-${theme} ${layout === "cover" ? "cover" : ""} ${layout === "cover" && coverDetails(brief) ? "has-cover-details" : ""} ${mini ? "mini" : ""} ${slide.body.length > 350 ? "dense" : ""}`}
     >
       <div className="slide-top">
         <span>{subject || "TƏQDİMAT"}</span>

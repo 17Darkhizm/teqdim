@@ -699,6 +699,10 @@ export const bodyBlocks = (body: string) =>
     .split(/\n\s*\n|\n(?=[•\-–]\s)/)
     .map((s) => s.replace(/^[•\-–]\s/, "").trim())
     .filter(Boolean);
+const BULLET_AREA_HEIGHT = 3.2;
+const MIN_BULLET_BOX_HEIGHT = 0.3;
+const bulletBoxHeight = (count: number) =>
+  BULLET_AREA_HEIGHT / Math.max(1, count) - 0.04;
 export function textColumns(body: string): [string, string] {
   const blocks = bodyBlocks(body);
   if (blocks.length > 1) {
@@ -794,8 +798,16 @@ export function inspectDeck(
       add("length", "Başlığı qısalt: 100 simvoldan uzundur.");
     if (!dataLayout && (s.body.length > BODY_LIMIT || wordCount(s.body) > 85))
       add("length", "Mətn sıxdır. Slaydı iki və ya daha çox hissəyə böl.");
-    if (layoutFor(s, index) === "bullets" && bodyBlocks(s.body).length > 5)
-      add("length", "Məqamları azalt: beşdən çox məqam var.");
+    if (layoutFor(s, index) === "bullets") {
+      const count = bodyBlocks(s.body).length;
+      if (!s.hidden && bulletBoxHeight(count) < MIN_BULLET_BOX_HEIGHT)
+        add(
+          "length",
+          "Məqamlar PowerPoint-də oxunaqlı ölçüdə yerləşməyə bilər. Slaydı bir neçə hissəyə böl.",
+        );
+      else if (count > 5)
+        add("length", "Məqamları azalt: beşdən çox məqam var.");
+    }
     if (layoutFor(s, index) === "statement" && s.body.length > 180)
       add("length", "Vurğu düzülüşündə bir qısa fikir saxla.");
     if (
@@ -1501,30 +1513,49 @@ export async function exportPptx(project: Project) {
         });
     } else if (layout === "bullets") {
       const blocks = bodyBlocks(item.body);
-      const rowHeight = 3.2 / Math.max(1, blocks.length);
-      blocks.forEach((block, n) => {
-        slide.addText(String(n + 1).padStart(2, "0"), {
-          x: 0.7,
-          y: 2.8 + n * rowHeight,
-          w: 0.42,
-          h: rowHeight - 0.04,
-          color: colors.accent,
-          fontSize: 12,
-          bold: true,
-          fit: "shrink",
-          valign: "top",
+      const boxHeight = bulletBoxHeight(blocks.length);
+      if (boxHeight < MIN_BULLET_BOX_HEIGHT) {
+        slide.addText(
+          blocks
+            .map((block, n) => `${String(n + 1).padStart(2, "0")}  ${block}`)
+            .join("\n"),
+          {
+            x: 0.7,
+            y: 2.8,
+            w: textWidth,
+            h: BULLET_AREA_HEIGHT,
+            color: colors.fg,
+            fontSize: 20 * bodyScale,
+            fit: "shrink",
+            valign: "top",
+          },
+        );
+      } else {
+        blocks.forEach((block, n) => {
+          const y = 2.8 + n * (BULLET_AREA_HEIGHT / blocks.length);
+          slide.addText(String(n + 1).padStart(2, "0"), {
+            x: 0.7,
+            y,
+            w: 0.42,
+            h: boxHeight,
+            color: colors.accent,
+            fontSize: 12,
+            bold: true,
+            fit: "shrink",
+            valign: "top",
+          });
+          slide.addText(block, {
+            x: 1.27,
+            y,
+            w: textWidth - 0.57,
+            h: boxHeight,
+            color: colors.fg,
+            fontSize: 20 * bodyScale,
+            fit: "shrink",
+            valign: "top",
+          });
         });
-        slide.addText(block, {
-          x: 1.27,
-          y: 2.8 + n * rowHeight,
-          w: textWidth - 0.57,
-          h: rowHeight - 0.04,
-          color: colors.fg,
-          fontSize: 20 * bodyScale,
-          fit: "shrink",
-          valign: "top",
-        });
-      });
+      }
     } else {
       slide.addText(item.body, {
         x: 0.7,
