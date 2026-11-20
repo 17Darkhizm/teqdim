@@ -1021,6 +1021,7 @@ export async function exportPptx(project: Project) {
   const bodyScale = design.textSize === "large" ? 1.18 : 1;
   pptx.theme = { headFontFace: headingFont, bodyFontFace: "Arial" };
   const colors = themeColors[project.theme];
+  const lowContrastAccent = project.theme === "atelier" || project.theme === "sunset";
   shown.forEach(({ slide: item, index: deckIndex }, i) => {
     const slide = pptx.addSlide();
     slide.background = { color: colors.bg };
@@ -1391,8 +1392,8 @@ export async function exportPptx(project: Project) {
           text,
           options: {
             bold: true,
-            fill: { color: colors.accent },
-            color: colors.bg,
+            fill: { color: lowContrastAccent ? colors.bg : colors.accent },
+            color: lowContrastAccent ? colors.fg : colors.bg,
           },
         })),
         ...table.rows.map((row) => row.map((text) => ({ text }))),
@@ -1587,7 +1588,7 @@ export async function exportPptx(project: Project) {
         y: 6.35,
         w: textWidth,
         h: 0.35,
-        color: colors.accent,
+        color: lowContrastAccent ? colors.fg : colors.accent,
         fontSize: 8,
         fit: "shrink",
       });

@@ -26,6 +26,57 @@ const {encodeBackup,decodeBackup}=await import(moduleFile('backup'));
 assert.equal(m.themes.length,10);assert.equal(new Set(m.themes.map(theme=>theme.id)).size,10);
 for(const theme of m.themes){const colors=m.themeColors[theme.id];assert.ok(designModule.contrastRatio(colors.bg,colors.fg)>=4.5,theme.name);}
 assert.equal(designModule.contrastRatio('000000','FFFFFF'),21);
+const styling = new JSDOM(`
+  <div class="slide">
+    <p class="slide-citations"></p>
+    <div class="data-table-view"><table><tr><th>Başlıq</th></tr></table></div>
+    <svg><text class="chart-name">Ölçü</text></svg>
+  </div>
+  <input><textarea></textarea><select></select>
+  <div class="search-field"></div>
+  <div class="edit-fields"><textarea class="speaker-notes"></textarea></div>
+`);
+const styleDocument = styling.window.document;
+for (const name of ['style.css', 'data-editor.css', 'design-studio.css', 'aic-brand.css']) {
+  const style = styleDocument.createElement('style');
+  style.textContent = await fs.readFile(path.join(rootPath, 'src', name), 'utf8');
+  styleDocument.head.append(style);
+}
+const cssRules = [...styleDocument.styleSheets].flatMap(sheet => [...sheet.cssRules]);
+function declaredColor(element, property) {
+  const value = cssRules.filter(rule => rule.selectorText && element.matches(rule.selectorText))
+    .map(rule => rule.style.getPropertyValue(property)).filter(Boolean).at(-1);
+  const token = /^var\((--[\w-]+)\)$/.exec(value)?.[1];
+  if (token) return declaredColor(element.closest('.slide') ?? styleDocument.documentElement, token);
+  assert.match(value, /^#[\da-f]{6}$/i, property);
+  return value.slice(1);
+}
+const slideElement = styleDocument.querySelector('.slide');
+const contrastThemes = ['atelier', 'sunset'];
+for (const theme of contrastThemes) {
+  slideElement.className = `slide theme-${theme}`;
+  const bg = declaredColor(slideElement, '--s-bg');
+  for (const [selector, property, background] of [
+    ['.slide-citations', 'color', bg],
+    ['.chart-name', 'fill', bg],
+    ['th', 'color', declaredColor(slideElement.querySelector('th'), 'background')],
+  ]) {
+    const color = declaredColor(slideElement.querySelector(selector), property);
+    assert.ok(designModule.contrastRatio(color, background) >= 4.5, `${theme} ${selector}`);
+  }
+}
+for (const mode of ['light', 'dark']) {
+  const root = styleDocument.documentElement;
+  root.dataset.mode = mode;
+  for (const field of styleDocument.querySelectorAll('input, textarea, select, .search-field')) {
+    const border = declaredColor(field, 'border-color');
+    for (const surface of ['page', 'surface', 'raised']) {
+      const background = declaredColor(root, `--aic-${surface}`);
+      assert.ok(designModule.contrastRatio(border, background) >= 3, `${mode} ${field.tagName} ${surface}`);
+    }
+  }
+}
+styling.window.close();
 assert.equal(designModule.themeTone('caspian'),'dark');assert.equal(designModule.themeTone('heritage'),'light');
 assert.equal(designModule.filterThemes('İRS','all','all')[0].id,'heritage');
 assert.equal(designModule.filterThemes('','Klassik','all').length,2);
@@ -61,12 +112,14 @@ const xmlDom=new JSDOM();
 const parseXml=text=>{const doc=new xmlDom.window.DOMParser().parseFromString(text,'text/xml');assert.equal(doc.getElementsByTagName('parsererror').length,0);return doc;};
 const texts=doc=>[...doc.getElementsByTagName('a:t')].map(node=>node.textContent);
 const decorativeShapes=doc=>[...doc.getElementsByTagName('p:sp')].filter(shape=>!texts(shape).join('').trim()).length;
+const citations = [{ refId: 'studio-ref', name: 'Sınaq mənbəyi.pdf', page: 1 }];
+const exportSlides = slides.map((slide, index) => index === 1 ? { ...slide, citations } : slide);
 try{
  for(const theme of m.themes){
   for(const minimal of [false,true]){
    const preferences=minimal ? custom : m.defaultDesign;
    const topic=`studio-${theme.id}-${minimal ? 'minimal' : 'full'}`;
-   await m.exportPptx({...project,topic,theme:theme.id,design:preferences});
+   await m.exportPptx({...project,topic,theme:theme.id,design:preferences,slides:exportSlides});
    const zip=await JSZip.loadAsync(await fs.readFile(topic+'.pptx'));
    const cover=parseXml(await zip.file('ppt/slides/slide1.xml').async('string'));
    const textXml=await zip.file('ppt/slides/slide2.xml').async('string');const textDoc=parseXml(textXml);
@@ -79,7 +132,25 @@ try{
    assert.ok(bodyShape);const sizes=[...bodyShape.getElementsByTagName('a:rPr')].map(node=>Number(node.getAttribute('sz')));
    assert.ok(sizes.some(size=>minimal ? size>2100 : size===2100));
    const table=await zip.file('ppt/slides/slide6.xml').async('string');assert.ok(table.includes('<a:tbl>'));assert.ok(table.includes('12'));
-   const chart=await zip.file(Object.keys(zip.files).find(name=>/^ppt\/charts\/chart\d+\.xml$/.test(name))).async('string');parseXml(chart);assert.ok(chart.includes('12.5'));assert.ok(chart.includes(m.themeColors[theme.id].accent));
+   const chart=await zip.file(Object.keys(zip.files).find(name=>/^ppt\/charts\/chart\d+\.xml$/.test(name))).async('string');const chartDoc=parseXml(chart);assert.ok(chart.includes('12.5'));assert.ok(chart.includes(m.themeColors[theme.id].accent));
+   if (contrastThemes.includes(theme.id)) {
+    const color = node => node?.getElementsByTagName('a:srgbClr')[0]?.getAttribute('val');
+    const citationShape = [...textDoc.getElementsByTagName('p:sp')]
+      .find(shape => texts(shape).includes(m.citationLabel(citations)));
+    const header = parseXml(table).getElementsByTagName('a:tc')[0];
+    const headerFill = [...header.getElementsByTagName('a:tcPr')[0].children]
+      .find(node => node.tagName === 'a:solidFill');
+    const slideBg = color(textDoc.getElementsByTagName('p:bg')[0]);
+    const chartBg = color([...chartDoc.documentElement.children].find(node => node.tagName === 'c:spPr'));
+    for (const [label, textColor, background] of [
+      ['istinad', color(citationShape), slideBg],
+      ['cədvəl başlığı', color(header.getElementsByTagName('a:rPr')[0]), color(headerFill)],
+      ['diaqram adı', color(chartDoc.getElementsByTagName('c:title')[0]), chartBg],
+    ]) {
+      assert.ok(textColor && background, `${theme.id} ${label}: PPTX rəngləri`);
+      assert.ok(designModule.contrastRatio(textColor, background) >= 4.5, `${theme.id} ${label}: PPTX kontrastı`);
+    }
+   }
    const imageXml=await zip.file('ppt/slides/slide10.xml').async('string');assert.ok(imageXml.includes('Sınaq şəkli'));assert.ok(imageXml.includes('<a:blip'));
   }
  }

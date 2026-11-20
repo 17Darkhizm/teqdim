@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { filterSlides } from "./authoring";
 import { Layout, layouts, Project } from "./model";
 import SlideView from "./SlideView";
@@ -21,6 +21,7 @@ export default function SlideNavigator({
   const [query, setQuery] = useState("");
   const [layout, setLayout] = useState<Layout | "all">("all");
   const [problems, setProblems] = useState(false);
+  const descriptionPrefix = useId();
   const visible = filterSlides(
     project.slides,
     query,
@@ -111,8 +112,8 @@ export default function SlideNavigator({
               setDropTarget(null);
             }}
             aria-current={index === selected ? "true" : undefined}
-            aria-label={`${index + 1} nömrəli slaydı seç`}
-            aria-describedby={hasIssue ? `slide-issue-${index}` : undefined}
+            aria-label={`${index + 1} nömrəli slayd: ${slide.title.trim() || "Başlıqsız slayd"}`}
+            aria-describedby={slide.hidden || hasIssue ? `${descriptionPrefix}-${index}` : undefined}
             title={`${slide.title}${slide.hidden ? " · Təqdimatda gizli" : ""}${hasIssue ? " · Yoxlanmalı məqam var" : ""}`}
           >
             <span>
@@ -124,9 +125,11 @@ export default function SlideNavigator({
                 </i>
               )}
             </span>
-            {hasIssue && (
-              <small className="sr-only" id={`slide-issue-${index}`}>
-                Yoxlanmalı məqam var
+            {(slide.hidden || hasIssue) && (
+              <small className="sr-only" id={`${descriptionPrefix}-${index}`}>
+                {slide.hidden && "Təqdimatda gizli."}
+                {slide.hidden && hasIssue && " "}
+                {hasIssue && "Yoxlanmalı məqam var."}
               </small>
             )}
             <SlideView

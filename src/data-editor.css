@@ -210,6 +210,10 @@
   color: var(--s-bg);
   font-weight: 600;
 }
+.slide:is(.theme-atelier, .theme-sunset) .data-table-view th {
+  background: var(--s-bg);
+  color: var(--s-fg);
+}
 .slide .data-table-view em {
   font-style: normal;
   opacity: 0.45;
@@ -229,6 +233,9 @@
 .chart-name {
   fill: var(--s-accent);
   font-size: 10px;
+}
+:is(.theme-atelier, .theme-sunset) .chart-name {
+  fill: var(--s-fg);
 }
 .chart-grid {
   stroke: var(--s-fg);
