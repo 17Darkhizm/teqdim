@@ -106,7 +106,7 @@ export function validateOutput(value, input) {
     } catch { fail(); }
     const citations = readCitations(slide.citations, input.references, fail);
     if (body.length > LIMITS.bodyTarget) long.push(i + 2);
-    if (!input.material && !citations.length) uncited.push(i + 2);
+    if (input.references.length && !citations.length) uncited.push(i + 2);
     return { id: randomUUID(), title, body, notes, layout: TEXT_LAYOUTS.includes(slide.layout) ? slide.layout : 'text', citations, ...(citations.length ? { citationReview: true } : {}) };
   });
   const warnings = [];
@@ -155,7 +155,10 @@ export function validateAssistOutput(value, input) {
   const warnings = [];
   if (mode === 'shorten') {
     let moved = '';
-    try { moved = text(value.movedToNotes ?? '', 'Qeydlərə köçürülən mətn', LIMITS.notes); } catch { fail(); }
+    try { moved = text(value.movedToNotes, 'Qeydlərə köçürülən mətn', LIMITS.notes); } catch { fail(); }
+    if (!moved && (title !== slide.title || body !== slide.body)) {
+      moved = ['Qısaltmadan əvvəlki mətn:', slide.title, slide.body].filter(Boolean).join('\n');
+    }
     // Details cut from the slide are appended to the notes, never dropped silently.
     const joined = [slide.notes, moved].filter(Boolean).join('\n\n');
     if (joined.length > LIMITS.notes) throw new ApiError(422, 'NOTES_FULL', 'Çıxış qeydləri dolu olduğu üçün qısaldılmış təfərrüatlar oraya sığmır. Əvvəl qeydləri qısalt.');

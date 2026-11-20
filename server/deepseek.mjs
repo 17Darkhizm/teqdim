@@ -17,7 +17,7 @@ Sənəddən götürülən hər fikir üçün citations doldur. Yalnız istifadə
 const assistSystem = `Sən Azərbaycan dilində bir təqdimat slaydını redaktə edirsən.
 ${rules}
 mode sahəsinə görə işlə:
-- shorten: mənanı saxlayaraq mətni qısalt (body ən çox 400, başlıq ən çox 80 simvol). Slayddan çıxardığın vacib təfərrüatları movedToNotes sahəsinə yaz. JSON: {"title":"...","body":"...","movedToNotes":"..."}
+- shorten: mənanı saxlayaraq mətni qısalt (body ən çox 400, başlıq ən çox 80 simvol). Slayddan çıxardığın vacib təfərrüatları movedToNotes sahəsinə yaz. Təfərrüat çıxarmasan belə, bu sahəni boş sətir kimi qaytar. JSON: {"title":"...","body":"...","movedToNotes":"..."}
 - clarify: mətni daha aydın və səlis yaz, uzunluğu təxminən saxla, mənanı dəyişmə. JSON: {"title":"...","body":"..."}
 - notes: slaydı auditoriyaya izah etmək üçün çıxış qeydi yaz: 3–6 cümlə, ən çox 900 simvol. Yalnız slaydın mətninə, mövcud qeydlərə və verilmiş sources səhifələrinə əsaslan. JSON: {"notes":"..."}
 Siyahı məqamlarını iki sətir keçidi ilə ayır. Yalnız JSON obyekti qaytar.`;
@@ -73,6 +73,7 @@ async function chatJson({ apiKey, model, timeoutMs, fetchImpl }, { system, user,
     const choice = payload?.choices?.[0];
     if (choice?.finish_reason === 'content_filter') throw new ApiError(502, 'AI_FILTERED', 'DeepSeek bu material üçün cavab vermədi. Mətni yoxla və yenidən cəhd et.');
     if (choice?.finish_reason === 'insufficient_system_resource') throw new ApiError(502, 'AI_UNAVAILABLE', 'DeepSeek hazırda məşğuldur. Bir qədər sonra yenidən yoxla.');
+    if (choice?.finish_reason === 'length') throw new ApiError(502, 'AI_OUTPUT_LIMIT', 'Cavab çox uzun oldu. Slayd sayını azaldıb yenidən cəhd et.');
     if (choice?.finish_reason !== 'stop') throw new ApiError(502, 'AI_INCOMPLETE', 'AI cavabı tamamlanmadı. Mətn qısaldılmadan sorğu dayandırıldı.');
     const content = choice?.message?.content;
     // JSON mode may blank out non-JSON output with spaces while still reporting "stop".
