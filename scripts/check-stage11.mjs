@@ -73,9 +73,7 @@ const key = async init => { const event = new KeyboardEvent('keydown', { bubbles
 const rail = () => document.querySelectorAll('.slide-rail>button');
 const root = createRoot(document.getElementById('root'));
 await act(async () => root.render(React.createElement(App)));
-await click(document.querySelector('[aria-label="Nümunə materialı əlavə et"]'));
-await act(async () => document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
-await click(button('Dizayna keç'));
+await click(document.querySelector('[aria-label="Nümunə təqdimatını aç"]'));
 const count = rail().length;
 assert.ok(count >= 4);
 const hiddenTitle = rail()[1].getAttribute('title');
@@ -135,6 +133,31 @@ for (let i = 0; i < count; i++) {
 }
 assert.equal(document.querySelectorAll('.slide-rail>button:not(.is-hidden)').length, 1);
 assert.ok(document.querySelector('.toast.toast-error').textContent.includes('Ən azı bir slayd'));
+
+const lastShown = () => document.querySelector('.slide-rail>button:not(.is-hidden)');
+const lastShownTitle = lastShown().title;
+await click(lastShown());
+const deleteButton = document.querySelector('.slide-manage .danger');
+assert.equal(deleteButton.disabled, true);
+assert.equal(deleteButton.title, 'Son görünən slaydı silə bilməzsən.');
+assert.equal(deleteButton.getAttribute('aria-label'), deleteButton.title);
+await click(deleteButton);
+assert.equal(rail().length, count);
+assert.equal(lastShown().title, lastShownTitle);
+assert.equal((await key({ key: 'Delete' })).defaultPrevented, true);
+assert.equal(rail().length, count);
+assert.equal(lastShown().title, lastShownTitle);
+await click(button('Planı düzəlt'));
+assert.equal(document.querySelector('.outline-item button[title="Son görünən slaydı silə bilməzsən."]').disabled, true);
+await click(button('Redaktoru aç'));
+await click(document.querySelector('.slide-rail>button.is-hidden'));
+const hiddenDelete = document.querySelector('.slide-manage .danger');
+assert.equal(hiddenDelete.disabled, false, 'Gizli slaydı silmək mümkündür');
+await click(hiddenDelete);
+assert.equal(rail().length, count - 1);
+assert.equal(lastShown().title, lastShownTitle);
+await click(button('Geri al'));
+assert.equal(rail().length, count);
 
 await click(button('Qısayollar'));
 assert.ok(document.querySelector('[aria-labelledby="help-title"]').textContent.includes('Rəqəm + Enter'));

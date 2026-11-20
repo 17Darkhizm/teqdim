@@ -47,9 +47,8 @@ const key = async (init, target = window) => { const event = new KeyboardEvent('
 const railIds = () => [...document.querySelectorAll('.slide-rail>button')].map(b => b.getAttribute('title'));
 root = createRoot(document.getElementById('root'));
 await act(async () => root.render(React.createElement(App)));
-await click(document.querySelector('[aria-label="Nümunə materialı əlavə et"]'));
-await act(async () => document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
-await click(button('Dizayna keç'));
+await click(document.querySelector('[aria-label="Nümunə təqdimatını aç"]'));
+assert.ok(railIds().length >= 4, 'Bir klik nümunəni redaktorda açır');
 
 // 2. Overflow warning follows the rendered editor slide.
 assert.equal(document.querySelector('.overflow-warning'), null);

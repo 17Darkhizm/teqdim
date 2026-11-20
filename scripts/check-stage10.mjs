@@ -56,16 +56,16 @@ const root = createRoot(document.getElementById('root'));
 await act(async () => root.render(React.createElement(App)));
 
 // 5. Error toasts are alerts with their own style; success toasts stay status.
-await click(button('Material olmadan özüm qurum'));
+await click(button('Boş təqdimat aç'));
 assert.ok(document.querySelector('.toast.toast-error[role="alert"]'));
-await click(document.querySelector('[aria-label="Nümunə materialı əlavə et"]'));
+assert.equal(document.activeElement.id, 'topic');
+assert.equal(document.querySelector('.measure-layer'), null, 'Ölçmə qatı yalnız redaktorda lazımdır');
+await click(document.querySelector('[aria-label="Nümunə təqdimatını aç"]'));
 assert.equal(document.querySelector('.toast-error'), null);
 assert.ok(document.querySelector('.toast[role="status"]'));
-assert.equal(document.querySelector('.measure-layer'), null, 'Ölçmə qatı yalnız redaktorda lazımdır');
-
-await act(async () => document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
-await click(button('Dizayna keç'));
+assert.ok(document.querySelector('.toast').textContent.includes('nümunə təqdimatdır'));
 const count = rail().length;
+assert.ok(count >= 4);
 assert.equal(document.querySelectorAll('.measure-layer > .slide').length, count);
 assert.equal(document.querySelector('.measure-layer').getAttribute('aria-hidden'), 'true');
 

@@ -46,6 +46,7 @@ import {
   TimelineData,
   ImageAsset,
   createBlock,
+  createCover,
   createManualDeck,
   emptyComparison,
   emptyTimeline,
@@ -122,7 +123,7 @@ export default function App() {
   }, [darkMode]);
   const [restored] = useState(readDraft);
   const [pendingAction, setPendingAction] = useState<
-    "new" | "rebuild" | "ai" | Project | null
+    "new" | "sample" | "rebuild" | "ai" | Project | null
   >(null);
   const [projects, setProjects] = useState<Project[]>(readProjects);
   const [aiCandidate, setAiCandidate] = useState<{ slides: Slide[]; key: string } | null>(null);
@@ -168,6 +169,13 @@ export default function App() {
   const selected = Math.min(selectedIndex, Math.max(0, slides.length - 1));
   // Presenting and practice walk only the slides the audience sees.
   const shown = shownSlides(slides).map((item) => item.index);
+  function slideDeletionReason(index: number) {
+    if (shown.length === 1 && shown[0] === index)
+      return "Son görünən slaydı silə bilməzsən.";
+    if (slides.length <= 2) return "Ən azı iki slayd qalmalıdır.";
+    return undefined;
+  }
+  const deleteReason = slideDeletionReason(selected);
   const showPos = Math.max(0, shown.indexOf(selected));
   const showAt = (position: number) =>
     setSelected(shown[Math.max(0, Math.min(shown.length - 1, position))]);
@@ -372,9 +380,14 @@ export default function App() {
   useEffect(() => {
     if (!presenting) setBlackout(false);
   }, [presenting]);
-  const previewSlides = slides.length
-    ? slides
-    : createSlides(sample.topic, sample.material, 6);
+  const firstSlide = slides[0] ?? createCover(topic.trim() || sample.topic);
+  const previewCover = {
+    ...firstSlide,
+    title: topic.trim() || firstSlide.title,
+    body: brief.goal.trim() || firstSlide.body,
+  };
+  const hasMaterial = !!(material.trim() || references.length);
+  const hasDraftContent = !!(topic.trim() || hasMaterial || slides.length);
   const currentProject = (): Project => ({
     id: projectId,
     topic,
@@ -396,10 +409,9 @@ export default function App() {
   });
   function hasUnsavedWork() {
     if (
-      !topic.trim() &&
-      !material.trim() &&
-      !references.length &&
-      !slides.length &&
+      !hasDraftContent &&
+      !subject.trim() &&
+      !author.trim() &&
       JSON.stringify(brief) === JSON.stringify(defaultBrief)
     )
       return false;
@@ -511,9 +523,26 @@ export default function App() {
     setStep(1);
     setPage("create");
   }
+  function openSample(force = false) {
+    if (!force && hasUnsavedWork()) {
+      setPendingAction("sample");
+      return;
+    }
+    load({
+      ...sample,
+      id: uid(),
+      author: "",
+      theme,
+      design,
+      slides: createSlides(sample.topic, sample.material, 6, [], defaultBrief),
+      updatedAt: new Date().toISOString(),
+    }, true);
+    setCount(6);
+    setToast("Bu, redaktə edə biləcəyin nümunə təqdimatdır.");
+  }
   function build(e: React.FormEvent) {
     e.preventDefault();
-    if (!topic.trim() || (!material.trim() && !references.length)) return;
+    if (!topic.trim() || !hasMaterial) return;
     if (slides.length) {
       setPendingAction("rebuild");
       return;
@@ -529,9 +558,10 @@ export default function App() {
         references,
         brief,
       );
-      history.replace({ theme, slides: next, design });
+      if (slides.length) setSlides(next);
+      else history.replace({ theme, slides: next, design });
       setSelected(0);
-      setStep(2);
+      setStep(3);
       if (next.length !== count)
         setToast(
           `Oxunaqlılıq üçün ${next.length} slayd hazırlandı. Seçdiyin say istiqamət kimi götürülür.`,
@@ -660,7 +690,6 @@ export default function App() {
       setSelected(0);
     }
     setStep(3);
-    setBlocksOpen(true);
   }
   function updateComparison(comparison: ComparisonData, group?: string) {
     const id = slides[selected].id;
@@ -730,7 +759,7 @@ export default function App() {
     setSelected(selected + 1);
   }
   function deleteCurrent() {
-    if (slides.length <= 2) return;
+    if (deleteReason) return;
     setSlides((items) => items.filter((_, i) => i !== selected));
     setSelected(Math.min(selected, slides.length - 2));
     setToast("Slayd çıxarıldı. “Geri al” ilə bərpa edə bilərsən.");
@@ -864,9 +893,9 @@ export default function App() {
           >
             <h2 id="replace-draft-title">Cari işini saxlamısan?</h2>
             <p>
-              Bu qaralama yenisi ilə əvəz olunacaq. Hazır slaydların varsa,
-              əvvəlcə “Saxla” düyməsi ilə Təqdimatlarım bölməsinə əlavə edə
-              bilərsən.
+              {pendingAction === "rebuild"
+                ? "Yeni plan hazır slaydlarını əvəz edəcək. “Geri al” ilə əvvəlki slaydları bərpa edə bilərsən."
+                : "Bu qaralama yenisi ilə əvəz olunacaq. Hazır slaydların varsa, əvvəlcə “Saxla” düyməsi ilə Təqdimatlarım bölməsinə əlavə edə bilərsən."}
             </p>
             <div className="panel-footer">
               <button
@@ -880,13 +909,16 @@ export default function App() {
                 className="primary"
                 onClick={() => {
                   if (pendingAction === "new") reset(true);
+                  else if (pendingAction === "sample") openSample(true);
                   else if (pendingAction === "rebuild") generatePlan();
                   else if (pendingAction === "ai") { if (aiCandidate) applyAiPlan(aiCandidate); }
                   else load(pendingAction, true);
                   setPendingAction(null);
                 }}
               >
-                Davam et
+                {pendingAction === "rebuild"
+                  ? "Slaydları yeni planla əvəz et"
+                  : pendingAction === "sample" ? "Nümunəni aç" : "Davam et"}
               </button>
             </div>
           </section>
@@ -985,14 +1017,16 @@ export default function App() {
               >
                 {darkMode ? <Sun size={17} /> : <Moon size={17} />}
               </button>
-              <span className={`draft-status ${draftStatus}`} role="status">
-                <span />
-                {draftStatus === "saving"
-                  ? "Saxlanır…"
-                  : draftStatus === "error"
-                    ? "Qaralama saxlanmadı"
-                    : "Qaralama saxlanıldı"}
-              </span>
+              {hasDraftContent && (
+                <span className={`draft-status ${draftStatus}`} role="status">
+                  <span />
+                  {draftStatus === "saving"
+                    ? "Saxlanır…"
+                    : draftStatus === "error"
+                      ? "Qaralama saxlanmadı"
+                      : "Qaralama saxlanıldı"}
+                </span>
+              )}
               <span className="avatar" title="Yerli iş məkanı">
                 T
               </span>
@@ -1123,7 +1157,7 @@ export default function App() {
                       onChange={(e) => setMaterial(e.target.value)}
                       maxLength={12000}
                       aria-describedby="material-hint"
-                      required={!references.length}
+                      required={hasMaterial && !references.length}
                     />
                     <div className="input-bottom material-help">
                       <span id="material-hint">Mətni abzaslara ayır və ya aşağıdan sənəd əlavə et.</span>
@@ -1186,16 +1220,18 @@ export default function App() {
                         </button>
                       </div>
                     </div>
-                    <button className="primary full" type="submit">
-                      Planı hazırla <ArrowRight size={18} />
-                    </button>
                     <button
-                      type="button"
-                      className="manual-start"
-                      onClick={startManual}
+                      className="primary full"
+                      type={hasMaterial ? "submit" : "button"}
+                      onClick={hasMaterial ? undefined : startManual}
                     >
-                      Material olmadan özüm qurum <ArrowRight size={15} />
+                      {hasMaterial ? "Planı hazırla" : "Boş təqdimat aç"} <ArrowRight size={18} />
                     </button>
+                    {hasMaterial && (
+                      <button type="button" className="manual-start" onClick={startManual}>
+                        Material olmadan özüm qurum <ArrowRight size={15} />
+                      </button>
+                    )}
                     <p className="under-button">
                       <CheckCheck size={14} />
                       Adi plan yerli hazırlanır · AI yalnız razılığınla işləyir
@@ -1211,21 +1247,19 @@ export default function App() {
                     <div className="preview-heading">
                       <span>
                         <span className="live-dot" />
-                        DİZAYNA İLK BAXIŞ
+                        {!slides.length && !topic.trim()
+                          ? "Nümunə üz qabığı"
+                          : "DİZAYNA İLK BAXIŞ"}
                       </span>
                       <span>16:9</span>
                     </div>
                     <div className="preview-frame">
                       <SlideView
-                        slide={{
-                          ...previewSlides[0],
-                          title: topic.trim() || previewSlides[0].title,
-                          body: brief.goal.trim() || previewSlides[0].body,
-                        }}
+                        slide={previewCover}
                         index={0}
                         total={count}
                         theme={theme}
-                        subject={subject || sample.subject}
+                        subject={subject.trim()}
                         author={author}
                         brief={brief}
                         design={design}
@@ -1278,20 +1312,11 @@ export default function App() {
                       <div>
                         <span className="sample-symbol">↗</span>
                         <h3>Əvvəlcə sınaqdan keçir</h3>
-                        <p>Hazır nümunə ilə bütün addımlara bax.</p>
+                        <p>Hazır nümunəni redaktorda sına.</p>
                       </div>
                       <button
-                        onClick={() => {
-                          setReferences([]);
-                          setTopic(sample.topic);
-                          setSubject(sample.subject);
-                          setMaterial(sample.material);
-                          setCount(6);
-                          setToast(
-                            "Nümunə əlavə edildi. “Planı hazırla” düyməsi ilə davam et.",
-                          );
-                        }}
-                        aria-label="Nümunə materialı əlavə et"
+                        onClick={() => openSample()}
+                        aria-label="Nümunə təqdimatını aç"
                       >
                         <ArrowUp size={20} />
                       </button>
@@ -1311,9 +1336,17 @@ export default function App() {
                   <div className="section-heading">
                     <div>
                       <h2>Əvvəlcə fikirləri yerinə qoyaq.</h2>
-                      <p>Başlıqları və məzmunu yoxla, sonra dizayna keç.</p>
+                      <p>Başlıqları və məzmunu yoxla · {slides.length} slayd</p>
                     </div>
-                    <span className="tiny-tag">{slides.length} slayd</span>
+                    <button
+                      className="primary"
+                      onClick={() => {
+                        setStep(3);
+                        setSelected(0);
+                      }}
+                    >
+                      Redaktoru aç <ArrowRight size={16} />
+                    </button>
                   </div>
                   <div className="outline-list">
                     {slides.map((s, i) => (
@@ -1364,14 +1397,15 @@ export default function App() {
                           </button>
                           <button
                             className="icon-button danger"
-                            aria-label="Slaydı sil"
+                            aria-label={slideDeletionReason(i) || "Slaydı sil"}
+                            title={slideDeletionReason(i)}
                             onClick={() => {
                               setSlides((items) =>
                                 items.filter((s2) => s2.id !== s.id),
                               );
                               setSelected(0);
                             }}
-                            disabled={slides.length <= 2}
+                            disabled={!!slideDeletionReason(i)}
                           >
                             <Trash2 size={15} />
                           </button>
@@ -1409,7 +1443,7 @@ export default function App() {
                         setSelected(0);
                       }}
                     >
-                      Dizayna keç
+                      Redaktoru aç
                       <ArrowRight size={16} />
                     </button>
                   </div>
@@ -1557,8 +1591,9 @@ export default function App() {
                           <button
                             className="icon-button danger"
                             onClick={deleteCurrent}
-                            disabled={slides.length <= 2}
-                            aria-label="Seçilən slaydı çıxar"
+                            disabled={!!deleteReason}
+                            title={deleteReason}
+                            aria-label={deleteReason || "Seçilən slaydı çıxar"}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -2008,6 +2043,7 @@ export default function App() {
               <b>01. Materialını əlavə et.</b> Mövzunu və qeydlərini yaz və ya
               PDF, Word və ya digər mətn sənədi əlavə et. PDF üçün səhifələri seç.
               Mətn slaydlara bölünür, fayl adı mənbə kimi göstərilir.
+              Yalnız mövzun varsa, “Boş təqdimat aç” düyməsini seç.
             </p>
             <p>
               <b>02. Planı yoxla.</b> Başlıqları və mətnləri redaktə et,
@@ -2225,15 +2261,7 @@ export default function App() {
         <DesignGallery
           project={{
             ...currentProject(),
-            slides: slides.length
-              ? slides
-              : [
-                  {
-                    ...previewSlides[0],
-                    title: topic.trim() || previewSlides[0].title,
-                    body: brief.goal.trim() || previewSlides[0].body,
-                  },
-                ],
+            slides: slides.length ? slides : [previewCover],
           }}
           selected={slides.length ? selected : 0}
           onClose={() => setGalleryOpen(false)}

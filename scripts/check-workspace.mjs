@@ -32,9 +32,25 @@ const button = text => [...document.querySelectorAll('button')].find(b => b.text
 async function settle() { await act(async () => new Promise(resolve => setTimeout(resolve, 750))); }
 await mount();
 assert.ok(document.querySelector('.creation-grid'));
+assert.equal(document.querySelector('.preview-heading > span').textContent.trim(), 'Nümunə üz qabığı');
+assert.ok(!document.querySelector('.preview-frame').textContent.includes('İnformatika'));
+assert.equal(document.getElementById('material').required, false);
+await settle();
+assert.ok(readDraft(), 'Boş qaralama status gizli olsa da saxlanılır');
+assert.equal(document.querySelector('.draft-status'), null);
 async function fillInput(id,value) {
  const field=document.getElementById(id);
  await act(async()=>{Object.getOwnPropertyDescriptor(field.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(field,value);field.dispatchEvent(new Event('input',{bubbles:true}));});
+}
+const newProject = document.querySelector('.new-button');
+for (const [field, value] of [['subject', 'Coğrafiya'], ['author', 'Sınaq müəllifi']]) {
+  await fillInput(field, value);
+  if (field === 'subject') assert.ok(document.querySelector('.preview-frame').textContent.includes(value));
+  await click(newProject);
+  assert.ok(document.getElementById('replace-draft-title'), field);
+  await click(button('Geri qayıt'));
+  assert.equal(document.getElementById(field).value, value);
+  await fillInput(field, '');
 }
 await click(document.querySelector('button[title="Araşdırmanı və nəticələrini müdafiə et"]'));
 await fillInput('institution','Sınaq Universiteti');
@@ -45,12 +61,20 @@ assert.ok(document.querySelector('.preview-frame .slide-cover-details').textCont
 await click(document.querySelector('[aria-label="Qaranlıq rejimə keç"]'));
 assert.equal(document.documentElement.dataset.mode, 'dark');
 assert.equal(localStorage.getItem('teqdim.color-mode'), 'dark');
-await click(document.querySelector('[aria-label="Nümunə materialı əlavə et"]'));
-assert.equal(document.getElementById('topic').value, 'Süni intellektin təhsildə rolu');
-await act(async () => document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
+const { sample } = await import(pathToFileURL(path.join(out, 'model.mjs')).href);
+await fillInput('topic', sample.topic);
+await fillInput('material', sample.material);
+assert.equal(document.getElementById('material').required, true);
+assert.ok(!document.querySelector('.preview-heading').textContent.includes('Nümunə üz qabığı'));
+await click(button('Planı hazırla'));
+assert.ok(document.querySelector('.editor-center'), 'Adi plan redaktoru birbaşa açır');
+assert.equal(button('Geri al').disabled, true, 'İlk plan boş layihəyə geri alınmır');
+await click(button('Planı düzəlt'));
 const slideCount = document.querySelectorAll('.outline-item').length;
 assert.ok(slideCount >= 3);
-await click(button('Dizayna keç'));
+const headerOpen = document.querySelector('.outline-panel .section-heading button');
+assert.equal(headerOpen.textContent.trim(), 'Redaktoru aç');
+await click(headerOpen);
 assert.equal(document.querySelectorAll('.slide-rail>button').length, slideCount);
 await click(document.querySelectorAll('.slide-rail>button')[1]);
 await click(document.querySelector('button[title="Mətn iki hissədə göstərilir"]'));
@@ -255,17 +279,53 @@ const oldProject={...savedDraft.project,material:'',references:[{id:'heavy',name
 localStorage.setItem(DRAFT_KEY,JSON.stringify({project:oldProject,step:1,count:4,selected:0}));
 await mount();
 await act(async()=>document.querySelector('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
-await click(button('Davam et'));
+await click(button('Slaydları yeni planla əvəz et'));
 assert.ok(document.querySelector('.toast').textContent.includes('80'));
 await click(button('Hazır slaydlara qayıt'));
 assert.equal(document.querySelectorAll('.slide-rail>button').length,oldProject.slides.length);
 await act(async()=>root.unmount());
-localStorage.setItem(DRAFT_KEY,JSON.stringify({project:{...savedDraft.project,material:'',references:sourceProject.references},step:1,count:4,selected:0}));
+const rebuildProject = {
+  ...savedDraft.project,
+  material: '',
+  references: sourceProject.references,
+  slides: [sourceProject.slides[0], ...savedDraft.project.slides],
+};
+localStorage.setItem(DRAFT_KEY,JSON.stringify({project:rebuildProject,step:1,count:4,selected:0}));
 await mount();
-await act(async()=>document.querySelector('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
-await click(button('Davam et'));
-assert.equal(document.querySelectorAll('.outline-item').length,4);
-assert.equal(button('Geri al').disabled,true);
+const sampleButton = document.querySelector('[aria-label="Nümunə təqdimatını aç"]');
+await fillInput('material', 'Saxlanmamış material.');
+await click(sampleButton);
+assert.ok(button('Nümunəni aç'), 'Nümunədən əvvəl mövcud iş üçün təsdiq istənir');
+await click(button('Geri qayıt'));
+assert.equal(document.getElementById('material').value, 'Saxlanmamış material.');
+await fillInput('material', '');
+await settle();
+assert.equal(readDraft().project.id, rebuildProject.id);
+assert.deepEqual(readDraft().project.references, rebuildProject.references);
+assert.deepEqual(readDraft().project.slides, rebuildProject.slides);
+assert.equal(document.getElementById('material').required, false);
+await click(button('Planı hazırla'));
+await click(button('Slaydları yeni planla əvəz et'));
+assert.equal(document.querySelectorAll('.slide-rail>button').length, 4);
+assert.equal(button('Geri al').disabled, false);
+await click(button('Geri al'));
+assert.equal(document.getElementById('speaker-notes').value, 'Mənbəni izah et.');
+await settle();
+assert.deepEqual(readDraft().project.slides, rebuildProject.slides, 'Geri alma əvvəlki slaydları, qeydləri və istinadları qaytarır');
+assert.deepEqual(readDraft().project.references, rebuildProject.references);
+assert.equal(button('Geri al').disabled, true, 'Əvəzləmə tarixçədə bir addımdır');
+await click(button('Yenidən et'));
+assert.equal(document.querySelectorAll('.slide-rail>button').length, 4);
+await click(button('Planı düzəlt'));
+await click(button('Geri'));
+await click(document.querySelector('[aria-label="Nümunə təqdimatını aç"]'));
+await click(button('Nümunəni aç'));
+assert.ok(document.querySelector('.editor-center'));
+assert.ok(document.querySelector('.toast').textContent.includes('nümunə təqdimatdır'));
+await settle();
+assert.notEqual(readDraft().project.id, rebuildProject.id);
+assert.deepEqual(readDraft().project.references, []);
+assert.equal(readDraft().project.topic, sample.topic);
 await act(async()=>root.unmount());
 
 const {emptyTable,emptyChart,isTableData}=await import(pathToFileURL(path.join(out,'model.mjs')).href);
@@ -326,7 +386,9 @@ await act(async()=>root.unmount());
 localStorage.removeItem(DRAFT_KEY);
 await mount();
 await fillInput('topic','Yeni mövzu');
-await click(button('Material olmadan özüm qurum'));
+await click(button('Boş təqdimat aç'));
+assert.equal(document.getElementById('block-library-title'), null);
+await click(button('Hazır slayd bloku seç'));
 assert.ok(document.getElementById('block-library-title'));
 assert.equal(document.querySelectorAll('.block-card').length,9);
 await click([...document.querySelectorAll('.block-card')].find(b=>b.textContent.includes('Problem və həll')));
@@ -398,8 +460,8 @@ assert.ok(authoring.speakerText(exportProject).includes('Müəllim üçün qeyd'
 assert.ok(authoring.speakerText(exportProject).includes('qeydi əlavə edilməyib'));
 
 localStorage.removeItem(DRAFT_KEY);await mount();
-await fillInput('topic','Yeni plan yoxlaması');await click(button('Material olmadan özüm qurum'));
-await act(async()=>window.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true})));
+await fillInput('topic','Yeni plan yoxlaması');await click(button('Boş təqdimat aç'));
+assert.equal(document.getElementById('block-library-title'), null);
 assert.equal(document.querySelectorAll('.slide-rail>button').length,2);
 const importTrigger=button('Plan mətni əlavə et');importTrigger.focus();await click(importTrigger);
 assert.ok(document.getElementById('outline-import-title'));

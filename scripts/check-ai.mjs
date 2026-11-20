@@ -146,7 +146,8 @@ try {
   assert.equal(document.getElementById('title-ai-0').value, 'Əl ilə düzəltdiyim başlıq');
 
   // Slide assistant in the editor: preview first, one undo step, stale suggestions dropped.
-  await click(button('Dizayna keç'));
+  await click(document.querySelector('.outline-panel .section-heading button'));
+  assert.ok(document.querySelector('.editor-center'));
   await click(button('AI ilə düzəliş (DeepSeek)'));
   assert.ok(serverStatus().includes('hazırdır'));
   const inside = (selector, text) => [...document.querySelectorAll(selector)].find(el => el.textContent.trim() === text);
