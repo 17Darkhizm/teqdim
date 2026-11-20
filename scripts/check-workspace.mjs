@@ -32,6 +32,15 @@ const button = text => [...document.querySelectorAll('button')].find(b => b.text
 async function settle() { await act(async () => new Promise(resolve => setTimeout(resolve, 750))); }
 await mount();
 assert.ok(document.querySelector('.creation-grid'));
+assert.equal(document.querySelector('nav [aria-current="page"]'), button('Təqdimat hazırla'));
+function assertStage(label, headingSelector) {
+  const current = document.querySelectorAll('.steps [aria-current="step"]');
+  assert.equal(current.length, 1);
+  assert.equal(current[0].querySelector('strong').textContent, label);
+  const heading = document.querySelector(headingSelector);
+  assert.equal(heading.getAttribute('tabindex'), '-1');
+  assert.equal(document.activeElement, heading);
+}
 async function fillInput(id,value) {
  const field=document.getElementById(id);
  await act(async()=>{Object.getOwnPropertyDescriptor(field.tagName==='TEXTAREA'?HTMLTextAreaElement.prototype:HTMLInputElement.prototype,'value').set.call(field,value);field.dispatchEvent(new Event('input',{bubbles:true}));});
@@ -50,7 +59,9 @@ assert.equal(document.getElementById('topic').value, 'Süni intellektin təhsild
 await act(async () => document.querySelector('form').dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
 const slideCount = document.querySelectorAll('.outline-item').length;
 assert.ok(slideCount >= 3);
+assertStage('Təqdimat planı', '.outline-panel h2');
 await click(button('Dizayna keç'));
+assertStage('Dizayn və yükləmə', '.editor > h2');
 assert.equal(document.querySelectorAll('.slide-rail>button').length, slideCount);
 await click(document.querySelectorAll('.slide-rail>button')[1]);
 await click(document.querySelector('button[title="Mətn iki hissədə göstərilir"]'));
@@ -132,6 +143,8 @@ assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).length, 1);
 await click(button('Yeni təqdimat'));
 assert.ok(document.querySelector('.creation-grid'));
 await click(button('Təqdimatlarım1'));
+assert.deepEqual([...document.querySelectorAll('nav [aria-current="page"]')], [button('Təqdimatlarım1')]);
+assert.equal(document.querySelector('.steps [aria-current="step"]'), null);
 assert.equal(document.querySelectorAll('.project-card').length, 1);
 await click(button('Surət'));
 assert.equal(document.querySelectorAll('.project-card').length, 2);
@@ -169,7 +182,9 @@ await click(document.querySelector('.project-preview'));
 assert.ok(document.querySelector('.editor-center'));
 assert.equal(button('Geri al').disabled, true, 'Başqa layihədə əvvəlki tarixçə açılmamalıdır');
 await click(button('Planı düzəlt'));
+assertStage('Təqdimat planı', '.outline-panel h2');
 await click(button('Geri'));
+assertStage('Mövzu və material', '.form-panel h2');
 assert.ok(document.querySelector('.return-to-deck'));
 await act(async()=>document.querySelector('form').dispatchEvent(new Event('submit',{bubbles:true,cancelable:true})));
 assert.ok(document.getElementById('replace-draft-title'));
@@ -407,8 +422,13 @@ await writeField('outline-import-text','# İdxal slaydı\nÖz materialımızdan 
 assert.equal(document.querySelectorAll('.outline-import-preview li').length,2);
 await click(button('Planın sonuna əlavə et'));
 assert.equal(document.querySelectorAll('.slide-rail>button').length,4);
-assert.equal(document.querySelector('[aria-current="true"]').getAttribute('aria-label'),'3 nömrəli slaydı seç');
+const currentSlide = () => document.querySelector('.slide-rail [aria-current="true"]');
+assert.equal(currentSlide().getAttribute('aria-label'), '3 nömrəli slayd: İdxal slaydı');
 assert.equal(document.activeElement,importTrigger,'Modal bağlandıqda fokus açan düyməyə qayıtmalıdır');
+await click(button('Təqdimatda gizlət'));
+assert.equal(currentSlide().getAttribute('aria-label'), '3 nömrəli slayd: İdxal slaydı');
+assert.ok(document.getElementById(currentSlide().getAttribute('aria-describedby')).textContent.includes('Təqdimatda gizli.'));
+await click(button('Geri al'));
 await click(button('Geri al'));assert.equal(document.querySelectorAll('.slide-rail>button').length,2);
 await click(button('Yenidən et'));assert.equal(document.querySelectorAll('.slide-rail>button').length,4);
 async function fillAria(label,value){const field=document.querySelector(`[aria-label="${label}"]`);await act(async()=>{Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(field,value);field.dispatchEvent(new Event('input',{bubbles:true}));});}
@@ -418,9 +438,9 @@ const layoutSelect=document.querySelector('[aria-label="Slayd düzülüşünü s
 await click(button('Filtrləri sıfırla'));
 const issuesCheck=document.querySelector('.navigator-tools input[type="checkbox"]');await click(issuesCheck);assert.ok(document.querySelector('.navigator-tools').textContent.includes('slayd'));await click(button('Filtrləri sıfırla'));
 await writeField('slide-jump','99');await click(button('Keç'));assert.ok(document.getElementById('slide-jump-error'));
-await writeField('slide-jump','4');await click(button('Keç'));assert.equal(document.querySelector('[aria-current="true"]').getAttribute('aria-label'),'4 nömrəli slaydı seç');
-await act(async()=>window.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true})));assert.equal(document.querySelector('[aria-current="true"]').getAttribute('aria-label'),'1 nömrəli slaydı seç');
-await act(async()=>window.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true})));assert.equal(document.querySelector('[aria-current="true"]').getAttribute('aria-label'),'4 nömrəli slaydı seç');
+await writeField('slide-jump','4');await click(button('Keç'));assert.equal(currentSlide().getAttribute('aria-label'),'4 nömrəli slayd: Yekun əlavə');
+await act(async()=>window.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true})));assert.equal(currentSlide().getAttribute('aria-label'),'1 nömrəli slayd: Yeni plan yoxlaması');
+await act(async()=>window.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true})));assert.equal(currentSlide().getAttribute('aria-label'),'4 nömrəli slayd: Yekun əlavə');
 assert.ok(document.getElementById('notes-count').textContent.includes('8000'));
 await click(button('Məşq et'));assert.ok(document.querySelector('.practice-pacing').textContent.includes('Son slayddasan'));
 await act(async()=>window.dispatchEvent(new dom.window.KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true})));assert.ok(document.querySelector('.practice-pacing').textContent.includes('Növbəti:'));

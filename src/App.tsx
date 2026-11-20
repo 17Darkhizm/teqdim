@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   ArrowDown,
@@ -128,6 +128,14 @@ export default function App() {
   const [aiCandidate, setAiCandidate] = useState<{ slides: Slide[]; key: string } | null>(null);
   const [page, setPage] = useState<"create" | "projects">("create");
   const [step, setStep] = useState(restored?.step || 1);
+  const activeStep = page === "create" ? step : null;
+  const previousStep = useRef(activeStep);
+  const stepHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (previousStep.current !== activeStep)
+      stepHeading.current?.focus();
+    previousStep.current = activeStep;
+  }, [activeStep]);
   const [topic, setTopic] = useState(restored?.project.topic || "");
   const [subject, setSubject] = useState(restored?.project.subject || "");
   const [author, setAuthor] = useState(restored?.project.author || "");
@@ -915,6 +923,7 @@ export default function App() {
           <nav>
             <button
               className={page === "create" ? "active" : ""}
+              aria-current={page === "create" ? "page" : undefined}
               onClick={() => setPage("create")}
             >
               <LayoutGrid size={18} />
@@ -923,6 +932,7 @@ export default function App() {
             </button>
             <button
               className={page === "projects" ? "active" : ""}
+              aria-current={page === "projects" ? "page" : undefined}
               onClick={() => setPage("projects")}
             >
               <FolderOpen size={18} />
@@ -1028,6 +1038,7 @@ export default function App() {
                 ].map((label, i) => (
                   <div
                     className={`step ${step === i + 1 ? "current" : ""} ${step > i + 1 ? "done" : ""}`}
+                    aria-current={step === i + 1 ? "step" : undefined}
                     key={label}
                   >
                     <span>
@@ -1085,7 +1096,9 @@ export default function App() {
                         <Sparkles size={20} />
                       </div>
                       <div>
-                        <h2>Hər şey bir mövzu ilə başlayır</h2>
+                        <h2 ref={stepHeading} tabIndex={-1}>
+                          Hər şey bir mövzu ilə başlayır
+                        </h2>
                         <p>Nə haqqında danışmaq istəyirsən?</p>
                       </div>
                       <span className="tiny-tag">01</span>
@@ -1310,7 +1323,9 @@ export default function App() {
                 <div className="panel outline-panel">
                   <div className="section-heading">
                     <div>
-                      <h2>Əvvəlcə fikirləri yerinə qoyaq.</h2>
+                      <h2 ref={stepHeading} tabIndex={-1}>
+                        Əvvəlcə fikirləri yerinə qoyaq.
+                      </h2>
                       <p>Başlıqları və məzmunu yoxla, sonra dizayna keç.</p>
                     </div>
                     <span className="tiny-tag">{slides.length} slayd</span>
@@ -1416,6 +1431,9 @@ export default function App() {
                 </div>
               ) : (
                 <div className="editor">
+                  <h2 className="sr-only" ref={stepHeading} tabIndex={-1}>
+                    Slayd redaktoru
+                  </h2>
                   <div className="editor-toolbar">
                     <button className="text-button" onClick={() => setStep(2)}>
                       <ArrowLeft size={16} />

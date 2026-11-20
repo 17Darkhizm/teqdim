@@ -9,6 +9,7 @@
   --aic-surface: #fbf9f4;
   --aic-raised: #ebe5d8;
   --aic-border: #d3cab6;
+  --aic-field-border: #81745c;
   --aic-text: #16140f;
   --aic-muted: #575143;
   --aic-accent: #5b3df5;
@@ -30,6 +31,7 @@
   --aic-surface: #1c1a14;
   --aic-raised: #26231c;
   --aic-border: #3a362c;
+  --aic-field-border: #827862;
   --aic-text: #f3efe6;
   --aic-muted: #b8b1a1;
   --aic-accent: #a592ff;
@@ -190,7 +192,7 @@
   :is(input:not([type="checkbox"]), textarea, select):not(.slide, .slide *) {
   background: var(--aic-surface);
   color: var(--aic-text);
-  border-color: var(--aic-border);
+  border-color: var(--aic-field-border);
 }
 :root[data-mode] :is(.shortcut-list h3):not(.slide, .slide *) {
   color: var(--aic-text);
@@ -230,6 +232,9 @@
   background: var(--aic-raised);
   color: var(--aic-text);
   border-color: var(--aic-border);
+}
+:root[data-mode] :is(.search-field, .edit-fields textarea.speaker-notes) {
+  border-color: var(--aic-field-border);
 }
 :root[data-mode]
   :is(
