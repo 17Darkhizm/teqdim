@@ -33,6 +33,11 @@ assert.ok(lenient.warnings.some(w => w.includes('Uzun mətnli slaydlar: 3')), 'U
 const noMaterial = validateInput({ ...input, material: '' });
 const uncited = validateOutput({ slides: [slide(0), { ...slide(1), citations: [] }, slide(2)] }, noMaterial);
 assert.ok(uncited.warnings.some(w => w.includes('Mənbəsi göstərilməyən slaydlar: 3')), 'Mənbəsiz slayd rədd edilmir, açıq bildirilir');
+const mixed = validateOutput({ slides: [{ ...slide(0), citations: [] }, slide(1), { ...slide(2), citations: [] }] }, parsed);
+assert.deepEqual(mixed.warnings, ['Mənbəsi göstərilməyən slaydlar: 2, 4. Bu slaydların mətnini sənədlə müqayisə et.']);
+assert.equal(mixed.slides[2].citations[0].sourceId, 'ref');
+const materialOnly = validateInput({ ...input, references: [] });
+assert.deepEqual(validateOutput({ slides: Array.from({ length: 4 }, (_, i) => ({ ...slide(i), citations: [] })) }, materialOnly).warnings, []);
 // Invented sources, unusable sizes and unreadable structure still reject the whole answer.
 for (const bad of [{ slides: [] }, { slides: [slide(0)] }, { slides: Array.from({ length: 5 }, (_, i) => slide(i)) }, { slides: output.slides.map(s => ({ ...s, body: 'x'.repeat(3001) })) },
   { slides: output.slides.map(s => ({ ...s, citations: [{ sourceId: 'missing', page: 1 }] })) }, { slides: output.slides.map(s => ({ ...s, citations: [{ sourceId: 'ref', page: 2 }] })) },
@@ -59,12 +64,20 @@ for (const change of [{ consent: false }, { mode: 'translate' }, { extra: 1 }, {
 const shortened = validateAssistOutput({ title: 'Qısa başlıq', body: 'Qısa mətn.', movedToNotes: 'Köçürülən təfərrüat.' }, assist);
 assert.equal(shortened.slide.notes, 'Mövcud qeyd.\n\nKöçürülən təfərrüat.', 'Qısaltmada çıxarılan təfərrüat qeydlərin sonuna əlavə olunur');
 assert.ok(!shortened.warnings.some(w => w.includes('qısaltmadı')));
-assert.ok(validateAssistOutput({ title: 'X', body: assist.slide.body }, assist).warnings.some(w => w.includes('qısaltmadı')));
+const originalBlock = `Qısaltmadan əvvəlki mətn:\n${assist.slide.title}\n${assist.slide.body}`;
+const titleOnly = validateAssistOutput({ title: 'X', body: assist.slide.body, movedToNotes: '' }, assist);
+assert.ok(titleOnly.warnings.some(w => w.includes('qısaltmadı')));
+assert.equal(titleOnly.slide.notes, `Mövcud qeyd.\n\n${originalBlock}`);
+assert.equal(validateAssistOutput({ body: 'Qısa.', movedToNotes: ' \n ' }, assist).slide.notes, titleOnly.slide.notes);
+assert.equal(validateAssistOutput({ body: assist.slide.body, movedToNotes: '' }, assist).slide.notes, assist.slide.notes);
+const boundaryAssist = { ...assist, slide: { ...assist.slide, notes: 'y'.repeat(8000 - originalBlock.length - 2) } };
+assert.equal(validateAssistOutput({ body: 'Qısa.', movedToNotes: '' }, boundaryAssist).slide.notes.length, 8000);
+assert.throws(() => validateAssistOutput({ body: 'Qısa.', movedToNotes: '' }, { ...boundaryAssist, slide: { ...boundaryAssist.slide, notes: boundaryAssist.slide.notes + 'y' } }), error => error.code === 'NOTES_FULL' && error.status === 422);
 assert.throws(() => validateAssistOutput({ body: 'Qısa.', movedToNotes: 'y'.repeat(7995) }, assist), error => error.code === 'NOTES_FULL' && error.status === 422);
 const notesOnly = validateAssistOutput({ title: 'Dəyişməməli', body: 'Dəyişməməli', notes: 'Yeni çıxış qeydi.' }, { ...assist, mode: 'notes' });
 assert.equal(notesOnly.slide.title, 'Uzun başlıq'); assert.equal(notesOnly.slide.notes, 'Yeni çıxış qeydi.');
 assert.equal(validateAssistOutput({ title: 'Aydın', body: 'Aydın mətn.' }, { ...assist, mode: 'clarify' }).slide.notes, 'Mövcud qeyd.', 'Aydın yazmaq qeydlərə toxunmur');
-for (const [bad, mode] of [[{ title: 'X' }, 'shorten'], [{ notes: '' }, 'notes'], [[], 'clarify'], [{ title: 'X', body: 'a\u0000' }, 'clarify']])
+for (const [bad, mode] of [[{ body: 'Qısa.' }, 'shorten'], [{ body: 'Qısa.', movedToNotes: null }, 'shorten'], [{ notes: '' }, 'notes'], [[], 'clarify'], [{ title: 'X', body: 'a\u0000' }, 'clarify']])
   assert.throws(() => validateAssistOutput(bad, { ...assist, mode }), error => error.code === 'INVALID_AI_OUTPUT');
 
 assert.throws(() => readConfig({ API_PORT: '0' }));
@@ -100,7 +113,9 @@ for (const [status, code] of [[401, 'AI_AUTH_FAILED'], [402, 'AI_BALANCE_REQUIRE
   const run = createDeepseek({ apiKey: secret, fetchImpl: async () => new Response('private upstream body ' + secret, { status }) });
   await assert.rejects(run(parsed), error => error.code === code && !error.message.includes(secret));
 }
-for (const [payload, code] of [[{ choices: [{ finish_reason: 'length' }] }, 'AI_INCOMPLETE'], [{ choices: [{ finish_reason: 'content_filter' }] }, 'AI_FILTERED'], [{ choices: [{ finish_reason: 'insufficient_system_resource' }] }, 'AI_UNAVAILABLE'],
+const limited = createDeepseek({ apiKey: secret, fetchImpl: async () => Response.json({ choices: [{ finish_reason: 'length', message: { content: '{"slides":[' } }] }) });
+await assert.rejects(limited(parsed), { status: 502, code: 'AI_OUTPUT_LIMIT', message: 'Cavab çox uzun oldu. Slayd sayını azaldıb yenidən cəhd et.' });
+for (const [payload, code] of [[{ choices: [{ finish_reason: 'content_filter' }] }, 'AI_FILTERED'], [{ choices: [{ finish_reason: 'insufficient_system_resource' }] }, 'AI_UNAVAILABLE'],
   [{ choices: [{ finish_reason: 'stop', message: { content: '  ' } }] }, 'EMPTY_AI_RESPONSE'], [{ choices: [{ finish_reason: 'stop', message: { content: '{bad' } }] }, 'INVALID_AI_OUTPUT'], [{}, 'AI_INCOMPLETE']]) {
   await assert.rejects(createDeepseek({ apiKey: secret, fetchImpl: async () => Response.json(payload) })(parsed), error => error.code === code);
 }

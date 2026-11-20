@@ -46,7 +46,7 @@ async function postJson(url: string, body: unknown, signal: AbortSignal) {
 /** Reads the local API health route. Any failure counts as an offline server. */
 export async function checkAiStatus(signal: AbortSignal): Promise<AiStatus> {
   try {
-    const response = await fetch("/api/health", { headers: { Accept: "application/json" }, signal });
+    const response = await fetch("/api/health", { headers: { Accept: "application/json" }, signal: AbortSignal.any([signal, AbortSignal.timeout(5000)]) });
     const value = await response.json();
     if (!response.ok || value?.status !== "ok" || typeof value?.ai?.configured !== "boolean") return { state: "offline", model: "" };
     const model = typeof value.ai.model === "string" ? value.ai.model.slice(0, 40) : "";

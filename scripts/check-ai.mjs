@@ -5,6 +5,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
 import React, { act } from 'react';
 import { JSDOM } from 'jsdom';
+import { validateAssistInput, validateAssistOutput } from '../server/schema.mjs';
 
 const repo = fileURLToPath(new URL('../', import.meta.url));
 const out = path.join(repo, '.checks', 'ai'); await fs.mkdir(out, { recursive: true });
@@ -61,6 +62,13 @@ try {
   healthHandler = async () => Response.json({ status: 'ok', ai: { configured: false, provider: 'deepseek', model: 'deepseek-flash' } });
   await click(button('Yenidən yoxla')); assert.ok(serverStatus().includes('açarı qurulmayıb'));
   assert.equal(button('AI planını yarat').disabled, true, 'Açar qurulmayanda AI düyməsi bağlıdır');
+  healthHandler = async (_url, { signal }) => new Response(new ReadableStream({
+    start(controller) { signal.addEventListener('abort', () => controller.error(signal.reason), { once: true }); },
+  }));
+  await click(button('Yenidən yoxla')); assert.ok(serverStatus().includes('yoxlanılır'));
+  await act(async () => { await new Promise(resolve => setTimeout(resolve, 5100)); });
+  assert.equal(healthRequests.at(-1).signal.aborted, true, 'Cavabın mətni gecikəndə də 5 saniyəlik vaxt həddi işləyir');
+  assert.ok(button('Yenidən yoxla')); assert.equal(button('AI planını yarat').disabled, true);
   const pendingHealth = deferred(); healthHandler = () => pendingHealth.promise;
   await click(button('Yenidən yoxla')); assert.ok(serverStatus().includes('yoxlanılır'));
   await click(button('DeepSeek ilə plan hazırla')); assert.equal(healthRequests.at(-1).signal.aborted, true, 'Panel bağlananda yoxlama ləğv edilir');
@@ -158,14 +166,18 @@ try {
   await click(document.querySelector('[aria-label="Növbəti slayd"]'));
   assert.equal(assistConsent().checked, false, 'Başqa slayd üçün razılıq yenidən soruşulur'); assert.equal(mode('Qısalt').disabled, true);
   await click(assistConsent());
-  slideHandler = async () => Response.json({ slide: { title: 'Qısa başlıq', body: 'Qısa mətn.', notes: 'Qeyd\n\nKöçürülən təfərrüat.' }, warnings: ['Yoxla.'] });
+  slideHandler = async (_url, { body }) => Response.json(validateAssistOutput(
+    { title: 'Qısa başlıq', body: 'Qısa mətn.', movedToNotes: '' }, validateAssistInput(JSON.parse(body)),
+  ));
   await click(mode('Qısalt'));
   assert.equal(slideRequests.length, 1); assert.equal(slideRequests[0].body.mode, 'shorten'); assert.equal(slideRequests[0].body.consent, true);
   assert.equal(slideRequests[0].body.slide.layout, 'text'); assert.deepEqual(slideRequests[0].body.references, []);
   assert.ok(document.querySelector('.assist-compare')); assert.equal(document.getElementById('edit-body').value, 'Materialdan izah.', 'Təklif təsdiqsiz tətbiq olunmur');
+  const preservedNotes = 'Qeyd\n\nQısaltmadan əvvəlki mətn:\nAI başlığı 1\nMaterialdan izah.';
+  assert.equal(document.querySelector('.assist-row:last-child .after p').textContent, preservedNotes);
   await click(inside('.assist-actions button', 'Tətbiq et'));
   assert.equal(document.getElementById('edit-body').value, 'Qısa mətn.'); assert.equal(document.getElementById('edit-title').value, 'Qısa başlıq');
-  assert.equal(document.getElementById('speaker-notes').value, 'Qeyd\n\nKöçürülən təfərrüat.');
+  assert.equal(document.getElementById('speaker-notes').value, preservedNotes);
   await click(button('Geri al'));
   assert.equal(document.getElementById('edit-body').value, 'Materialdan izah.', 'Bir geri alma slaydı tam bərpa edir');
   assert.equal(document.getElementById('edit-title').value, 'AI başlığı 1'); assert.equal(document.getElementById('speaker-notes').value, 'Qeyd');
