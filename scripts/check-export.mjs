@@ -92,4 +92,21 @@ for (const layout of ['cover', 'text', 'columns', 'bullets', 'statement']) {
   assert.ok(xml.includes('Birinci məqam.') && xml.includes('İkinci məqam.'));
   assert.ok(xml.includes('Düzülüş yoxlaması'));
 }
-console.log('Keçdi: itkisiz mətn bölgüsü, 80 slayd limiti, emoji, PDF istinadları, keyfiyyət yoxlaması, 10 dizayn, 5 PPTX düzülüşü, çıxış qeydləri və akademik üz qabığı.');
+const points = Array.from({ length: 81 }, (_, i) => `M${i + 1}`);
+const crowded = { id: 'crowded', title: 'Sıx məqamlar', body: points.join('\n\n'), layout: 'bullets' };
+const cover = { id: 'cover', title: 'Giriş', body: 'Mövzu haqqında.' };
+assert.ok(crowded.body.length < BODY_LIMIT);
+const crowdedSlides = [cover, crowded];
+const exportWarning = issue => issue.kind === 'length' && issue.message.includes('PowerPoint');
+assert.ok(inspectDeck(crowdedSlides).some(issue => issue.index === 1 && issue.slideId === crowded.id && exportWarning(issue)));
+assert.ok(!inspectDeck([cover, { ...crowded, hidden: true }]).some(exportWarning));
+assert.ok(!inspectDeck([cover, { ...crowded, body: points.slice(0, 9).join('\n\n') }]).some(exportWarning));
+await exportPptx({ id: 'crowded', topic: 'Sıx məqamlar', subject: 'Sınaq', author: '', theme: 'paper', updatedAt: '', slides: crowdedSlides });
+const crowdedZip = await JSZip.loadAsync(await fs.readFile('Sıx məqamlar.pptx'));
+const crowdedXml = await crowdedZip.file('ppt/slides/slide2.xml').async('string');
+const boxHeights = [...crowdedXml.matchAll(/<p:spPr><a:xfrm[^>]*><a:off[^>]*\/><a:ext\s+cx="[^"]+" cy="(-?\d+)"\s*\/>/g)].map(match => Number(match[1]));
+assert.equal(boxHeights.length, 5);
+assert.ok(boxHeights.every(height => height > 0));
+const exportedPoints = [...crowdedXml.matchAll(/<a:t>\d+\s+(M\d+)<\/a:t>/g)].map(match => match[1]);
+assert.deepEqual(exportedPoints, points);
+console.log('Keçdi: itkisiz mətn bölgüsü, 80 slayd limiti, emoji, PDF istinadları, keyfiyyət yoxlaması, 10 dizayn, 5 PPTX düzülüşü, sıx məqamların ixracı, çıxış qeydləri və akademik üz qabığı.');

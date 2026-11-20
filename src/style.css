@@ -5,7 +5,24 @@
 @media(max-width:920px){.sidebar{width:180px;padding:28px 13px 17px}.brand{font-size:21px;gap:6px}.beta{font-size:11px}.brand-mark{width:29px;height:31px;font-size:29px}.sidebar-note{padding:15px}.sidebar-note strong{font-size:14px}.sidebar-note p{font-size:13px}.sidebar-footer{gap:7px;font-size:11.5px}.sidebar-footer small{font-size:11.5px}nav button{font-size:13px;gap:7px}.new-button{font-size:13.5px}main{margin-left:180px}.creation-grid{grid-template-columns:1fr}.preview-column{display:grid;grid-template-columns:1fr 1fr;gap:15px}.preview-heading{grid-column:1/-1}.preview-frame{grid-column:1/-1}.preview-caption{grid-column:1/-1;margin:0}.theme-heading{grid-column:1/-1;margin-top:10px}.theme-options{grid-column:1/-1}.sample-card{margin:0;grid-column:1}.honest-note{padding-top:5px}.page-title h1{font-size:27px}.editor-toolbar{flex-direction:column}.editor-toolbar>div{justify-content:flex-end}.workspace-footer{gap:15px}.outline-item{padding:11px;gap:8px}}
 @media(max-width:640px){.app-shell{display:block}.sidebar{position:static;width:100%;height:auto;padding:17px 20px;display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:15px;border-right:0;border-bottom:1px solid var(--line)}.brand{font-size:24px}.new-button{margin:0 0 0 auto;padding:10px 12px;font-size:13px}.nav-label,.sidebar-note,.sidebar-footer{display:none}nav{flex-direction:row;width:100%;gap:6px}nav button{padding:9px 10px;font-size:12.5px;flex:1;justify-content:center}nav button svg{width:14px}.nav-dot,.nav-count,.nav-end{display:none}main{margin:0}.topbar{height:51px;padding:0 20px}.top-right{gap:13px}.breadcrumb{font-size:12.5px}.local-badge{font-size:12px}.avatar{width:24px;height:24px;font-size:12.5px}.workspace{padding:28px 20px 20px}.eyebrow{font-size:12px}.page-title h1{font-size:27px;letter-spacing:-1px}.page-title em{display:block}.page-title p{font-size:13px;line-height:1.8}.steps{margin:25px 0}.step{gap:5px;font-size:12px}.step>span{width:22px;height:22px;font-size:12px}.step-line{margin:0 5px}.creation-grid{display:block}.form-panel{padding:20px}.preview-column{margin-top:28px}.panel h2{font-size:14px}.panel-heading p{font-size:12.5px}.field-row{gap:10px}.field-row input{font-size:13px;padding:10px}.under-button{font-size:11.5px}.sample-card{padding:14px}.sample-card h3{font-size:13px}.sample-card p{font-size:12px}.honest-note>span{font-size:11px}.honest-note p{font-size:12px}.workspace-footer{font-size:11.5px}.workspace-footer>span:last-child{font-size:12px;white-space:nowrap}.outline-panel{padding:17px}.section-heading h2{font-size:14px}.section-heading p{font-size:12.5px;line-height:1.8}.outline-number{font-size:12.5px}.outline-fields input{font-size:13.5px}.outline-fields textarea{font-size:13px}.editor-grid{display:flex;flex-direction:column}.slide-rail{flex-direction:row;max-width:100%;height:90px}.slide-rail button{width:100px}.editor-toolbar>div{justify-content:space-between;gap:5px}.editor-toolbar .secondary,.editor-toolbar .primary{font-size:12.5px;padding:9px}.editor-toolbar svg{width:13px}.design-panel{display:flex}.project-grid{grid-template-columns:1fr}.empty h2{font-size:17px}.modal{padding:28px}.toast{font-size:13px;bottom:15px;min-width:280px}.presentation-overlay{padding:65px 10px}.presentation-overlay>.slide{width:100%}.presentation-controls{gap:15px}.presentation-controls .secondary{font-size:13px;padding:9px}.print-slides{display:none}}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-@media print{@page{size:landscape;margin:0}html,body{margin:0;padding:0;background:white}.app-shell,.toast,.modal-backdrop,.presentation-overlay{display:none!important}.print-slides{display:block}.print-slides>.slide{width:100vw;height:100vh;border-radius:0;break-after:page;break-inside:avoid;print-color-adjust:exact;-webkit-print-color-adjust:exact}.print-slides>.slide:last-child{break-after:auto}}
+@media print {
+  @page { size: 13.333in 7.5in; margin: 0; }
+  html, body { margin: 0; padding: 0; background: white; }
+  .app-shell, .toast, .modal-backdrop, .presentation-overlay { display: none !important; }
+  .print-slides { display: block; }
+  .print-slides > .slide {
+    width: min(100%, 13.333in);
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-inline: auto;
+    border-radius: 0;
+    break-after: page;
+    break-inside: avoid;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+  .print-slides > .slide:last-child { break-after: auto; }
+}
 
 /* Distinct slide compositions, shared by the editor and print view. */
 .theme-atelier{--s-bg:#f5ebdd;--s-fg:#342d29;--s-accent:#db4d2e;background:var(--s-bg);color:var(--s-fg)}

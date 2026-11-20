@@ -33,6 +33,20 @@ const slides = [
 ];
 assert.deepEqual(m.shownSlides(slides).map(item => item.index), [0, 3]);
 const project = { id: 'p', topic: 'Gizli sınaq', subject: 'Sınaq', author: 'İbrahim', theme: 'paper', slides, updatedAt: new Date().toISOString() };
+const legacyProject = decodeBackup(JSON.stringify({
+  format: 'teqdim-project',
+  version: 1,
+  project: {
+    ...project,
+    topic: 'Köhnə düzülüş',
+    slides: [
+      { ...slides[0], hidden: true },
+      { ...slides[3], layout: undefined },
+      { id: 'last', title: 'Son slayd', body: 'Əlavə mətn.' },
+    ],
+  },
+}));
+let firstExportedSlide;
 const exportFolder = path.join(out, 'exports');
 await fs.mkdir(exportFolder, { recursive: true });
 const previousCwd = process.cwd();
@@ -47,6 +61,9 @@ try {
   assert.ok(all.includes('2 / 2') && !all.includes('/ 4'), 'Nömrələmə görünən slaydlara görədir');
   await assert.rejects(m.exportPptx({ ...project, slides: slides.map(s => ({ ...s, hidden: true })) }), /Bütün slaydlar gizlədilib/);
   await assert.rejects(m.exportPptx({ ...project, slides: slides.map(s => ({ ...s, hidden: false })) }), /Slayd 3:/, 'Göstərilən yarımçıq slayd əvvəlki kimi saxlanır');
+  await m.exportPptx(legacyProject);
+  const legacyZip = await JSZip.loadAsync(await fs.readFile('Köhnə düzülüş.pptx'));
+  firstExportedSlide = await legacyZip.file('ppt/slides/slide1.xml').async('string');
 } finally {
   process.chdir(previousCwd);
 }
@@ -162,4 +179,36 @@ assert.equal(rail().length, count);
 await click(button('Qısayollar'));
 assert.ok(document.querySelector('[aria-labelledby="help-title"]').textContent.includes('Rəqəm + Enter'));
 await act(async () => root.unmount());
+
+// The first visible slide in a legacy project keeps its original layout.
+localStorage.setItem(storage.DRAFT_KEY, JSON.stringify({ project: legacyProject, step: 3, selected: 1, count: 4 }));
+const legacyRoot = createRoot(document.getElementById('root'));
+await act(async () => legacyRoot.render(React.createElement(App)));
+const printedSlides = [...document.querySelectorAll('.print-slides > .slide')];
+assert.equal(printedSlides.length, 2);
+assert.equal(printedSlides[0].querySelector('h2').textContent, legacyProject.slides[1].title);
+assert.ok(printedSlides[0].classList.contains('content-text'));
+assert.ok(printedSlides[0].classList.contains('layout-1'));
+assert.equal(printedSlides[0].querySelector('.page-number').textContent, '01 / 02');
+assert.ok(firstExportedSlide.includes(printedSlides[0].querySelector('h2').textContent));
+assert.ok(firstExportedSlide.includes('sz="3000"') && !firstExportedSlide.includes('sz="4200"'), 'PPTX-də də mətn düzülüşü seçilir');
+assert.ok(firstExportedSlide.includes('1 / 2'));
+assert.match(button('Çap / PDF').previousElementSibling.textContent, /Kənar boşluqları “Yox”.*“Başlıq və altlıq”/s);
+await act(async () => legacyRoot.unmount());
+
+// Verify the print rules themselves. jsdom does not lay out printed pages.
+const style = document.createElement('style');
+style.textContent = await fs.readFile(path.join(rootPath, 'src/style.css'), 'utf8');
+document.head.append(style);
+const printRules = [...style.sheet.cssRules].find(rule => rule.conditionText === 'print').cssRules;
+const pageStyle = [...printRules].find(rule => rule instanceof window.CSSPageRule).style;
+assert.equal(pageStyle.getPropertyValue('size'), '13.333in 7.5in');
+assert.equal(pageStyle.getPropertyValue('margin'), '0px');
+const printSlideStyle = [...printRules].find(rule => rule.selectorText === '.print-slides > .slide').style;
+assert.match(printSlideStyle.getPropertyValue('width'), /^min\(100%,/);
+assert.equal(printSlideStyle.getPropertyValue('height'), 'auto');
+assert.equal(printSlideStyle.getPropertyValue('aspect-ratio'), '16 / 9');
+assert.equal(printSlideStyle.getPropertyValue('break-after'), 'page');
+assert.equal(printSlideStyle.getPropertyValue('break-inside'), 'avoid');
+assert.equal([...printRules].find(rule => rule.selectorText === '.print-slides > .slide:last-child').style.getPropertyValue('break-after'), 'auto');
 console.log('Keçdi: gizli slaydlar (PPTX/çap/təqdimat/məşq/vaxt/backup/mətn ixracı, son görünən slaydın qorunması, undo) və təqdimatda nömrə ilə keçid.');
