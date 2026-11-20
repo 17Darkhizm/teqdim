@@ -7,9 +7,9 @@ export default function DesignControls({
   onChange: (design: DesignSettings) => void;
 }) {
   return (
-    <section className="design-controls" aria-label="Üslub ayarları">
-      <h3>Üslub ayarları</h3>
-      <label htmlFor="design-font">Başlıq yazı tipi</label>
+    <section className="design-controls" aria-label="Üslub tənzimləmələri">
+      <h3>Üslub tənzimləmələri</h3>
+      <label htmlFor="design-font">Başlığın şrifti</label>
       <select
         id="design-font"
         value={design.headingFont}
@@ -71,7 +71,7 @@ export default function DesignControls({
         onClick={() => onChange({ ...defaultDesign })}
         disabled={JSON.stringify(design) === JSON.stringify(defaultDesign)}
       >
-        Üslub ayarlarını sıfırla
+        İlkin üsluba qayıt
       </button>
     </section>
   );

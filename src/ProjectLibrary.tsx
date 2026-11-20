@@ -250,7 +250,7 @@ export default function ProjectLibrary({
               <div className="project-actions">
                 <button className="text-button" onClick={() => onClone(p)}>
                   <Copy size={13} />
-                  Surət
+                  Surətini yarat
                 </button>
                 <button
                   className="text-button"

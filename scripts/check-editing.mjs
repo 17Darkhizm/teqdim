@@ -85,12 +85,12 @@ await mount();
 const replaceButton=button('Mətni tap və əvəzlə');replaceButton.focus();await click(replaceButton);
 await fill('replace-query','iqlim');await fill('replace-value','təbiət');
 assert.ok(document.querySelector('.replace-preview').textContent.includes('Əvvəl:'));
-await click([...document.querySelectorAll('.replace-dialog label')].find(item=>item.textContent.includes('Yalnız tam söz')).querySelector('input'));
+await click([...document.querySelectorAll('.replace-dialog label')].find(item=>item.textContent.includes('Yalnız bütöv sözləri tap')).querySelector('input'));
 await click(button('Əvəzləmələri tətbiq et'));
 assert.equal(document.activeElement,replaceButton);await settle();
 let saved=readDraft();assert.equal(saved.project.slides[1].body,'təbiət və iqlimlər. təbiət');assert.equal(saved.project.slides[1].citationReview,true);
 await click(button('Geri al'));await click(document.querySelectorAll('.slide-rail>button')[1]);assert.equal(document.getElementById('edit-title').value,'İqlim dəyişməsi');
-await click(button('Yenidən et'));assert.equal(document.getElementById('edit-title').value,'təbiət dəyişməsi');
+await click(button('Dəyişikliyi yenidən tətbiq et'));assert.equal(document.getElementById('edit-title').value,'təbiət dəyişməsi');
 const beforeLimit=document.getElementById('edit-title').value;
 await click(button('Mətni tap və əvəzlə'));await fill('replace-query','təbiət');await fill('replace-value','a'.repeat(161));assert.equal(button('Əvəzləmələri tətbiq et').disabled,true);await key('Escape');assert.equal(document.getElementById('edit-title').value,beforeLimit);
 
@@ -100,7 +100,7 @@ await click(button('Hamısını seç'));assert.ok(document.querySelector('.agend
 await click(button('Plan slaydlarını əlavə et'));assert.equal(document.querySelectorAll('.slide-rail>button').length,4);
 assert.equal(document.getElementById('edit-title').value,'Təqdimatın planı');
 await click(button('Geri al'));assert.equal(document.querySelectorAll('.slide-rail>button').length,3);
-await click(button('Yenidən et'));assert.equal(document.querySelectorAll('.slide-rail>button').length,4);
+await click(button('Dəyişikliyi yenidən tətbiq et'));assert.equal(document.querySelectorAll('.slide-rail>button').length,4);
 await click(document.querySelectorAll('.slide-rail>button')[3]);
 assert.equal(document.getElementById('chart-name').value,'Ölçü');
 await fill('chart-paste-text','Etiket\tQiymət\nYeni A\t-2,5\nYeni B\t0');
@@ -108,7 +108,7 @@ assert.equal(document.querySelectorAll('.chart-paste-preview tbody tr').length,2
 await click(button('Göstəriciləri tətbiq et'));await settle();saved=readDraft();
 assert.deepEqual(saved.project.slides[3].chart.points,[{label:'Yeni A',value:'-2,5'},{label:'Yeni B',value:'0'}]);assert.equal(saved.project.slides[3].chart.type,'line');assert.equal(saved.project.slides[3].chart.name,'Ölçü');assert.equal(saved.project.slides[3].chart.unit,'%');
 await click(button('Geri al'));assert.equal(document.querySelector('[aria-label="1-ci göstəricinin etiketi"]').value,'Birinci');
-await click(button('Yenidən et'));assert.equal(document.querySelector('[aria-label="1-ci göstəricinin etiketi"]').value,'Yeni A');
+await click(button('Dəyişikliyi yenidən tətbiq et'));assert.equal(document.querySelector('[aria-label="1-ci göstəricinin etiketi"]').value,'Yeni A');
 await fill('chart-paste-text','Etiket\tQiymət\nA\t\nB\t2');assert.equal(button('Göstəriciləri tətbiq et').disabled,true);
 await select('Yoxlama növünə görə süz','citation');assert.ok([...document.querySelectorAll('.quality-issues button')].every(item=>item.textContent.includes('istinad') || item.textContent.includes('İstinad')));
 await select('Yoxlama növünə görə süz','all');

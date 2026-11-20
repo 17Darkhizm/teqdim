@@ -74,7 +74,7 @@ export default function ReplaceDialog({
           value={replacement}
           onChange={(e) => setReplacement(e.target.value)}
         />
-        <label htmlFor="replace-scope">Əhatə</label>
+        <label htmlFor="replace-scope">Harada axtaraq?</label>
         <select
           id="replace-scope"
           value={scope}
@@ -90,7 +90,7 @@ export default function ReplaceDialog({
               checked={matchCase}
               onChange={(e) => setMatchCase(e.target.checked)}
             />
-            Böyük/kiçik hərfə həssas
+            Böyük və kiçik hərfləri fərqləndir
           </label>
           <label>
             <input
@@ -98,7 +98,7 @@ export default function ReplaceDialog({
               checked={wholeWord}
               onChange={(e) => setWholeWord(e.target.checked)}
             />
-            Yalnız tam söz
+            Yalnız bütöv sözləri tap
           </label>
         </div>
         <fieldset>

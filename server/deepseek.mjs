@@ -66,7 +66,7 @@ async function chatJson({ apiKey, model, timeoutMs, fetchImpl }, { system, user,
       if (status === 401 || status === 403) throw new ApiError(503, 'AI_AUTH_FAILED', 'Serverdəki DeepSeek açarını yoxlamaq lazımdır.');
       if (status === 402) throw new ApiError(503, 'AI_BALANCE_REQUIRED', 'DeepSeek hesabının balansı kifayət etmir.');
       if (status === 429) throw new ApiError(429, 'AI_RATE_LIMITED', 'DeepSeek sorğu limitinə çatıb. Bir qədər sonra yenidən yoxla.', 30);
-      if (status === 400 || status === 422) throw new ApiError(502, 'AI_REQUEST_REJECTED', 'DeepSeek sorğunu qəbul etmədi. Materialı qısaltmağı və ya serverdəki model ayarını yoxla.');
+      if (status === 400 || status === 422) throw new ApiError(502, 'AI_REQUEST_REJECTED', 'DeepSeek sorğunu qəbul etmədi. Materialı qısaldıb yenidən cəhd et və ya serverdə seçilən modeli yoxla.');
       throw new ApiError(502, 'AI_UNAVAILABLE', 'DeepSeek hazırda cavab verə bilmir. Bir qədər sonra yenidən yoxla.');
     }
     const payload = await readBoundedJson(response);

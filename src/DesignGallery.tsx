@@ -37,8 +37,7 @@ export default function DesignGallery({
         </button>
         <h2 id="design-gallery-title">Öz dizaynını seç</h2>
         <p>
-          {themes.length} dizayn · Seçim önizləmədir. Tətbiq edəndə bütün
-          slaydlara keçəcək.
+          {themes.length} dizayn · Seçdiyin dizayna əvvəlcə bax. Tətbiq etsən, bütün slaydların görünüşü dəyişəcək.
         </p>
         <div className="gallery-filters">
           <input

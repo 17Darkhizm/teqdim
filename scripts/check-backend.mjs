@@ -73,7 +73,9 @@ assert.equal(validateAssistOutput({ body: assist.slide.body, movedToNotes: '' },
 const boundaryAssist = { ...assist, slide: { ...assist.slide, notes: 'y'.repeat(8000 - originalBlock.length - 2) } };
 assert.equal(validateAssistOutput({ body: 'Qısa.', movedToNotes: '' }, boundaryAssist).slide.notes.length, 8000);
 assert.throws(() => validateAssistOutput({ body: 'Qısa.', movedToNotes: '' }, { ...boundaryAssist, slide: { ...boundaryAssist.slide, notes: boundaryAssist.slide.notes + 'y' } }), error => error.code === 'NOTES_FULL' && error.status === 422);
-assert.throws(() => validateAssistOutput({ body: 'Qısa.', movedToNotes: 'y'.repeat(7995) }, assist), error => error.code === 'NOTES_FULL' && error.status === 422);
+assert.throws(() => validateAssistOutput({ body: 'Qısa.', movedToNotes: 'y'.repeat(7995) }, assist), {
+  code: 'NOTES_FULL', status: 422, message: 'Köçürülən mətn çıxış qeydlərinə sığmır. Qeydləri qısaldıb yenidən cəhd et.',
+});
 const notesOnly = validateAssistOutput({ title: 'Dəyişməməli', body: 'Dəyişməməli', notes: 'Yeni çıxış qeydi.' }, { ...assist, mode: 'notes' });
 assert.equal(notesOnly.slide.title, 'Uzun başlıq'); assert.equal(notesOnly.slide.notes, 'Yeni çıxış qeydi.');
 assert.equal(validateAssistOutput({ title: 'Aydın', body: 'Aydın mətn.' }, { ...assist, mode: 'clarify' }).slide.notes, 'Mövcud qeyd.', 'Aydın yazmaq qeydlərə toxunmur');
@@ -111,7 +113,12 @@ assert.equal((await twelve(validateInput({ ...input, count: 12 }))).slides.lengt
 await assert.rejects(createDeepseek({ apiKey: '' })(parsed), error => error.code === 'AI_NOT_CONFIGURED');
 for (const [status, code] of [[401, 'AI_AUTH_FAILED'], [402, 'AI_BALANCE_REQUIRED'], [429, 'AI_RATE_LIMITED'], [500, 'AI_UNAVAILABLE'], [503, 'AI_UNAVAILABLE'], [400, 'AI_REQUEST_REJECTED'], [422, 'AI_REQUEST_REJECTED']]) {
   const run = createDeepseek({ apiKey: secret, fetchImpl: async () => new Response('private upstream body ' + secret, { status }) });
-  await assert.rejects(run(parsed), error => error.code === code && !error.message.includes(secret));
+  await assert.rejects(run(parsed), error => {
+    assert.equal(error.code, code);
+    assert.ok(!error.message.includes(secret));
+    if (code === 'AI_REQUEST_REJECTED') assert.equal(error.message, 'DeepSeek sorğunu qəbul etmədi. Materialı qısaldıb yenidən cəhd et və ya serverdə seçilən modeli yoxla.');
+    return true;
+  });
 }
 const limited = createDeepseek({ apiKey: secret, fetchImpl: async () => Response.json({ choices: [{ finish_reason: 'length', message: { content: '{"slides":[' } }] }) });
 await assert.rejects(limited(parsed), { status: 502, code: 'AI_OUTPUT_LIMIT', message: 'Cavab çox uzun oldu. Slayd sayını azaldıb yenidən cəhd et.' });
@@ -193,6 +200,7 @@ try {
   let clock = 0;
   const limited = await launch({ requestsPerMinute: 1 }, provider, { now: () => clock }); assert.equal((await send(limited.base)).status, 200);
   const limit = await send(limited.base, {}, '/api/slide'); assert.equal(limit.status, 429, 'Plan və slayd sorğuları eyni limiti bölüşür'); assert.ok(Number(limit.headers.get('retry-after')) > 0);
+  assert.equal((await limit.json()).error.message, 'Sorğu sayının həddinə çatdın. Bir az gözlə, sonra yenidən cəhd et.');
   clock = 60000; assert.equal((await send(limited.base)).status, 200, 'Pəncərə bitəndə limit bərpa olunur');
   let release, started;
   const startedPromise = new Promise(resolve => { started = resolve; });

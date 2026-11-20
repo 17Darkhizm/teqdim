@@ -55,6 +55,10 @@ try {
   healthHandler = async () => { throw new TypeError('Failed to fetch'); };
   await click(button('DeepSeek ilə plan hazırla'));
   assert.equal(healthRequests.length, 1); assert.ok(serverStatus().includes('işləmir'), 'Server işləməyəndə bu açıq deyilir');
+  const planDisclosure = document.querySelector('.ai-draft-body > p').textContent;
+  for (const field of ['«AI planını yarat»', 'mövzunu', 'materialını', 'slayd sayını', 'təqdimatın növünü', 'məqsədini', 'auditoriyasını', 'çıxış müddətini', 'sənədlərdən çıxarılan mətnlər', 'səhifə məlumatları', 'daxili kodları']) {
+    assert.ok(planDisclosure.toLocaleLowerCase('az').includes(field.toLocaleLowerCase('az')), field);
+  }
   await click(document.querySelector('.ai-consent input'));
   assert.equal(button('AI planını yarat').disabled, true, 'Server işləməyəndə AI düyməsi bağlıdır');
   healthHandler = async () => new Response('<!doctype html>', { status: 502, headers: { 'Content-Type': 'text/html' } });
@@ -161,8 +165,15 @@ try {
   const inside = (selector, text) => [...document.querySelectorAll(selector)].find(el => el.textContent.trim() === text);
   const mode = name => inside('.slide-assist-modes button', name);
   const assistConsent = () => document.querySelector('.slide-assist .ai-consent input');
+  const assistDisclosure = document.querySelector('.slide-assist-body > p').textContent;
+  for (const field of ['əməliyyatı', 'mövzusunu', 'növünü', 'məqsədini', 'auditoriyasını', 'çıxış müddətini', 'düzülüşü', 'başlığı', 'mətni', 'çıxış qeydləri', 'istinad olunan sənədlərin müvafiq mətnləri', 'səhifə məlumatları', 'daxili kodları']) {
+    assert.ok(assistDisclosure.toLocaleLowerCase('az').includes(field), field);
+  }
+  assert.equal(assistConsent().closest('label').textContent.trim(), 'Yuxarıda sadalanan məlumatların DeepSeek-ə göndərilməsinə razıyam.');
   await click(assistConsent());
   assert.equal(mode('Qısalt').disabled, true, 'Üz qabığında mətn düzəlişi yoxdur'); assert.equal(mode('Çıxış qeydi yaz').disabled, false);
+  assert.equal(mode('Qısalt').title, 'Mətn düzülüşü seç və slaydın mətnini yaz.');
+  assert.equal(mode('Aydın yaz').title, mode('Qısalt').title);
   await click(document.querySelector('[aria-label="Növbəti slayd"]'));
   assert.equal(assistConsent().checked, false, 'Başqa slayd üçün razılıq yenidən soruşulur'); assert.equal(mode('Qısalt').disabled, true);
   await click(assistConsent());
@@ -192,9 +203,10 @@ try {
   await click(mode('Çıxış qeydi yaz')); await click(inside('.assist-actions button', 'Tətbiq et'));
   assert.equal(document.getElementById('speaker-notes').value, 'AI çıxış qeydi.');
   assert.equal(document.getElementById('edit-body').value, 'Əl ilə yazdığım yeni mətn.', 'Qeyd rejimi slayd mətninə toxunmur');
-  slideHandler = async () => Response.json({ error: { message: 'Çıxış qeydləri dolu olduğu üçün qısaldılmış təfərrüatlar oraya sığmır.' } }, { status: 422 });
+  const notesFullMessage = 'Köçürülən mətn çıxış qeydlərinə sığmır. Qeydləri qısaldıb yenidən cəhd et.';
+  slideHandler = async () => Response.json({ error: { message: notesFullMessage } }, { status: 422 });
   await click(assistConsent());
-  await click(mode('Qısalt')); assert.ok(document.querySelector('.slide-assist [role="alert"]').textContent.includes('dolu'));
+  await click(mode('Qısalt')); assert.equal(document.querySelector('.slide-assist [role="alert"]').textContent, notesFullMessage);
   const pendingSlide = deferred(); slideHandler = () => pendingSlide.promise;
   await click(mode('Aydın yaz')); assert.ok(document.querySelector('.assist-busy'));
   await click(inside('.assist-busy button', 'Ləğv et')); assert.equal(slideRequests.at(-1).signal.aborted, true);
@@ -207,6 +219,9 @@ try {
   assert.equal(assistConsent().checked, false);
   await act(async () => { staleSlide.resolve(Response.json({ slide: { title: 'Köhnə', body: 'Köhnə mətn.', notes: '' }, warnings: [] })); await staleSlide.promise; });
   assert.equal(document.querySelector('.assist-compare'), null);
+  await fill('edit-title', ''); await fill('edit-body', '');
+  assert.equal(mode('Çıxış qeydi yaz').disabled, true);
+  assert.equal(mode('Çıxış qeydi yaz').title, 'Əvvəlcə slayda görünən mətn əlavə et.');
   console.log('Keçdi: AI serverinin vəziyyəti (işləmir/açarsız/hazır, ləğv), plan müştərisi (mənbələr slaydı, yerli fayl adı, idarəetmə simvolları), slayd köməkçisi (razılıq, önizləmə, tətbiq/geri alma, köhnə təklif, qeyd rejimi, xəta, ləğv), AI razılığı, önizləmə/təsdiq, server xətaları, saxta mənbənin rəddi, köhnə nəticə və ləğv, App planına tətbiq və bir addımda geri alma. Şəbəkə saxta API ilə əvəzlənib.');
 } finally {
   await act(async () => root.unmount()); globalThis.fetch = previousFetch; dom.window.close();

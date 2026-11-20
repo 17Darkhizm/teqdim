@@ -163,7 +163,7 @@ export default function PracticeMode({
             </div>
             <p>
               {elapsed > limit
-                ? "Hədəf vaxt keçilib"
+                ? "Planlaşdırdığın müddəti keçdin."
                 : `Hədəfə qədər ${formatDuration(limit - elapsed)}`}
             </p>
             <div>
@@ -182,8 +182,7 @@ export default function PracticeMode({
           </div>
           <div className="practice-pacing">
             <strong>
-              Bu slayd üçün təklif:{" "}
-              {formatDuration(allocation[selected] * 1000)}
+              Bu slayd üçün {formatDuration(allocation[selected] * 1000)} tövsiyə olunur
             </strong>
             <p>
               Hədəf vaxt mətn və qeydlərin söz sayına görə bölünüb. Bu, ölçülmüş

@@ -101,7 +101,7 @@ assert.equal(document.querySelector('.slide-rail>button[aria-current="true"]').g
 assert.equal(document.querySelector('.drop-target'), null);
 await click(button('Geri al'));
 assert.deepEqual(railIds(), before);
-await click(button('Yenidən et'));
+await click(button('Dəyişikliyi yenidən tətbiq et'));
 assert.deepEqual(railIds(), [before[1], before[2], before[0], ...before.slice(3)]);
 await click(button('Geri al'));
 

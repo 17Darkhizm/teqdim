@@ -61,7 +61,7 @@ export default function OutlineImport({
               (over
                 ? `Ən çox ${remaining} əlavə slayd üçün yer var. Planı qısalt.`
                 : `${preview.slides.length} slayd planın sonuna əlavə olunacaq.`)
-            : "Başlıqları yazdıqca önizləmə görünəcək."}
+            : "Başlıqları yazdıqca slayd siyahısına burada baxa bilərsən."}
         </p>
         {!!preview.slides.length && (
           <ol className="outline-import-preview">

@@ -163,8 +163,8 @@ export default function SourceInspector({
                   >
                     <Link2 size={13} />
                     {attached(ref.id, page.number)
-                      ? "Bu slayda bağlanıb"
-                      : "Slayda mənbə kimi bağla"}
+                      ? "İstinad əlavə edilib"
+                      : "Slayda istinad əlavə et"}
                   </button>
                 </details>
               ))
