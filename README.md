@@ -8,6 +8,9 @@ Azərbaycan dilində təqdimat hazırlamaq üçün React + TypeScript tətbiqi. 
 
 ## Başlamaq
 
+Quraşdırmadan sınamaq: **https://teqdim.pages.dev** (statik BETA; AI serveri orada işləmir, işin yalnız brauzerində saxlanır).
+
+
 Git, **Node.js 24.15 və ya daha yeni 24.x** və npm lazımdır. Windows, macOS və Linux terminalında:
 
 ```sh
